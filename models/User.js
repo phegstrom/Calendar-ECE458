@@ -6,9 +6,9 @@ var UserSchema = new Schema({
 	salt: {type: String, required: true},
 	password: {type: String, required: true},
 	name: {type: String, required: true},
-	modCalId: [{type: ObjectId, ref: 'Calendar'}]
-	assocCalId: [{type: ObjectId, ref: 'Calendar'}]
-	userGroups: [{type: ObjectId, ref: 'UserGroup'}]
+	modCalId: [{type: Schema.ObjectId, ref: 'Calendar'}],
+	assocCalId: [{type: Schema.ObjectId, ref: 'Calendar'}],
+	userGroups: [{type: Schema.ObjectId, ref: 'UserGroup'}]
 
 });
 

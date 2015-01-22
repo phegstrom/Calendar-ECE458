@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var UserGroupSchema = new Schema({
 	name: {type: String},
-	users: [type: ObjectId, ref: 'User']
+	users: [type: Schema.ObjectId, ref: 'User']
 });
 
 mongoose.model('User', UserGroupSchema);

@@ -46,7 +46,6 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
 });
 
-
 app.get('/User', function(req, res) {
     mongoose.model('User').find(function(err, User) {
         res.send(User);

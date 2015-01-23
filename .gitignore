@@ -26,5 +26,9 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules
 
+# Databases
+# May be temporary. May want to remove database from .gitignore later
+data/db
+
 # Debug log from npm
 npm-debug.log

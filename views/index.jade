@@ -1,5 +1,46 @@
-extends layout
-
-block content
-  h1= title
-  p Welcome to #{title}
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title Minimum Setup
+    link(rel='stylesheet', href='/css/bootstrap.css')
+    link(rel='stylesheet', href='/css/calendar.min.css')
+  body
+    .page-header
+      .pull-right.form-inline
+        .btn-group
+          button.btn.btn-primary(data-calendar-nav='prev') << Prev
+          button.btn(data-calendar-nav='today') Today
+          button.btn.btn-primary(data-calendar-nav='next') Next >>
+        .btn-group
+          button.btn.btn-warning(onclick="setViewLength('year');") Year
+          button.btn.btn-warning.active(onclick="setViewLength('month');") Month
+          button.btn.btn-warning(onclick="setViewLength('week');") Week
+          button.btn.btn-warning(onclick="setViewLength('day');") Day
+        h3
+        small To see example with events navigate to march 2013
+    #calendar
+    script(type='text/javascript', src='/js/jquery.min.js')
+    script(type='text/javascript', src='/js/underscore-min.js')
+    script(type='text/javascript', src='/js/calendar.min.js')
+    script(type='text/javascript').
+      var calendar_view = 'month';
+      var calendar = $("#calendar").calendar(
+      {
+        view: calendar_view,
+        tmpl_path: "/tmpls/",
+        events_source: function () { return [
+          {
+            "id": 293,
+            "title": "Event 1",
+            "url": "http://example.com",
+            "class": "event-important",
+            "start": 12039485678000, // Milliseconds
+            "end": 1234576967000 // Milliseconds
+          }
+          ]; }
+      });
+      function setViewLength(viewLength) {
+        calendar_view = viewLength;
+        calendar.view(viewLength);
+      }

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var CalendarSchema = new Schema({
-	name: {type: String},
+	name: String,
 	events: [{type: Schema.ObjectId, ref: 'Event'}],
 	owner: {type: Schema.ObjectId, ref: 'User'},
 	modList: [{type: Schema.ObjectId, ref: 'User'}],
@@ -11,4 +11,3 @@ var CalendarSchema = new Schema({
 });
 
 mongoose.model('Calendar', CalendarSchema);
-

@@ -39,17 +39,9 @@ mongoose.connect('mongodb://localhost/Calender', function(err) {
     }
 });
 
-mongoose.model('User', {name: String});
-
 //load all files in models dir
 fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
-});
-
-app.get('/User', function(req, res) {
-    mongoose.model('User').find(function(err, User) {
-        res.send(User);
-    });
 });
 
 // catch 404 and forward to error handler

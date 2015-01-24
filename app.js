@@ -59,14 +59,18 @@ mongoose.connect('mongodb://localhost/Calender', function(err) {
     }
 });
 
+<<<<<<< HEAD
 app.use('/', loginRoutes);
 
 
+=======
+>>>>>>> a57d308904631edb0ed6b00f0eff4b4fbda10b3b
 //load all files in models dir
 // fs.readdirSync(__dirname + '/models').forEach(function(filename) {
 //   if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
 // });
 
+<<<<<<< HEAD
 
 // app.get('/User', function(req, res) {
 //     mongoose.model('User').find(function(err, User) {
@@ -74,6 +78,8 @@ app.use('/', loginRoutes);
 //     });
 // });
 
+=======
+>>>>>>> a57d308904631edb0ed6b00f0eff4b4fbda10b3b
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

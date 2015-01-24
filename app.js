@@ -3,6 +3,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('cookie-session');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 
@@ -10,13 +11,11 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var session = require('cookie-session');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var loginRoutes = require('./routes/loginRoutes');
 
-var User = require('./models/account');
 
 
 
@@ -34,15 +33,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ keys: ['secretkey1', 'secretkey2', '...']}));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', loginRoutes);
 app.use('/users', users);
 
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+var User = require('./models/account');
 
 //passport.use(new LocalStrategy(Account.authenticate()));
 passport.use(User.createStrategy());
@@ -58,6 +58,9 @@ mongoose.connect('mongodb://localhost/Calender', function(err) {
         console.log('connection to local DB successful');
     }
 });
+
+app.use('/', loginRoutes);
+
 
 //load all files in models dir
 // fs.readdirSync(__dirname + '/models').forEach(function(filename) {

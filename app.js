@@ -40,6 +40,16 @@ app.use(session({ keys: ['secretkey1', 'secretkey2', '...']}));
 app.use('/', loginRoutes);
 app.use('/users', users);
 
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+//passport.use(new LocalStrategy(Account.authenticate()));
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Added
 mongoose.connect('mongodb://localhost/Calender', function(err) {
     if(err) {

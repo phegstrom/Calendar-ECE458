@@ -1,5 +1,5 @@
 var passport = require('passport');
-var Account = require('./models/account');
+var User = require('../models/account');
 var router = require('express').Router();
 
 router.get('/', function(req, res) {
@@ -12,7 +12,7 @@ router.get('/register', function(req, res) {
 
 router.post('/register', function(req, res, next) {
   console.log('registering user');
-  Account.register(new Account({ username: req.body.username, email: req.body.email}), req.body.password, function(err, acc) {
+  User.register(new User({ username: req.body.username, email: req.body.email}), req.body.password, function(err, acc) {
     if (err) { console.log('error while user register!', err); return next(err); }
     console.log(req.body);
     console.log('user registered!');

@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
 
 var UserSchema = new Schema({
 	username: String,
-});
+}, {collection: collectionName});
 
 var options = {usernameField: 'email'};
 //console.log('Account schema created');

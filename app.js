@@ -4,15 +4,24 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var fs = require('fs');
+
+// Added - if you add new modules, put the import text here
+var mongoose = require('mongoose');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var session = require('cookie-session');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-var fs = require('fs');
+var loginRoutes = require('./routes/loginRoutes');
+
+var User = require('./models/account');
+
+
 
 var app = express();
 
-// Added
-var mongoose = require('mongoose');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,8 +35,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({ keys: ['secretkey1', 'secretkey2', '...']}));
 
-app.use('/', routes);
+app.use('/', loginRoutes);
 app.use('/users', users);
 
 // Added
@@ -39,19 +49,17 @@ mongoose.connect('mongodb://localhost/Calender', function(err) {
     }
 });
 
-mongoose.model('User', {name: String});
-
 //load all files in models dir
-fs.readdirSync(__dirname + '/models').forEach(function(filename) {
-  if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
-});
+// fs.readdirSync(__dirname + '/models').forEach(function(filename) {
+//   if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
+// });
 
 
-app.get('/User', function(req, res) {
-    mongoose.model('User').find(function(err, User) {
-        res.send(User);
-    });
-});
+// app.get('/User', function(req, res) {
+//     mongoose.model('User').find(function(err, User) {
+//         res.send(User);
+//     });
+// });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

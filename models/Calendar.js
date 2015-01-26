@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var collectionName = 'calenders';
 
 var CalendarSchema = new Schema({
 	name: String,
@@ -8,6 +9,6 @@ var CalendarSchema = new Schema({
 	modList: [{type: Schema.ObjectId, ref: 'User'}],
 	rules: [{type: Schema.ObjectId, ref: 'Rule'}]
 
-});
+}, , {collection: collectionName});
 
 mongoose.model('Calendar', CalendarSchema);

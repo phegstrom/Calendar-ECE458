@@ -42,7 +42,7 @@ app.use('/users', users);
 app.use(passport.initialize());
 app.use(passport.session());
 
-var User = require('./models/account');
+var User = require('./models/User');
 
 //passport.use(new LocalStrategy(Account.authenticate()));
 passport.use(User.createStrategy());

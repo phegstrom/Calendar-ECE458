@@ -1,5 +1,5 @@
 var passport = require('passport');
-var User = require('../models/account');
+var User = require('../models/User');
 var router = require('express').Router();
 
 router.get('/', function(req, res) {
@@ -12,7 +12,7 @@ router.get('/register', function(req, res) {
 
 router.post('/register', function(req, res, next) {
   console.log('registering user');
-  User.register(new User({ username: req.body.username, email: req.body.email}), req.body.password, function(err, acc) {
+  User.register(new User({ name: req.body.name, email: req.body.email}), req.body.password, function(err, acc) {
     if (err) { console.log('error while user register!', err); return next(err); }
     console.log(req.body);
     console.log('user registered!');
@@ -35,6 +35,17 @@ router.post('/login', passport.authenticate('local'), function(req, res) {
 router.get('/logout', function(req, res) {
   req.logout();
   res.redirect('/');
+});
+
+router.get('/query', function(req, res) {
+  User.find(function(err, users) {
+    res.send(users);
+  });
+  // User.findOne({ 'name': 'h' }, 'userGroups', function (err, user) {
+  //   if (err) return handleError(err);
+  //   res.send(user);
+  // });
+
 });
 
 module.exports = router;

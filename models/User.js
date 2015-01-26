@@ -1,16 +1,20 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose'),
+    Schema = mongoose.Schema,
+    passportLocalMongoose = require('passport-local-mongoose');
+    collectionName = "users";
 
+// note other fields are created by the .plugin() method below
 var UserSchema = new Schema({
-	email: {type: String, required: true, unique: true},
-	salt: {type: String, required: true},
-	password: {type: String, required: true},
-	name: {type: String, required: true},
-	modCalId: [{type: Schema.ObjectId, ref: 'Calendar'}],
-	assocCalId: [{type: Schema.ObjectId, ref: 'Calendar'}],
-	userGroups: [{type: Schema.ObjectId, ref: 'UserGroup'}]
+	name: String,
+	modCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
+	assocCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
+	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
+	dateCreated: {type: Date, default: Date.now},
+	testString: {type: String}
+}, {collection: collectionName});
 
-});
+var options = {usernameField: 'email'};
+//console.log('Account schema created');
+UserSchema.plugin(passportLocalMongoose, options);
 
-mongoose.model('User', UserSchema);
-
+module.exports = mongoose.model('User', UserSchema);

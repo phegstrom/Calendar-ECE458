@@ -2,7 +2,7 @@ doctype html
 html
   head
     meta(charset='UTF-8')
-    title Minimum Setup
+    title#title
     link(rel='stylesheet', href='/css/bootstrap.css')
     link(rel='stylesheet', href='/css/calendar.min.css')
   body
@@ -22,12 +22,12 @@ html
     #calendar
     script(type='text/javascript', src='/js/jquery.min.js')
     script(type='text/javascript', src='/js/underscore-min.js')
+    script(type='text/javascript', src='/js/bootstrap.min.js')
     script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript').
-      var calendar_view = 'month';
       var calendar = $("#calendar").calendar(
       {
-        view: calendar_view,
+        view: "month",
         tmpl_path: "/tmpls/",
         events_source: function () { return [
           {
@@ -41,6 +41,5 @@ html
           ]; }
       });
       function setViewLength(viewLength) {
-        calendar_view = viewLength;
         calendar.view(viewLength);
       }

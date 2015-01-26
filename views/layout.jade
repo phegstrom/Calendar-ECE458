@@ -1,7 +1,29 @@
 doctype html
 html
   head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    title Calender
+    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/custom.css')
+    block scripts
+      script(src='/javascripts/jquery.min.js')
+      script(src='/javascripts/bootstrap.min.js')
+
   body
-    block content
+    .navbar.navbar-inverse.navbar-fixed-top
+      .navbar-inner
+        .container
+          a.brand(href="/") Example
+          ul.nav
+            if (typeof(user) == 'undefined')
+              li
+                a(href="/register") Register
+              li
+                a(href="/login") Log In
+              li
+                a(href="/query") Query Users
+            else
+              li
+                a(href="/logout") Log Out
+
+    .container
+      block content

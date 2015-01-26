@@ -3,12 +3,24 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('cookie-session');
 var bodyParser = require('body-parser');
+var fs = require('fs');
+
+// Added - if you add new modules, put the import text here
+var mongoose = require('mongoose');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var loginRoutes = require('./routes/loginRoutes');
+
+
+
 
 var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -21,10 +33,33 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
+app.use(session({ keys: ['secretkey1', 'secretkey2', '...']}));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
 app.use('/users', users);
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+var User = require('./models/User');
+
+//passport.use(new LocalStrategy(Account.authenticate()));
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Added
+mongoose.connect('mongodb://localhost/Calender', function(err) {
+    if(err) {
+        console.log('connection error', err);
+    } else {
+        console.log('connection to local DB successful');
+    }
+});
+
+app.use('/', loginRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

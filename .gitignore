@@ -28,6 +28,11 @@ bower_components
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules
+data/db
 
+# Bower Dependencies
+bower_components
+
+>>>>>>> 5d271eff5dcd64102744ee45dbd15fbe7c68c0ee
 # Debug log from npm
 npm-debug.log

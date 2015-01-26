@@ -1,10 +1,12 @@
-doctype html
-html
-  head
-    meta(charset='UTF-8')
-    title#title
-    link(rel='stylesheet', href='/css/bootstrap.css')
-    link(rel='stylesheet', href='/css/calendar.min.css')
+extends layout
+
+block content
+  if (user)
+    p You are currently logged in as #{user.name}
+  else
+    p You are currently not logged in. Plaese login or register...
+
+  link(rel='stylesheet', href='/css/calendar.min.css')
   body
     .page-header
       .pull-right.form-inline
@@ -20,9 +22,7 @@ html
         h3
         small To see example with events navigate to march 2013
     #calendar
-    script(type='text/javascript', src='/js/jquery.min.js')
     script(type='text/javascript', src='/js/underscore-min.js')
-    script(type='text/javascript', src='/js/bootstrap.min.js')
     script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript').
       var calendar = $("#calendar").calendar(

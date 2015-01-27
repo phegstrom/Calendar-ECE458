@@ -19,25 +19,7 @@ router.get('/usergroup', function(req, res, next) {
 
 router.get('/createGroup', function(req, res, next) {
 	// hardcoded user added to group by id
-	var ug = new UserGroup({ name: "g1", users: ["54c7c49839e07ab609106be9"]});
-
-	ug.save(function(err) {
-		//handle error
-		User.findOne({email: 'a'})
-		.exec(function (err, user) {
-			if (err) {
-				// handle error	
-			}
-			user.userGroups.push(ug._id);
-			user.save(function(err){
-				if (err) {
-					// handle error	
-				}
-			});
-		});
-
-	});
-
+	parkerCreateGroup();
 	res.redirect('/');
 })
 
@@ -81,5 +63,26 @@ router.get('/usergroup/:GroupId', function(req, res, next) {
 router.get('/usergroup/:GroupId', function(req, res) {
 
 })
+
+function parkerCreateGroup() {
+	var ug = new UserGroup({ name: "g1", users: ["54c7c49839e07ab609106be9"]});
+
+	ug.save(function(err) {
+		//handle error
+		User.findOne({email: 'a'})
+		.exec(function (err, user) {
+			if (err) {
+				// handle error	
+			}
+			user.userGroups.push(ug._id);
+			user.save(function(err){
+				if (err) {
+					// handle error	
+				}
+			});
+		});
+
+	});
+}
 
 module.exports = router;

@@ -4,7 +4,7 @@ var UserGroup = require('../models/UserGroup');
 var router = express.Router();
 
 router.get('/usergroup', function(req, res, next) {
-	User.findOne({email: "aaa"})
+	User.findOne({email: "a"})
 		.populate('userGroups')
 		.exec(function (err, user) {
 			if (err) {
@@ -18,15 +18,27 @@ router.get('/usergroup', function(req, res, next) {
 });
 
 router.get('/createGroup', function(req, res, next) {
-
-	var ug = new UserGroup({ name: "g1", users: ["54c72c4dc75f9f6046c3fd34"]});
+	// hardcoded user added to group by id
+	var ug = new UserGroup({ name: "g1", users: ["54c7c49839e07ab609106be9"]});
 
 	ug.save(function(err) {
 		//handle error
+		User.findOne({email: 'a'})
+		.exec(function (err, user) {
+			if (err) {
+				// handle error	
+			}
+			user.userGroups.push(ug._id);
+			user.save(function(err){
+				if (err) {
+					// handle error	
+				}
+			});
+		});
+
 	});
 
 	res.redirect('/');
-	// User.findOne({email: "aaa"}).userGroups.push(new UserGroup())
 })
 
 router.get('/usergroup/:userId', function(req, res, next) {

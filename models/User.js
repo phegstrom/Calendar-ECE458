@@ -6,11 +6,11 @@ var mongoose = require('mongoose'),
 // note other fields are created by the .plugin() method below
 var UserSchema = new Schema({
 	name: String,
+	myCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	modCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	assocCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
-	dateCreated: {type: Date, default: Date.now},
-	testString: {type: String}
+	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 
 var options = {usernameField: 'email'};

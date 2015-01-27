@@ -14,7 +14,6 @@ var EventSchema = new Schema({
 	alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
 	repeats: [{type: Schema.Types.ObjectId, ref: 'Repeat'}],
 	creator: {type: Schema.Types.ObjectId, ref: 'User'}
-
 }, {collection: collectionName});
 
 mongoose.model('Event', EventSchema);

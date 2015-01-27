@@ -16,7 +16,6 @@ router.post('/register', function(req, res, next) {
     if (err) { console.log('error while user register!', err); return next(err); }
     console.log(req.body);
     console.log('user registered!');
-
     res.redirect('/');
   });
 });
@@ -38,14 +37,18 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/query', function(req, res) {
-  User.find(function(err, users) {
-    res.send(users);
-  });
-  // User.findOne({ 'name': 'h' }, 'userGroups', function (err, user) {
-  //   if (err) return handleError(err);
-  //   res.send(user);
+  // User.find(function(err, users) {
+  //   res.send(users);
   // });
+
+
+  User.findOne({ 'name': 'h' }, 'userGroups', function (err, user) {
+    if (err) return handleError(err);
+    res.send(user);
+  });
 
 });
 
 module.exports = router;
+
+

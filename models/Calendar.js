@@ -9,6 +9,6 @@ var CalendarSchema = new Schema({
 	modList: [{type: Schema.ObjectId, ref: 'User'}],
 	rules: [{type: Schema.ObjectId, ref: 'Rule'}]
 
-}, , {collection: collectionName});
+}, {collection: collectionName});
 
 mongoose.model('Calendar', CalendarSchema);

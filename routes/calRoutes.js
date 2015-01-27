@@ -31,7 +31,6 @@ router.get('/createGroup', function(req, res, next) {
 
 router.get('/usergroup/:userId', function(req, res, next) {
 	var uid = req.params.userId.toString();
-	// User.findOne({_id: "54c72c4dc75f9f6046c3fd34"})
 	User.findOne({_id: req.params.userId})
 		.populate('userGroups')
 		.exec(function (err, user) {

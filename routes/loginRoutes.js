@@ -2,7 +2,8 @@ var passport = require('passport');
 var User = require('../models/User');
 var router = require('express').Router();
 
-router.get('/', function(req, res) {
+router.get('/', function(req, res, next) {
+  console.log("loginRoutes");
   res.render('index', {user: req.user});
 });
 
@@ -37,15 +38,15 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/query', function(req, res) {
-  // User.find(function(err, users) {
-  //   res.send(users);
-  // });
-
-
-  User.findOne({ 'name': 'h' }, 'userGroups', function (err, user) {
-    if (err) return handleError(err);
-    res.send(user);
+  User.find(function(err, users) {
+    res.send(users);
   });
+
+
+  // User.findOne({ 'name': 'h' }, 'userGroups', function (err, user) {
+  //   if (err) return handleError(err);
+  //   res.send(user);
+  // });
 
 });
 

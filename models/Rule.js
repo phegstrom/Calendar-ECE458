@@ -20,5 +20,4 @@ RuleSchema.methods.addUserGroupBusy = function (cb) {
 	//this.save(cb);
 };
 
-mongoose.model('Rule', RuleSchema);
-
+models.exports = mongoose.model('Rule', RuleSchema);

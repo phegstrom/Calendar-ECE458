@@ -7,5 +7,5 @@ var AlertSchema = new Schema({
 	method: String 
 }, {collection: collectionName});
 
-mongoose.model('Alert', AlertSchema);
+models.exports = mongoose.model('Alert', AlertSchema);
 

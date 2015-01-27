@@ -11,4 +11,4 @@ var CalendarSchema = new Schema({
 
 }, {collection: collectionName});
 
-mongoose.model('Calendar', CalendarSchema);
+models.exports = mongoose.model('Calendar', CalendarSchema);

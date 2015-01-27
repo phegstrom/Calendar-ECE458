@@ -16,5 +16,5 @@ var EventSchema = new Schema({
 	creator: {type: Schema.Types.ObjectId, ref: 'User'}
 }, {collection: collectionName});
 
-mongoose.model('Event', EventSchema);
+models.exports = mongoose.model('Event', EventSchema);
 

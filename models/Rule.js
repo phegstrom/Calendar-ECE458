@@ -1,10 +1,23 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var collectionName = 'rulesC';
 
 var RuleSchema = new Schema({
-	// to implement...
-	// separate sections for User and UserGroup or can combine?
-});
+	canView: [{type: Schema.Types.ObjectId, ref: 'User'}],
+	canViewBusy: [{type: Schema.Types.ObjectId, ref: 'User'}],
+	canNotView: [{type: Schema.Types.ObjectId, ref: 'User'}]
+}, {collection: collectionName});
 
-mongoose.model('Rule', RuleSchema);
 
+
+RuleSchema.methods.addUserGroupView = function (cb) {
+	//this.canView.push(ObjectID of each user);
+	//this.save(cb);
+};
+
+RuleSchema.methods.addUserGroupBusy = function (cb) {
+	//this.canView.push(ObjectID of each user);
+	//this.save(cb);
+};
+
+models.exports = mongoose.model('Rule', RuleSchema);

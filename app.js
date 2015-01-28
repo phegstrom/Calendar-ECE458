@@ -15,7 +15,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var loginRoutes = require('./routes/loginRoutes');
-
+var calRoutes = require('./routes/calRoutes');
 
 
 
@@ -38,7 +38,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', users);
 
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -60,6 +59,7 @@ mongoose.connect('mongodb://localhost/Calender', function(err) {
 });
 
 app.use('/', loginRoutes);
+app.use('/', calRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,11 +1,12 @@
 var mongoose = require('mongoose');
+// var deepPopulate = require('mongoose-deep-populate');
 var Schema = mongoose.Schema;
-var collectionName = 'usergroups';
+var collectionName = 'usergroupsC';
 
 var UserGroupSchema = new Schema({
-	name: type: String,
+	name: String,
 	users: [{type: Schema.Types.ObjectId, ref: 'User'}]
 }, {collection: collectionName});
 
-mongoose.model('UserGroup', UserGroupSchema);
-
+// UserGroupSchema.plugin(deepPopulate);
+module.exports = mongoose.model('UserGroup', UserGroupSchema);

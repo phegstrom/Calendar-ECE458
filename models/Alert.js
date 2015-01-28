@@ -1,12 +1,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var collectionName = 'alertsC';
 
 var AlertSchema = new Schema({
-	//number or date?
-	time: {type: Number},
-	method: {type: String}
+	time: Date,
+	method: String 
+}, {collection: collectionName});
 
-});
-
-mongoose.model('Alert', AlertSchema);
+models.exports = mongoose.model('Alert', AlertSchema);
 

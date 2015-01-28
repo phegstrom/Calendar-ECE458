@@ -4,6 +4,7 @@ var router = require('express').Router();
 
 router.get('/', function(req, res, next) {
   console.log("loginRoutes");
+  console.log(req.session.user);
   res.render('index', {user: req.user});
 });
 
@@ -26,13 +27,13 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', passport.authenticate('local'), function(req, res) {
-  console.log(req.body);
-  console.log(req.query);
-  console.log(req.params);
+  console.log(req.user);
+  req.session.user = req.user;
   res.redirect('/');
 });
 
 router.get('/logout', function(req, res) {
+  req.session.user = undefined;
   req.logout();
   res.redirect('/');
 });

@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var collectionName = 'calenders';
+var collectionName = 'calendersC';
 
-var CalendarSchema = new Schema({
+var CalenderSchema = new Schema({
 	name: String,
 	events: [{type: Schema.ObjectId, ref: 'Event'}],
 	owner: {type: Schema.ObjectId, ref: 'User'},
@@ -11,4 +11,4 @@ var CalendarSchema = new Schema({
 
 }, {collection: collectionName});
 
-models.exports = mongoose.model('Calendar', CalendarSchema);
+models.exports = mongoose.model('Calender', CalenderSchema);

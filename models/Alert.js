@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var collectionName = 'alerts';
+var collectionName = 'alertsC';
 
 var AlertSchema = new Schema({
 	time: Date,

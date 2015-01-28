@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var collectionName = 'rules';
+var collectionName = 'rulesC';
 
 var RuleSchema = new Schema({
 	canView: [{type: Schema.Types.ObjectId, ref: 'User'}],

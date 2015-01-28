@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var collectionName = 'repeats';
+var collectionName = 'repeatsC';
 
 var RepeatSchema = new Schema({
 	Frequency: Number,

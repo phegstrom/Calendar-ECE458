@@ -5,25 +5,32 @@ block content
     p You are currently logged in as #{user.name}
   else
     p You are currently not logged in. Plaese login or register...
+  br
 
   link(rel='stylesheet', href='/css/calendar.min.css')
+
+  br
   body
     .page-header
       .pull-right.form-inline
         .btn-group
-          button.btn.btn-primary(data-calendar-nav='prev') << Prev
-          button.btn(data-calendar-nav='today') Today
-          button.btn.btn-primary(data-calendar-nav='next') Next >>
-        .btn-group
+          button.btn.btn-primary(onclick="navigate('prev');") << Prev
+          button.btn(onclick="navigate('today');") Today
+          button.btn.btn-primary(onclick="navigate('next');") Next >>
+        .btn-group#viewLengthButtons
           button.btn.btn-warning(onclick="setViewLength('year');") Year
           button.btn.btn-warning.active(onclick="setViewLength('month');") Month
           button.btn.btn-warning(onclick="setViewLength('week');") Week
           button.btn.btn-warning(onclick="setViewLength('day');") Day
-        h3
-        small To see example with events navigate to march 2013
-    #calendar
+      h3
+      br
+    .row
+      #calendar
+    br
+    p#eventFrame
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/calendar.min.js')
+    script(type='text/javascript', src='/js/angular.min.js')
     script(type='text/javascript').
       var calendar = $("#calendar").calendar(
       {
@@ -33,13 +40,25 @@ block content
           {
             "id": 293,
             "title": "Event 1",
-            "url": "http://example.com",
+            "url": "javascript:void(0)",
             "class": "event-important",
-            "start": 12039485678000, // Milliseconds
-            "end": 1234576967000 // Milliseconds
+            "start": 1422424903780, // Milliseconds
+            "end": 1422434903780 // Milliseconds
           }
-          ]; }
+          ];},
+        onAfterViewLoad: function(view) {
+          $('.page-header h3').text(this.getTitle());
+        },
+        onAfterEventsLoad: function(events) {
+          $("a[data-event-id='293']").attr("onclick","$('.p#eventFrame').attr('value',$(this).attr('data-original-title'));");
+        }
       });
       function setViewLength(viewLength) {
         calendar.view(viewLength);
       }
+      function navigate(where) {
+        calendar.navigate(where);
+      }
+      $(".btn-group#viewLengthButtons > .btn").click(function(){
+        $(this).addClass("active").siblings().removeClass("active");
+      });

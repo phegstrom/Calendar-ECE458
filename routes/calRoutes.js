@@ -4,6 +4,8 @@ var User = require('../models/User');
 var router = express.Router();
 
 router.get('/usergroup', function(req, res, next) {
+	var myUser = null;
+	var myUserGroups = [];
 
 	User.findOne({_id: req.session.user._id})
 		.populate('userGroups')
@@ -13,9 +15,19 @@ router.get('/usergroup', function(req, res, next) {
 				console.log('ERROR');
 			}
 
-			var toRet = user;
-			res.send(toRet);
-		})
+			myUser = user;
+
+			UserGroup.find({_id: {$in: req.session.user.userGroups }})
+					 .populate('users', 'name')
+					 .exec(function(err, userGroup) {
+					 	if(err) {
+					 		// return handle error
+					 	}
+
+					 	myUser.userGroups = userGroup;
+					 	res.send(myUser);
+					 });
+		});
 });
 
 router.get('/usergroup/:GroupId', function(req, res, next) {
@@ -28,7 +40,7 @@ router.get('/usergroup/:GroupId', function(req, res, next) {
 
 			var toRet = userGroup;
 			res.send(toRet);
-		})
+		});
 });
 
 router.get('/calenders', function(req, res, next) {
@@ -41,7 +53,7 @@ router.get('/calenders', function(req, res, next) {
 
 			// will want to return json object of calendars later
 			res.send(user);
-		})
+		});
 });
 
 router.delete('/usergroup/:groupId', function(req, res, next) {
@@ -86,7 +98,7 @@ router.get('/usergroup/:userId', function(req, res, next) {
 
 			var toRet = user.userGroups;
 			res.send(toRet);
-		})
+		});
 });	
 
 //temp
@@ -115,7 +127,7 @@ function delTest(id, groupId) {
 }
 
 function peterCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54c8853cebf964949f1f11d0"]});
+	var ug = new UserGroup({ name: "g2", users: ["54c8853cebf964949f1f11d0"]});
 
 	ug.save(function(err) {
 		//handle error

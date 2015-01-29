@@ -6,7 +6,6 @@ var router = express.Router();
 router.get('/usergroup', function(req, res, next) {
 	var myUser = null;
 	var myUserGroups = [];
-
 	User.findOne({_id: req.session.user._id})
 		.populate('userGroups')
 		.exec(function (err, user) {
@@ -40,6 +39,30 @@ router.get('/usergroup/:GroupId', function(req, res, next) {
 
 			var toRet = userGroup;
 			res.send(toRet);
+		}); 
+});
+
+// create a usergroup for a user
+router.post('/usergroup', function (req, res, next) {
+	var userIds = [];
+	User.find({email: {$in: req.body.userEmails}})
+		.exec(function (err, users) {
+			for (var i = 0; i < users.length; i++) {
+				userIds.push(users[0]._id);
+			}
+
+			var uGroup = new UserGroup({name: req.body.groupName,
+								users: userIds});
+			uGroup.save(function (err) {
+				if (err) {
+					// handle error
+				}
+
+				req.session.user.userGroups.push(uGroup);
+				req.session.user.save(function (err) {
+
+				});	
+			});
 		});
 });
 
@@ -77,8 +100,8 @@ router.delete('/usergroup/:groupId', function(req, res, next) {
 
 router.get('/createGroup', function(req, res, next) {
 	// hardcoded user added to group by id
-	// parkerCreateGroup();
-	peterCreateGroup();
+	parkerCreateGroup();
+	//peterCreateGroup();
 	res.redirect('/');
 })
 
@@ -91,10 +114,6 @@ router.get('/usergroup/:userId', function(req, res, next) {
 			if (err) {
 				// return handle error
 			}
-			console.log("test");
-			console.log(req.params.userId);
-			console.log(uid);
-			console.log(typeof uid);
 
 			var toRet = user.userGroups;
 			res.send(toRet);
@@ -105,6 +124,12 @@ router.get('/usergroup/:userId', function(req, res, next) {
 router.get('/deltest/:groupId', function(req, res, next) {
 	delTest(req.session.user._id, req.params.groupId);
 	res.redirect('/');
+});
+
+router.get('/error/', function(req, res, next) {
+	var user = errorTest();
+	res.send(user);
+	//res.redirect('/');
 });
 
 //temp
@@ -121,13 +146,14 @@ function delTest(id, groupId) {
 			});
 		});
 
+
 	UserGroup.findByIdAndRemove(groupId, function(err, usergroup) {
 
 	});
 }
 
 function peterCreateGroup() {
-	var ug = new UserGroup({ name: "g2", users: ["54c8853cebf964949f1f11d0"]});
+	var ug = new UserGroup({ name: "g2", users: ["54c94b9f8c84f42537442af3"]});
 
 	ug.save(function(err) {
 		//handle error
@@ -150,7 +176,7 @@ function peterCreateGroup() {
 	
 
 function parkerCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54c7c49839e07ab609106be9"]});
+	var ug = new UserGroup({ name: "g1", users: ["54c94b9f8c84f42537442af3"]});
 
 	ug.save(function(err) {
 		//handle error
@@ -167,6 +193,16 @@ function parkerCreateGroup() {
 			});
 		});
 
+	});
+}
+
+function errorTest() {
+	User.find({email: {$in: ['aaa', 'a'] }}).exec(function (err, user) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(user.length);
+		return user;
 	});
 }
 

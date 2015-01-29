@@ -1,11 +1,12 @@
-var express = require('express');
-var UserGroup = require('../models/UserGroup');
-var User = require('../models/User');
-var router = express.Router();
+var express 	= require('express');
+var UserGroup 	= require('../models/UserGroup');
+var Calendar 	= require('../models/Calendar');
+var User 		= require('../models/User');
+var Event		= require('../models/Event');
+var router 		= express.Router();
 
 router.get('/usergroup', function(req, res, next) {
 	var myUser = null;
-	var myUserGroups = [];
 
 	User.findOne({_id: req.session.user._id})
 		.populate('userGroups')
@@ -43,16 +44,50 @@ router.get('/usergroup/:GroupId', function(req, res, next) {
 		});
 });
 
-router.get('/calenders', function(req, res, next) {
+router.get('/calendars/:calType', function(req, res, next) {
+	console.log('\n\n');
+
 	User.findOne({_id: req.session.user._id})
-		.populate('myCalId modCalId assocCalId')
+		.populate(req.params.calType)
 		.exec(function (err, user) {
 			if (err) {
-				// return handle error
+				next(err);
 			}
 
-			// will want to return json object of calendars later
+			Calendar.find({_id: {$in: req.session.user[req.params.calType]}})
+					.populate(req.params.calType)
+					.exec(function(err, calendar) {
+						if(err) {
+							next(err);
+						}
+
+						console.log(calendar[0].events);
+
+						Event.find({_id: {$in: calendar[0].events}})
+							 .populate('name')
+							 .exec(function(err, event) {
+							 	if(err) {
+							 		next(err);
+							 	}
+
+							 	// console.log(event);
+							 	user[req.params.calType] = calendar;
+							 	res.send(user);
+							 })
+
+						// user[req.params.calType] = calendar;
+						// res.send(user);
+					})
+
+			Event.find({_id: "54c952344ef570adca9c28c8"})
+				 .populate('name')
+				 .exec(function(err, event) {
+				 	console.log('yo');
+				 	console.log(event);
+				 })
+
 			res.send(user);
+
 		});
 });
 
@@ -78,7 +113,8 @@ router.delete('/usergroup/:groupId', function(req, res, next) {
 router.get('/createGroup', function(req, res, next) {
 	// hardcoded user added to group by id
 	// parkerCreateGroup();
-	peterCreateGroup();
+	peterCreateCal(next);
+	// peterCreateGroup();
 	res.redirect('/');
 })
 
@@ -102,16 +138,16 @@ router.get('/usergroup/:userId', function(req, res, next) {
 });	
 
 //temp
-router.get('/deltest/:groupId', function(req, res, next) {
-	delTest(req.session.user._id, req.params.groupId);
+router.get('/deltest/:id', function(req, res, next) {
+	delTest(req.session.user._id, req.params.id);
 	res.redirect('/');
 });
 
 //temp
-function delTest(id, groupId) {
-	User.findOne({_id: id})
+function delTest(uid, id) {
+	User.findOne({_id: uid})
 		.exec(function (err, user) {
-			var index = user.userGroups.indexOf(groupId);
+			var index = user.userGroups.indexOf(id);
 			user.userGroups.splice(index, 1);
 
 			user.save(function(err) {
@@ -126,8 +162,43 @@ function delTest(id, groupId) {
 	});
 }
 
+function peterCreateCal(next) {
+	var ev = new Event({name: "ev1", description: "first event", location: "Duke", start: Date.now(), end: Date.now(), creator: "54c9484365c89945c06054cd"});
+	var cal = new Calendar({name: "cal1", owner: "54c9484365c89945c06054cd"});
+
+	console.log('\n\n');
+	console.log(ev);
+
+	ev.save(function(err) {
+		if(err) {
+			console.log('ERROR');
+			console.log(err);
+			next(err);
+		}
+
+		// Calendar.findOne({name: 'cal1'})
+		//    .exec(function(err, calendar) {
+		//    	calendar.events.push(ev._id);
+		//    	calendar.save(function(err) {
+
+		//    	});
+		//    });
+	});
+
+	// cal.save(function(err) {
+		// User.findOne({email: 'aaa'})
+		// 	.exec(function(err, user) {
+		// 		user.myCalId.push(cal._id);
+		// 		user.save(function(err) {
+
+		// 		});
+		// 	});
+
+	// });
+}
+
 function peterCreateGroup() {
-	var ug = new UserGroup({ name: "g2", users: ["54c8853cebf964949f1f11d0"]});
+	var ug = new UserGroup({ name: "g1", users: ["54c9484c65c89945c06054ce"]});
 
 	ug.save(function(err) {
 		//handle error

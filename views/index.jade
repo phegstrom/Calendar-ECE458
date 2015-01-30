@@ -29,9 +29,19 @@ block content
         .span9
           #calendar
         .span3
-          #sideBar
-            h3 {{ sideBar.title }}
-            {{ sideBar.text }}
+          #sideBar(ng-controller="sideBarController")
+            .btn-group
+              button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
+            #userGroupWindow
+              h3 {{ title }}
+              ul
+                li(ng-repeat="group in userGroups")
+                  [<a href ng-click="displayUserGroup(group.name)">group.name</a>]
+            #userListWindow(ng-hide)
+              h3 {{ title }}
+              ul
+                li(ng-repeat="user in group")
+                  user.name
       br
       p#eventFrame
       script(type='text/javascript', src='/js/underscore-min.js')
@@ -58,7 +68,7 @@ block content
             $('.page-header h3').text(this.getTitle());
 
             $('a[data-event-id]').click(function() {
-              $('#eventFrame').text($(this).attr("data-event-id"));
+              $('#eventFrame').text($(this).attr('data-event-id'));
             });
           }
         });
@@ -72,14 +82,23 @@ block content
         //Angular code
         var app = angular.module('calendarApp', []);
         app.run(function($rootScope, $http) {
-          $rootScope.sideBar = {title: "User Groups", text: "N/A"};
+        });
+        app.controller('sideBarController', function($scope, $http) {
+          $scope.title = 'Select an Option';
+          $scope.text = 'N/A';
 
-          $http.get('/usergroup').
-          success(function(data, status, headers, config) {
-            $rootScope.sideBar.text = data;
-          }).
-          error(function(data, status, headers, config) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-          });
+          $scope.displayUserGroups = function() {
+            $scope.title = 'User Groups';
+            $scope.text = 'N/A';
+
+            $http.get('/usergroup').
+            success(function(data, status, headers, config) {
+              $scope.text = angular.fromJson(data);
+              //Parse the object into a set of groups filled with users
+            }).
+            error(function(data, status, headers, config) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+            });
+          }
         });

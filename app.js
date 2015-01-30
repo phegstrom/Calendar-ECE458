@@ -14,10 +14,15 @@ var LocalStrategy = require('passport-local').Strategy;
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+
 var loginRoutes = require('./routes/loginRoutes');
-var calRoutes = require('./routes/calRoutes');
-
-
+var alertRoutes = require('./routes/alertRoutes');
+var calendarRoutes = require('./routes/calendarRoutes');
+var eventRoutes = require('./routes/eventRoutes');
+var repeatRoutes = require('./routes/repeatRoutes');
+var ruleRoutes = require('./routes/ruleRoutes');
+var userRoutes = require('./routes/userRoutes');
+var usergroupRoutes = require('./routes/usergroupRoutes');
 
 var app = express();
 
@@ -50,7 +55,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // Added
-mongoose.connect('mongodb://localhost/Calender', function(err) {
+mongoose.connect('mongodb://localhost/Calendar', function(err) {
     if(err) {
         console.log('connection error', err);
     } else {
@@ -59,7 +64,14 @@ mongoose.connect('mongodb://localhost/Calender', function(err) {
 });
 
 app.use('/', loginRoutes);
-app.use('/', calRoutes);
+// app.use('/', calRoutes);
+app.use('/alert', alertRoutes);
+app.use('/calendar', calendarRoutes);
+app.use('/event', eventRoutes);
+app.use('/repeat', repeatRoutes);
+app.use('/rule', ruleRoutes);
+app.use('/user', userRoutes);
+app.use('/usergroup', usergroupRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

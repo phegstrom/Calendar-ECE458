@@ -8,4 +8,4 @@ var RepeatSchema = new Schema({
 	days: [{type: Date}]
 }, {collection: collectionName});
 
-models.exports = mongoose.model('Repeat', RepeatSchema);
+module.exports = mongoose.model('Repeat', RepeatSchema);

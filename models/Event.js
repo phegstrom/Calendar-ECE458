@@ -10,11 +10,11 @@ var EventSchema = new Schema({
 	location: String,
 	start: {type: Date},
 	end: {type: Date},
-	calender: {type: Schema.Types.ObjectId, ref: 'Calender'},
+	calendar: {type: Schema.Types.ObjectId, ref: 'Calendar'},
 	alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
 	repeats: [{type: Schema.Types.ObjectId, ref: 'Repeat'}],
 	creator: {type: Schema.Types.ObjectId, ref: 'User'}
 }, {collection: collectionName});
 
-models.exports = mongoose.model('Event', EventSchema);
+module.exports = mongoose.model('Event', EventSchema);
 

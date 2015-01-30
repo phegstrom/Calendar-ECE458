@@ -45,12 +45,16 @@ router.get('/usergroup/:GroupId', function(req, res, next) {
 // create a usergroup for a user
 router.post('/usergroup', function (req, res, next) {
 	var userIds = [];
+	console.log(req.body.userEmails);
+	console.log(req.session.user);
 	User.find({email: {$in: req.body.userEmails}})
+	//User.find({email: 'aaa'})
 		.exec(function (err, users) {
 			for (var i = 0; i < users.length; i++) {
 				userIds.push(users[0]._id);
 			}
-
+			console.log(userIds);
+			console.log(req.body.groupName);
 			var uGroup = new UserGroup({name: req.body.groupName,
 								users: userIds});
 			uGroup.save(function (err) {
@@ -58,10 +62,11 @@ router.post('/usergroup', function (req, res, next) {
 					// handle error
 				}
 
-				req.session.user.userGroups.push(uGroup);
-				req.session.user.save(function (err) {
+				//req.session.user.userGroups.push(uGroup);
+				// req.session.user.save(function (err) {
 
-				});	
+				// });	
+			res.redirect('/');
 			});
 		});
 });
@@ -191,8 +196,7 @@ function parkerCreateGroup() {
 					// handle error	
 				}
 			});
-		});
-
+		});	
 	});
 }
 

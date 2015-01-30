@@ -5,7 +5,7 @@ var User 		= require('../models/User');
 var Event		= require('../models/Event');
 var router 		= express.Router();
 
-router.post(function(req, res, next) {
+router.post('/', function(req, res, next) {
 	var cal = new Calendar();
 	cal.name = req.body.name;
 	cal.owner = req.body.owner;

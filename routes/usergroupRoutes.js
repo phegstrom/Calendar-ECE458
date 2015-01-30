@@ -5,6 +5,33 @@ var User 		= require('../models/User');
 var Event		= require('../models/Event');
 var router 		= express.Router();
 
+router.post('/', function (req, res, next) {
+	var userIds = [];
+	console.log(req.body.userEmails);
+	console.log(req.session.user);
+	User.find({email: {$in: req.body.userEmails}})
+	//User.find({email: 'aaa'})
+		.exec(function (err, users) {
+			for (var i = 0; i < users.length; i++) {
+				userIds.push(users[0]._id);
+			}
+			console.log(userIds);
+			console.log(req.body.groupName);
+			var uGroup = new UserGroup({name: req.body.groupName,
+								users: userIds});
+			uGroup.save(function (err) {
+				if (err) {
+					// handle error
+				}
+
+				//req.session.user.userGroups.push(uGroup);
+				// req.session.user.save(function (err) {
+
+				// });	
+			res.redirect('/');
+			});
+		});
+	});
 
 router.get('/', function(req, res, next) {
 		var myUser = null;

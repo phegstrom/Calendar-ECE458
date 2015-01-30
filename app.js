@@ -72,7 +72,7 @@ app.use('/repeat', repeatRoutes);
 app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
 app.use('/usergroup', usergroupRoutes);
-
+    
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

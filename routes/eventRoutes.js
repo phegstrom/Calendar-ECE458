@@ -1,4 +1,5 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var Event 		= require('../models/Event');
 var Calendar	= require('../models/Calendar');
 var Alert		= require('../models/Calendar');
@@ -14,20 +15,59 @@ router.post('/', function(req, res, next) {
 	newEvent.start = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
+
+	// add event to calendar
+	Calendar.findOne({_id: req.body.calendar})
+			.exec(function(err, cal) {
+				cal.events.push(newEvent._id);
+			});
+
 	newEvent.alerts = req.body.alerts;
 	newEvent.repeats = req.body.repeats;
 	newEvent.creator = req.body.creator;
 
-	ev.save(function(err) {
+	newEvent.save(function(err) {
 		if(err) {
 			next(err);
 		}
-	});
+
+		res.redirect('/');
+	});	
 });
 
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
-	
+	Event.findOne({_id: req.params.eventId})
+		 .exec(function(err, ev) {
+		 	ev.name = req.body.name;
+		 	ev.description = req.body.description;
+		 	ev.location = req.body.location;
+		 	ev.start = req.body.start;
+		 	ev.end = req.body.end;
+		 	ev.calendar = req.body.calendar;
+		 	ev.alerts = req.body.alerts;
+		 	ev.repeats = req.body.repeats;
+		 	ev.creator = req.body.creator;
+
+		 	var delAlertArr = ev.alerts.filter(function(val) {
+		 		return req.body.alerts.indexOf(val) == -1;
+		 	});
+
+		 	var delRepeatArr = ev.repeats.filter(function(val) {
+		 		return req.body.repeats.indexOf(val) == -1;
+		 	});
+
+		 	for(var i = 0; i < delAlertArr.length; i++) {
+		 		Alert.findByIdAndRemove(delAlertArr[i]);
+		 	}
+
+		 	for(var j = 0; j < delRepeatArr.length; j++) {
+		 		Alert.findByIdAndRemove(delAlertArr[i]);
+		 	}
+
+		 	res.redirect('/');
+
+		 });
 });
 
 router.delete('/:eventId', function(req, res, next) {
@@ -64,6 +104,8 @@ router.delete('/:eventId', function(req, res, next) {
 
 	// delete the event
 	Event.findByIdAndRemove(req.params.eventId);
+
+	res.redirect('/');
 });
 
 module.exports = router;

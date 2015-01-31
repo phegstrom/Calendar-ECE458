@@ -4,8 +4,8 @@ var router = require('express').Router();
 
 router.get('/', function(req, res, next) {
 
-  console.log("loginRoutes");
-  console.log(req.session.user);
+  // console.log("loginRoutes");
+  // console.log(req.session.user);
   res.render('index', {user: req.user});
 });
 

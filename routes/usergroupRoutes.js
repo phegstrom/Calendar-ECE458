@@ -5,9 +5,54 @@ var User 		= require('../models/User');
 var Event		= require('../models/Event');
 var router 		= express.Router();
 
+// creates a usergroup with a group of emails
+router.post('/', function (req, res, next) {
+	var userIds = [];
+	console.log(req.body.userEmails);
+	console.log(req.session.user);
+	User.find({email: {$in: req.body.userEmails}})
+	//User.find({email: 'aaa'})
+		.exec(function (err, users) {
+			for (var i = 0; i < users.length; i++) {
+				userIds.push(users[0]._id);
+			}
+			console.log(userIds);
+			console.log(req.body.groupName);
+			var uGroup = new UserGroup({name: req.body.groupName,
+								users: userIds});
+			uGroup.save(function (err) {
+				if (err) {
+					// handle error
+				}
+
+				//req.session.user.userGroups.push(uGroup);
+				// req.session.user.save(function (err) {
+
+				// });	
+			res.redirect('/');
+			});
+		});
+	});
+
+router.get('/test', function(req, res, next) {
+
+	var promise = User.find({_id: 'aaa'}).exec(function (err, user) {
+		console.log("FOUND USER");
+	});
+
+	promise.addBack(function(err, user) {
+		console.log("DISPLAYING INFO");
+		console.log(val);
+		console.log(promise);
+	});
+
+	res.redirect('/');
+});
 
 router.get('/', function(req, res, next) {
 		var myUser = null;
+		if (req.session.user) {
+
 
 		User.findOne({_id: req.session.user._id})
 			.populate('userGroups')
@@ -29,7 +74,24 @@ router.get('/', function(req, res, next) {
 						 	res.send(myUser);
 						 });
 			});
+		} else {
+			res.send('No user information');
+		}
 	});
+
+router.get('/createGroup', function(req, res, next) {
+	// hardcoded user added to group by id
+	parkerCreateGroup();
+	User.findOne({_id: req.session.user._id})
+		User.findOne({_id: req.session.user._id})
+		.exec(function(err, user) {
+			if (err) next(err);
+			req.session.user = user;
+		});
+	//peterCreateCal(next);
+	// peterCreateGroup();
+	res.redirect('/');
+});
 
 router.get('/:groupId', function(req, res, next) {
 		UserGroup.findOne({_id: req.params.groupId})
@@ -81,6 +143,31 @@ router.delete('/:groupId', function(req, res, next) {
 		});		
 	});
 
+router.get('/deltest/:id', function(req, res, next) {
+	delTest(req.session.user._id, req.params.id);
+	res.redirect('/');
+});
+
+//temp
+function delTest(id, groupId) {
+	User.findOne({_id: id})
+		.exec(function (err, user) {
+			var index = user.userGroups.indexOf(groupId);
+			user.userGroups.splice(index, 1);
+
+			user.save(function(err) {
+				if (err) {
+					// return handle error
+				}
+			});
+		});
+
+
+	UserGroup.findByIdAndRemove(groupId, function(err, usergroup) {
+
+	});
+}
+
 function peterCreateGroup() {
 	var ug = new UserGroup({ name: "g1", users: ["54c9484c65c89945c06054ce"]});
 
@@ -102,9 +189,9 @@ function peterCreateGroup() {
 	});
 }
 
-function parkerCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54c7c49839e07ab609106be9"]});
 
+function parkerCreateGroup() {
+	var ug = new UserGroup({ name: "g1", users: ["54cc0daaada915af1993872f"]});
 	ug.save(function(err) {
 		if(err){
 			next(err);
@@ -115,14 +202,21 @@ function parkerCreateGroup() {
 				next(err);
 			}
 			user.userGroups.push(ug._id);
-			user.save(function(err){
+			user.save(function(err, usert){
 				if (err) {
 					next(err);
-				}
+				}		
 			});
 		});
 
 	});
+
 }
+
+
+
+
+
+
 
 module.exports = router;

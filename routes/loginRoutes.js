@@ -4,8 +4,8 @@ var router = require('express').Router();
 
 router.get('/', function(req, res, next) {
 
-  console.log("loginRoutes");
-  console.log(req.session.user);
+  // console.log("loginRoutes");
+  // console.log(req.session.user);
   res.render('index', {user: req.user});
 });
 
@@ -17,8 +17,6 @@ router.post('/register', function(req, res, next) {
   console.log('registering user');
   User.register(new User({ name: req.body.name, email: req.body.email}), req.body.password, function(err, acc) {
     if (err) { console.log('error while user register!', err); return next(err); }
-    console.log(req.body);
-    console.log('user registered!');
     res.redirect('/');
   });
 });
@@ -30,6 +28,7 @@ router.get('/login', function(req, res) {
 router.post('/login', passport.authenticate('local'), function(req, res) {
   console.log(req.user);
   req.session.user = req.user;
+  console.log(req.user);
   res.redirect('/');
 });
 

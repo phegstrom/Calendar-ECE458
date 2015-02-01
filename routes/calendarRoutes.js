@@ -6,17 +6,36 @@ var Event		= require('../models/Event');
 var router 		= express.Router();
 
 router.post('/', function(req, res, next) {
-	var cal = new Calendar();
-	cal.name = req.body.name;
-	cal.owner = req.body.owner;
+	var newCal = new Calendar();
+	newCal.name = req.body.name;
+	newCal.owner = req.body.owner;
 
-	cal.save(function(err) {
+	newCal.save(function(err) {
 		if(err) {
 			next(err);
 		}
 
 		res.json({ message: 'Calendar created!'});
 	});
+});
+
+router.put('/modList/:calId', function(req, res, next) {
+	Calendar.findOne({_id: req.params.calId})
+			.exec(function(err, cal) {
+				cal.modList.push(req.body.modList);
+			});
+});
+
+router.delete('/modList/:calId', function(req, res, next) {
+	Calendar.findOne({_id: req.params.calId})
+			.exec(function(err, cal) {
+				for(var i = 0; i < req.body.modList; i++) {
+					var index = cal.modList.index(req.body.modList[i]);
+					if(index != -1) {
+						index.splice(index, 1);
+					}
+				}
+			});
 });
 
 router.get('/:calType', function(req, res, next) {

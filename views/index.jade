@@ -32,16 +32,20 @@ block content
           #sideBar(ng-controller="sideBarController")
             .btn-group
               button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
-            #userGroupWindow
+              button.btn.btn-primary(ng-click="displayUserInfo()") User Debug
+            #userGroupWindow(ng-hide="selector == 0")
               h3 {{ title }}
               ul
                 li(ng-repeat="group in userGroups")
                   [<a href ng-click="displayUserGroup(group.name)">group.name</a>]
-            #userListWindow(ng-hide)
+            #userListWindow(ng-hide="selector == 1")
               h3 {{ title }}
               ul
                 li(ng-repeat="user in group")
                   user.name
+            #calendarInfo(ng-hide="selector == 2")
+              h3 {{ title }}
+              {{ text }}
       br
       p#eventFrame
       script(type='text/javascript', src='/js/underscore-min.js')
@@ -86,12 +90,29 @@ block content
         app.controller('sideBarController', function($scope, $http) {
           $scope.title = 'Select an Option';
           $scope.text = 'N/A';
+          $scope.selector = -1;
 
           $scope.displayUserGroups = function() {
             $scope.title = 'User Groups';
             $scope.text = 'N/A';
+            $scope.selector = 0;
 
             $http.get('/usergroup').
+            success(function(data, status, headers, config) {
+              $scope.text = angular.fromJson(data);
+              //Parse the object into a set of groups filled with users
+            }).
+            error(function(data, status, headers, config) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+            });
+
+          $scope.displayCalendarInfo = function() {
+            $scope.title = 'Calendar Information';
+            $scope.text = 'N/A';
+            $scope.selector = 0;
+
+            $http.get('/calendars').
             success(function(data, status, headers, config) {
               $scope.text = angular.fromJson(data);
               //Parse the object into a set of groups filled with users

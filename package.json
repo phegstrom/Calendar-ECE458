@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "body-parser": "~1.8.1",
+    "client-sessions": "*",
     "cookie-parser": "~1.3.3",
     "cookie-session": "^1.1.0",
     "debug": "~2.0.0",

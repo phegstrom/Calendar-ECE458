@@ -4,8 +4,8 @@ var router = require('express').Router();
 
 router.get('/', function(req, res, next) {
 
-  console.log("loginRoutes");
-  console.log(req.session.user);
+  // console.log("loginRoutes");
+  // console.log(req.session.user);
   res.render('index', {user: req.user});
 });
 
@@ -19,6 +19,7 @@ router.post('/register', function(req, res, next) {
     if (err) { console.log('error while user register!', err); return next(err); }
     console.log(req.body);
     console.log('user registered!');
+    console.log(req._)
     res.redirect('/');
   });
 });

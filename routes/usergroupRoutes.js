@@ -51,6 +51,8 @@ router.get('/test', function(req, res, next) {
 
 router.get('/', function(req, res, next) {
 		var myUser = null;
+		if (req.session.user) {
+
 
 		User.findOne({_id: req.session.user._id})
 			.populate('userGroups')
@@ -72,6 +74,9 @@ router.get('/', function(req, res, next) {
 						 	res.send(myUser);
 						 });
 			});
+		} else {
+			res.send('No user information');
+		}
 	});
 
 router.get('/createGroup', function(req, res, next) {
@@ -184,6 +189,7 @@ function peterCreateGroup() {
 	});
 }
 
+
 function parkerCreateGroup() {
 	var ug = new UserGroup({ name: "g1", users: ["54cc0daaada915af1993872f"]});
 	ug.save(function(err) {
@@ -206,6 +212,9 @@ function parkerCreateGroup() {
 	});
 
 }
+
+
+
 
 
 

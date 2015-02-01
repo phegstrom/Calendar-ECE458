@@ -17,9 +17,6 @@ router.post('/register', function(req, res, next) {
   console.log('registering user');
   User.register(new User({ name: req.body.name, email: req.body.email}), req.body.password, function(err, acc) {
     if (err) { console.log('error while user register!', err); return next(err); }
-    console.log(req.body);
-    console.log('user registered!');
-    console.log(req._)
     res.redirect('/');
   });
 });
@@ -31,6 +28,7 @@ router.get('/login', function(req, res) {
 router.post('/login', passport.authenticate('local'), function(req, res) {
   console.log(req.user);
   req.session.user = req.user;
+  console.log(req.user);
   res.redirect('/');
 });
 

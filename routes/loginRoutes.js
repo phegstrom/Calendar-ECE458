@@ -3,9 +3,7 @@ var User = require('../models/User');
 var router = require('express').Router();
 
 router.get('/', function(req, res, next) {
-
-  // console.log("loginRoutes");
-  // console.log(req.session.user);
+  console.log('EVERYTIMEEEEE ');
   res.render('index', {user: req.user});
 });
 
@@ -26,14 +24,12 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', passport.authenticate('local'), function(req, res) {
-  console.log(req.user);
   req.session.user = req.user;
-  console.log(req.user);
   res.redirect('/');
 });
 
 router.get('/logout', function(req, res) {
-  req.session.user = undefined;
+  req.session.reset();
   req.logout();
   res.redirect('/');
 });
@@ -42,15 +38,6 @@ router.get('/query', function(req, res) {
   User.find(function(err, users) {
     res.send(users);
   });
-
-
-  // User.findOne({ 'name': 'h' }, 'userGroups', function (err, user) {
-  //   if (err) return handleError(err);
-  //   res.send(user);
-  // });
-
 });
 
 module.exports = router;
-
-

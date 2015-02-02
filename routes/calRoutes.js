@@ -134,15 +134,15 @@ router.delete('/usergroup/:groupId', function(req, res, next) {
 		});
 
 	UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
-
+		if (err) next(err);
 	});
 
 });
 
 router.get('/createGroup', function(req, res, next) {
 	// hardcoded user added to group by id
-	// parkerCreateGroup();
-	peterCreateCal(next);
+	parkerCreateGroup();
+	//peterCreateCal(next);
 	// peterCreateGroup();
 	res.redirect('/');
 })
@@ -253,7 +253,7 @@ function peterCreateGroup() {
 	
 
 function parkerCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54c94b9f8c84f42537442af3"]});
+	var ug = new UserGroup({ name: "g1", users: ["54cbfc1d2396308b067afb67"]});
 
 	ug.save(function(err) {
 		//handle error
@@ -268,6 +268,10 @@ function parkerCreateGroup() {
 					// handle error	
 				}
 			});
+			console.log('TESTESTTSETS');
+			console.log(req.session.user);
+			req.session.user = user;
+			console.log(req.session.user);
 		});	
 	});
 }

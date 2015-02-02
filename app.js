@@ -3,7 +3,8 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-var session = require('cookie-session');
+//var session = require('cookie-session');
+var session = require('client-sessions');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 
@@ -38,13 +39,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
-app.use(session({ keys: ['secretkey1', 'secretkey2', '...']}));
+//app.use(session({ keys: ['secretkey1', 'secretkey2', '...']}));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/users', users);
+
+
 
 app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.session());
 
 var User = require('./models/User');
 
@@ -54,6 +56,16 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+app.use(session({
+  cookieName: 'session',
+  secret: 'eg[isfd-8yF9-7w2315df{}+Ijsli;;to8',
+  duration: 5 * 60 * 1000, // how long the session will stay valid in ms
+  //activeDuration: 5 * 60 * 1000,
+  httpOnly: true,
+  secure: true,
+  ephemeral: true
+}));
+
 // Added
 mongoose.connect('mongodb://localhost/Calendar', function(err) {
     if(err) {
@@ -61,6 +73,28 @@ mongoose.connect('mongodb://localhost/Calendar', function(err) {
     } else {
         console.log('connection to local DB successful');
     }
+});
+
+// handles cookie auth, session vars
+app.use(function(req, res, next) {
+  //console.log(req.session);
+  if (req.session && req.session.user) {
+    User.findOne({ email: req.session.user.email }, function(err, user) {
+      if (user) {
+        req.user = user;
+        delete req.user.salt; // delete the password from the session
+        delete req.user.hash;
+        req.session.user = req.user;  //refresh the session value
+        res.locals.user = user;
+        console.log(req.session);
+      }
+      // finishing processing the middleware and run the route
+      next();
+    });
+  } else {
+
+    next();
+  }
 });
 
 app.use('/', loginRoutes);
@@ -73,6 +107,8 @@ app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
 app.use('/usergroup', usergroupRoutes);
 
+
+    
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

@@ -17,10 +17,8 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var loginRoutes = require('./routes/loginRoutes');
-var alertRoutes = require('./routes/alertRoutes');
 var calendarRoutes = require('./routes/calendarRoutes');
 var eventRoutes = require('./routes/eventRoutes');
-var repeatRoutes = require('./routes/repeatRoutes');
 var ruleRoutes = require('./routes/ruleRoutes');
 var userRoutes = require('./routes/userRoutes');
 var usergroupRoutes = require('./routes/usergroupRoutes');
@@ -104,10 +102,8 @@ app.use(function(req, res, next) {
 
 app.use('/', loginRoutes);
 // app.use('/', calRoutes);
-app.use('/alert', alertRoutes);
 app.use('/calendar', calendarRoutes);
 app.use('/event', eventRoutes);
-app.use('/repeat', repeatRoutes);
 app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
 app.use('/usergroup', usergroupRoutes);

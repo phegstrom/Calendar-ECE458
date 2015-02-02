@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use(passport.initialize());
-//app.use(passport.session());
+app.use(passport.session());
 
 var User = require('./models/User');
 
@@ -60,7 +60,13 @@ app.use(session({
   cookieName: 'session',
   secret: 'eg[isfd-8yF9-7w2315df{}+Ijsli;;to8',
   duration: 5 * 60 * 1000, // how long the session will stay valid in ms
-  //activeDuration: 5 * 60 * 1000,
+  activeDuration: 5 * 60 * 1000,
+  // cookie: {
+  //   path: '/', // cookie will only be sent to requests under '/api'
+  //   ephemeral: true, // when true, cookie expires when the browser closes
+  //   httpOnly: true, // when true, cookie is not accessible from javascript
+  //   secure: true // when true, cookie will only be sent over SSL. use key 'secureProxy' instead if you handle SSL not in your node process
+  // }
   httpOnly: true,
   secure: true,
   ephemeral: true
@@ -77,7 +83,6 @@ mongoose.connect('mongodb://localhost/Calendar', function(err) {
 
 // handles cookie auth, session vars
 app.use(function(req, res, next) {
-  //console.log(req.session);
   if (req.session && req.session.user) {
     User.findOne({ email: req.session.user.email }, function(err, user) {
       if (user) {
@@ -86,7 +91,6 @@ app.use(function(req, res, next) {
         delete req.user.hash;
         req.session.user = req.user;  //refresh the session value
         res.locals.user = user;
-        console.log(req.session);
       }
       // finishing processing the middleware and run the route
       next();
@@ -96,6 +100,7 @@ app.use(function(req, res, next) {
     next();
   }
 });
+
 
 app.use('/', loginRoutes);
 // app.use('/', calRoutes);
@@ -107,7 +112,13 @@ app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
 app.use('/usergroup', usergroupRoutes);
 
-
+function requireLogin (req, res, next) {
+  if (!req.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+};
     
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -118,7 +129,7 @@ app.use(function(req, res, next) {
 
 // error handlers
 
-// development error handler
+// developm112ent error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
@@ -139,5 +150,7 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
+
+
 
 module.exports = app;

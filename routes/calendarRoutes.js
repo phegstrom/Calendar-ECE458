@@ -5,6 +5,7 @@ var User 		= require('../models/User');
 var Event		= require('../models/Event');
 var router 		= express.Router();
 
+// post new calendar
 router.post('/', function(req, res, next) {
 	var newCal = new Calendar();
 	newCal.name = req.body.name;
@@ -19,11 +20,11 @@ router.post('/', function(req, res, next) {
 	});
 });
 
+// adding user to modList
 router.put('/modList/:calId', function(req, res, next) {
-	Calendar.findOne({_id: req.params.calId})
-			.exec(function(err, cal) {
-				cal.modList.push(req.body.modList);
-			});
+	Calendar.findOne({_id: req.params.calId}, function(err, cal) {
+		cal.modList.push(req.body.modList);
+	});
 });
 
 router.delete('/modList/:calId', function(req, res, next) {

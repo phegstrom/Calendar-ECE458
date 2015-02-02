@@ -16,12 +16,6 @@ router.post('/', function(req, res, next) {
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
 
-	// add event to calendar
-	Calendar.findOne({_id: req.body.calendar})
-			.exec(function(err, cal) {
-				cal.events.push(newEvent._id);
-			});
-
 	newEvent.alerts = req.body.alerts;
 	newEvent.repeats = req.body.repeats;
 	newEvent.creator = req.body.creator;
@@ -30,25 +24,23 @@ router.post('/', function(req, res, next) {
 		if(err) {
 			next(err);
 		}
+		// add event to calendar
+		Calendar.findOne({_id: req.body.calendar})
+				.exec(function(err, cal) {
+					cal.events.push(newEvent._id);
+					cal.save();
+				});
 
 		res.redirect('/');
 	});	
+
+
 });
 
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
 	Event.findOne({_id: req.params.eventId})
 		 .exec(function(err, ev) {
-		 	ev.name = req.body.name;
-		 	ev.description = req.body.description;
-		 	ev.location = req.body.location;
-		 	ev.start = req.body.start;
-		 	ev.end = req.body.end;
-		 	ev.calendar = req.body.calendar;
-		 	ev.alerts = req.body.alerts;
-		 	ev.repeats = req.body.repeats;
-		 	ev.creator = req.body.creator;
-
 		 	var delAlertArr = ev.alerts.filter(function(val) {
 		 		return req.body.alerts.indexOf(val) == -1;
 		 	});
@@ -62,8 +54,18 @@ router.put('/:eventId', function(req, res, next) {
 		 	}
 
 		 	for(var j = 0; j < delRepeatArr.length; j++) {
-		 		Alert.findByIdAndRemove(delAlertArr[i]);
+		 		Repeat.findByIdAndRemove(delAlertArr[i]);
 		 	}
+
+		 	ev.name = req.body.name;
+		 	ev.description = req.body.description;
+		 	ev.location = req.body.location;
+		 	ev.start = req.body.start;
+		 	ev.end = req.body.end;
+		 	ev.calendar = req.body.calendar;
+		 	ev.alerts = req.body.alerts;
+		 	ev.repeats = req.body.repeats;
+		 	ev.creator = req.body.creator;
 
 		 	res.redirect('/');
 

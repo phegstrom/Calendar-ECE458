@@ -1,6 +1,6 @@
 app.controller('bottomAreaController', function($scope, $http) {
   $scope.title = '';
-  $scope.text = 'FFFAAAAACKING';
+  $scope.text = '';
   $scope.selector = 1;
 
   $scope.sendEventData = function(postData) {

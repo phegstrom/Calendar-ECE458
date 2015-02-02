@@ -10,10 +10,8 @@ app.controller('sideBarController', function($scope, $http) {
 
     $http.get('/usergroup').
     success(function(data, status, headers, config) {
-      $scope.userGroups = angular.fromJson(data);
-      //$scope.text = data;
-      //$scope.userGroups = [{name: 'Bob'}, {name: 'Betty'}, {name: 'Quetzlcoatl'}];
-      //Parse the object into a set of groups filled with users
+      console.log(data);
+      $scope.userGroups = angular.fromJson(data).userGroups;
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs
@@ -49,6 +47,17 @@ app.controller('sideBarController', function($scope, $http) {
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
+    });
+  }
+
+  $scope.createGroup = function(groupNameInput) {
+    console.log(groupNameInput);
+    $http.post('/usergroup', {groupName: groupNameInput, userEmails: []}).
+    success(function(data, status, headers, config) {
+      $scope.displayUserGroups();
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to create group.';
     });
   }
 });

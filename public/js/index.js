@@ -2,6 +2,9 @@ var calendar = $("#calendar").calendar(
 {
   view: "month",
   tmpl_path: "/tmpls/",
+  modal_title: function(event) { return event.title },
+  modal: "#events-modal",
+  modal_type: "template",
   events_source: function () { return [
     {
       "id": 293,

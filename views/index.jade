@@ -38,12 +38,19 @@ block content
             ul
               li(ng-repeat="group in userGroups")
                 a(href, ng-click="displayUserGroup(group.name)") {{ group.name }}
+            form(name="createGroupForm")
+              input(type="text", ng-model="inputUserGroup", required)
+              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup(inputUserGroup)") Create Group
           #userListWindow(ng-hide="selector != 1")
             ul
               li(ng-repeat="user in selectedUserGroup")
                 user.name
+            form(name="addUserForm")
+              input(type="text", ng-model="inputUser", required)
+              button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup(inputUser)") Add User
+
           #calendarInfo(ng-hide="selector != 2")
-            {{ text }}
+          |{{ text }}
     br
     .span9
       #bottomBar(ng-controller="bottomAreaController")
@@ -75,10 +82,10 @@ block content
             br
             select(ng-model="selectedEvent.calendar", ng-options="calendar.name for calendar in calendars", required)
             br
-            btn.btn.btn-primary(ng-disabled="{{ eventForm.$invalid }}", ng-click="sendEventData(selectedEvent)") Save
+            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData(selectedEvent)") Save
             br
           br
-          {{ text }}
+          |{{ text }}
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript', src='/js/angular.js')

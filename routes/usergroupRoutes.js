@@ -19,8 +19,8 @@ router.post('/', function (req, res, next) {
 				if (err) {
 					next(err);
 				}
-				//var id_t = req.session.user._id;
-				var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
+				var id_t = req.session.user._id;
+				//var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
 				User.update({ _id: id_t }, 
 						{$push: {userGroups: uGroup._id}}, 
 						function(err, numAffected) {
@@ -184,11 +184,11 @@ function delTest(id, groupId) {
 }
 
 function peterCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54c9484c65c89945c06054ce"]});
+	var ug = new UserGroup({ name: "g1", users: ["54ceb38e276326989dc6a9f8"]});
 
 	ug.save(function(err) {
 		//handle error
-		User.findOne({email: 'aaa'})
+		User.findOne({email: 'waynexyou+ECE458@gmail.com'})
 		.exec(function (err, user) {
 			if (err) {
 				next(err);
@@ -206,12 +206,12 @@ function peterCreateGroup() {
 
 
 function parkerCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54cc0daaada915af1993872f"]});
+	var ug = new UserGroup({ name: "g1", users: ["54ceb38e276326989dc6a9f8"]});
 	ug.save(function(err) {
 		if(err){
 			next(err);
 		}
-		User.findOne({email: 'aaa'})
+		User.findOne({email: 'waynexyou+ECE458@gmail.com'})
 		.exec(function (err, user) {
 			if (err) {
 				next(err);

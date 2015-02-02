@@ -101,6 +101,7 @@ app.use(function(req, res, next) {
   }
 });
 
+
 app.use('/', loginRoutes);
 // app.use('/', calRoutes);
 app.use('/alert', alertRoutes);
@@ -111,7 +112,13 @@ app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
 app.use('/usergroup', usergroupRoutes);
 
-
+function requireLogin (req, res, next) {
+  if (!req.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+};
     
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

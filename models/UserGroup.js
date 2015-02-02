@@ -8,5 +8,4 @@ var UserGroupSchema = new Schema({
 	users: [{type: Schema.Types.ObjectId, ref: 'User'}]
 }, {collection: collectionName});
 
-// UserGroupSchema.plugin(deepPopulate);
 module.exports = mongoose.model('UserGroup', UserGroupSchema);

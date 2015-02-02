@@ -49,11 +49,10 @@ router.get('/test', function(req, res, next) {
 	res.redirect('/');
 });
 
-router.get('/', function(req, res, next) {
+
+router.get('/', requireLogin, function(req, res, next) {
 		var myUser = null;
 		if (req.session.user) {
-
-
 		User.findOne({_id: req.session.user._id})
 			.populate('userGroups')
 			.exec(function (err, user) {
@@ -214,6 +213,18 @@ function parkerCreateGroup() {
 }
 
 
+
+// requires a logged in user, if not logged in then redirect
+function requireLogin (req, res, next) {
+	//console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+	// console.log(req.user);
+	// console.log(req.session.user);
+	if (!req.user) {
+		res.redirect('/login');
+	} else {
+		next();
+	}
+};
 
 
 

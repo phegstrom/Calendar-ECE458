@@ -55,7 +55,6 @@ app.controller('sideBarController', function($scope, $http) {
     $http.get('/calendar/myCalId').
     success(function(data, status, headers, config) {
       $scope.myCalendars = angular.fromJson(data);
-      console.log($scope.modCalendars);
 
     }).
     error(function(data, status, headers, config) {
@@ -65,7 +64,6 @@ app.controller('sideBarController', function($scope, $http) {
     $http.get('/calendar/modCalId').
     success(function(data, status, headers, config) {
       $scope.modCalendars = angular.fromJson(data);
-      console.log($scope.modCalendars);
 
     }).
     error(function(data, status, headers, config) {
@@ -75,7 +73,6 @@ app.controller('sideBarController', function($scope, $http) {
     $http.get('/calendar/canView').
     success(function(data, status, headers, config) {
       $scope.viewCalendars = angular.fromJson(data);
-      console.log($scope.viewCalendars);
 
     }).
     error(function(data, status, headers, config) {
@@ -85,7 +82,6 @@ app.controller('sideBarController', function($scope, $http) {
     $http.get('/calendar/canViewBusy').
     success(function(data, status, headers, config) {
       $scope.viewBusyCalendars = angular.fromJson(data);
-      console.log($scope.viewBusyCalendars);
 
     }).
     error(function(data, status, headers, config) {
@@ -101,6 +97,16 @@ app.controller('sideBarController', function($scope, $http) {
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to create calendar.';
+    });
+  }
+
+  $scope.deleteCalendar = function(calendarIdInput) {
+    $http.delete('/calendar/modList/'+calendarIdInput).
+    success(function(data, status, headers, config) {
+      $scope.displayCalendars();
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to delete group.';
     });
   }
 

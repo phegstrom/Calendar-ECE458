@@ -3,6 +3,7 @@ var Rule 			= require('../models/Rule');
 var Calendar	 	= require('../models/Calendar');
 var router 			= express.Router();
 var User 			= require('../models/User');
+var UserGroup 	 	= require('../models/UserGroup');
 
 var CANT_VIEW = 'canNotView';
 
@@ -21,13 +22,60 @@ router.post('/:calendId', function (req, res, next) {
 	rule.save(function (err) {
 		if (err) next(err);
 
+		var usersAdded = [];
+
 		Calendar.update({_id: req.params.calendId}, {$push: {rules: rule._id}}, function (err, num, raw) {
 			if (err) next(err);
 		});
-		var rType = req.body.ruleType;
 
+		var userGroupIds = req.body.userGroupIds;
+		var uGroupArray = [];
+
+		// add rule stuff for userGroups
+		for (var i = 0; i < userGroupIds.length; i++) {
+			UserGroup.find({_id: userGroupIds[i]}, function (err, uGroups) {
+				if (err) next(err);
+				uGroupArray = uGroups.users;
+			})
+
+			for (var j = 0; j < uGroupArray.length; j++) {
+
+				var currId = uGroupArray[j]._id;
+
+				if (req.body.ruleType != CANT_VIEW) {
+
+					User.findOne({_id: currId}, function (err, user) {
+						if (err) next(err);
+						user[req.body.ruleType].push(req.params.calendId);
+						user.save(function (err) {
+							if (err) next(err);
+							usersAdded.push(currId);
+						});
+					});
+
+				} else {
+					usersAdded.push(currId);
+					User.update({
+							_id: currId
+						}, {
+							$pull: {
+								modCalId: req.params.calendId,
+								canView: req.params.calendId,
+								canViewBusy: req.params.calendId
+							}
+						},
+						function(err, num, raw) {
+							if (err) next(err);
+					});
+				}
+			}
+		}
+
+		// now add rule stuff for individual users
 		for (var i = 0; i < req.body.userIds.length; i++) {		
 			var currId = req.body.userIds[i];
+
+			if (usersAdded.indexOf(currId) != -1) continue;
 
 			if (req.body.ruleType != CANT_VIEW) {
 
@@ -53,12 +101,9 @@ router.post('/:calendId', function (req, res, next) {
 						if (err) next(err);
 					});
 			}
+
 		}
 
-		// implement later
-		// for (var i = 0; i < req.body.userGroupIds.length; i++) {
-
-		// }
 		res.send("RULE CREATED");
 	});
 

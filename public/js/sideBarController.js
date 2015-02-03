@@ -105,17 +105,7 @@ app.controller('sideBarController', function($scope, $http) {
     });
   }
   $scope.deleteUserFromGroup = function(userEmailInput) {
-    var options = {
-      method: 'delete',
-      url: "/usergroup/user/"+$scope.selectedUserGroup._id,
-      data: {
-          userEmails: [userEmailInput]
-      }
-    }
-
-    console.log(options);
-
-    $http(options).
+    $http.post('/usergroup/delete/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
     success(function(data, status, headers, config) {
       console.log(data);
       $scope.displayUserGroup($scope.selectedUserGroup);

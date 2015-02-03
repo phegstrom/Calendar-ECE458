@@ -37,15 +37,6 @@ router.put('/modList/:calId', function(req, res, next) {
 	});
 
 	console.log(req.body.modList);
-	
-	// for(var i = 0; i < req.body.modList.length; i++) {
-	// 	User.update({_id: req.body.modList[i]}, {$push: {modCalId: req.params.calId}}, function(err, num, raw) {
-	// 		if (err) next(err);
-	// 	});		
-	// }
-
-	// User.findByIdAndUpdate({_id: {$in: {req.body.modList}}}, {$push: {modCalId: req.params.calId}}, function (err, doc))
-
 	res.send('HI');
 });
 
@@ -61,26 +52,13 @@ router.delete('/modList/:calId', function(req, res, next) {
 			});
 });
 
-// router.get('/:calType', function(req, res, next) {
-// 	User.findOne({_id: req.session.user._id})
-// 		.populate(req.params.calType)
-// 		.exec(function(err, user) {
-// 			// Calendar.find({_id: {$in: req.session.user[req.params.calType]}})
-// 			// 		.exec(function(err, calendar) {
-
-// 			// 		});
-
-// 			res.send(user);
-// 		});
-// });
-
 router.get('/:calType', function (req, res, next) {
 	console.log('\n\n');
 
-	var uId = "54c9484365c89945c06054cd";
+	var uId = req.session.user._id;
+	// var uId = "54d071f70226f73624abff24";
 
 	User.findOne({_id: uId})
-	// User.findOne({_id: req.session.user._id})
 		.populate(req.params.calType)
 		.exec(function (err, user) {
 			if (err) {
@@ -89,46 +67,24 @@ router.get('/:calType', function (req, res, next) {
 
 			var cType = req.params.calType;
 
-			Calendar.find({_id: {$in: user.cType}})
-			// Calendar.find({_id: {$in: user[req.params.calType]}})
-					.populate (req.params.calType)
+			Calendar.find({_id: {$in: user[cType]}})
+					.populate(req.params.calType)
 					.exec(function (err, calendar) {
-						if(err) {
-							next(err);
-						}
-						console.log("STUFF");
-						console.log(req.params.calType);
-						console.log(calendar);
+						if(err) next(err);
 
-						if(calendar.length > 0)
-						{
-							console.log(calendar[0].events);
-
-							Event.find({_id: {$in: calendar[0].events}})
+						for(var i = 0; i < calendar.length; i++) {
+							Event.find({_id: {$in: calendar[i].events}})
 								 .populate('name')
 								 .exec(function(err, event) {
-								 	if(err) {
-								 		next(err);
-								 	}
+								 	if(err) next(err);
 
-								 	// console.log(event);
-								 	user[req.params.calType] = calendar;
-								 	res.send(user[req.params.calType]);
+								 	user[cType].push(calendar);
+								 	// res.send(user[cType]);
 								 });
 						}
 
-						// user[req.params.calType] = calendar;
-						// res.send(user);
+						res.send(user[cType]);
 					});
-
-			// Event.find({_id: "54c952344ef570adca9c28c8"})
-			// 	 .populate('name')
-			// 	 .exec(function(err, event) {
-			// 	 	console.log(event);
-			// 	 })
-
-			res.send(user);
-
 		});
 });
 

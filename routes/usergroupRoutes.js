@@ -134,7 +134,7 @@ router.put('/:groupId', function(req, res, next) {
 });
 
 // deletes a list of users from a UserGroup
-router.delete('/user/:groupId', function(req, res, next) {
+router.post('/delete/user/:groupId', function(req, res, next) {
 	var userIds = [];
 
 	User.find({email: {$in: req.body.userEmails}}, function(err, usersT) {

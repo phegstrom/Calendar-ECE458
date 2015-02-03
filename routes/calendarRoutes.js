@@ -1,4 +1,5 @@
 var express 	= require('express');
+var mongoose	= require('mongoose');
 var UserGroup 	= require('../models/UserGroup');
 var Calendar 	= require('../models/Calendar');
 var User 		= require('../models/User');
@@ -35,27 +36,17 @@ router.put('/modList/:calId', function(req, res, next) {
 		if (err) next(err);
 	});
 
-	User.find({_id: {$in: req.body.modList}}, function(err, user) {
-		user.modCalId.push(req.params.calId);
-		user.save();
-	})
+	console.log(req.body.modList);
+	
+	// for(var i = 0; i < req.body.modList.length; i++) {
+	// 	User.update({_id: req.body.modList[i]}, {$push: {modCalId: req.params.calId}}, function(err, num, raw) {
+	// 		if (err) next(err);
+	// 	});		
+	// }
 
-	// User.update({_id: {$in: req.body.modList}}, {$push: {modCalId: req.params.calId}}, function(err, num, raw) {
-	// 	if (err) next(err);
-	// });
+	User.findByIdAndUpdate({_id: {$in: {req.body.modList}}}, {$push: {modCalId: req.params.calId}}, function (err, doc))
 
 	res.send('HI');
-
-
-	// Calendar.findOne({_id: req.params.calId}, function(err, cal) {
-	// 	cal.modList.push(req.body.modList);
-
-	// 	User.findOne({_id: req.session.user._id}, function(err, user) {
-	// 		user.modCalId.push(req.params.calId);
-	// 		user.save();
-	// 		cal.save();
-	// 	})
-	// });
 });
 
 router.delete('/modList/:calId', function(req, res, next) {

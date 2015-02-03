@@ -10,6 +10,7 @@ router.post('/', function (req, res, next) {
 	var userIds = [];
 
 	User.find({email: {$in: req.body.userEmails}}, function(err, users) {
+			console.log(users);
 			for (var i = 0; i < users.length; i++) {
 				userIds.push(users[i]._id);
 			}
@@ -21,7 +22,7 @@ router.post('/', function (req, res, next) {
 				}
 
 				var id_t = req.session.user._id;
-				// var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
+				//var id_t = '54d06afb55d013111eea5759'; // for use with POSTman
 				User.update({ _id: id_t }, 
 						{$push: {userGroups: uGroup._id}}, 
 						function(err, numAffected) {

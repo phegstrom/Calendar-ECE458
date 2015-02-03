@@ -10,7 +10,8 @@ var UserSchema = new Schema({
 	name: String,
 	myCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	modCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
-	assocCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
+	canViewCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
+	canViewBusyCalId: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});

@@ -47,16 +47,48 @@ app.controller('sideBarController', function($scope, $http) {
     }
   }
 
-  $scope.displayCalendars = function() {
+  $scope.displayModCalendars = function() {
     $scope.title = 'Calendar Information';
     $scope.text = '';
     $scope.selector = 2;
 
-    $http.get('/calendars').
+    $http.get('/calendars/modCalId').
     success(function(data, status, headers, config) {
-      $scope.calendars = angular.fromJson(data);
-      console.log($scope.calendars);
-      //Parse the object into a set of groups filled with users
+      $scope.modCalendars = angular.fromJson(data);
+      console.log($scope.modCalendars);
+
+    }).
+    error(function(data, status, headers, config) {
+      // called asynchronously if an error occurs
+      // or server returns response with an error status.
+    });
+  }
+  $scope.displayViewCalendars = function() {
+    $scope.title = 'Calendar Information';
+    $scope.text = '';
+    $scope.selector = 2;
+
+    $http.get('/calendars/canView').
+    success(function(data, status, headers, config) {
+      $scope.viewCalendars = angular.fromJson(data);
+      console.log($scope.modCalendars);
+
+    }).
+    error(function(data, status, headers, config) {
+      // called asynchronously if an error occurs
+      // or server returns response with an error status.
+    });
+  }
+  $scope.displayViewBusyCalendars = function() {
+    $scope.title = 'Calendar Information';
+    $scope.text = '';
+    $scope.selector = 2;
+
+    $http.get('/calendars/canViewBusy').
+    success(function(data, status, headers, config) {
+      $scope.viewBusyCalendars = angular.fromJson(data);
+      console.log($scope.modCalendars);
+
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs
@@ -65,7 +97,7 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.createCalendar = function(calendarNameInput) {
-    $http.post('/calendars', {name: calendarNameInput, owner: 'userID_fromsession?'}).
+    $http.post('/calendars', {name: calendarNameInput}).
     success(function(data, status, headers, config) {
       displayCalendars();
     }).

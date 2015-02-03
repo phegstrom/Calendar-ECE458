@@ -19,8 +19,8 @@ router.post('/', function (req, res, next) {
 				if (err) {
 					next(err);
 				}
-				var id_t = req.session.user._id;
-				//var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
+				//var id_t = req.session.user._id;
+				var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
 				User.update({ _id: id_t }, 
 						{$push: {userGroups: uGroup._id}}, 
 						function(err, numAffected) {
@@ -28,6 +28,7 @@ router.post('/', function (req, res, next) {
 						});
 
 				res.status(200);
+				res.send();
 			});
 	});
 });

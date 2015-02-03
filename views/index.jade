@@ -37,14 +37,16 @@ block content
           #userGroupWindow(ng-hide="selector != 0")
             ul
               li(ng-repeat="group in userGroups")
-                a(href, ng-click="displayUserGroup(group.name)") {{ group.name }}
+                a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
+                a(href, ng-click="deleteUserGroup(group._id)") [X]
             form(name="createGroupForm")
               input(type="text", ng-model="inputUserGroup", required)
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup(inputUserGroup)") Create Group
           #userListWindow(ng-hide="selector != 1")
             ul
               li(ng-repeat="user in selectedUserGroup.users")
-                {{ user.name }}
+                {{ user.name + " " }}
+                a(href, ng-click="deleteUserFromGroup(user.email)") [X]
             form(name="addUserForm")
               input(type="text", ng-model="inputUser", required)
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup(inputUser)") Add User

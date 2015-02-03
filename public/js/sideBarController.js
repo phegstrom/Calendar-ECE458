@@ -5,12 +5,11 @@ app.controller('sideBarController', function($scope, $http) {
 
   $scope.displayUserGroups = function() {
     $scope.title = 'User Groups';
-    $scope.text = 'N/A';
+    $scope.text = '';
     $scope.selector = 0;
 
     $http.get('/usergroup').
     success(function(data, status, headers, config) {
-      console.log(data);
       $scope.userGroups = angular.fromJson(data).userGroups;
     }).
     error(function(data, status, headers, config) {
@@ -19,24 +18,23 @@ app.controller('sideBarController', function($scope, $http) {
     });
   }
 
-  $scope.displayUserGroup = function(groupName) {
-    $scope.title = groupName;
-    $scope.text = 'N/A';
+  $scope.displayUserGroup = function(userGroup) {
+    $scope.title = userGroup.name;
+    $scope.text = '';
     $scope.selector = 1;
-    
-    $scope.selectedUserGroup = [];
 
-    for(i=0; i < $scope.userGroups.length; i++) {
-      if($scope.userGroups[i].name === groupName) {
-        $scope.selectedUserGroup = $scope.userGroups[i];
-        break;
-      }
-    }
+    $http.get('/usergroup/' + userGroup._id).
+    success(function(data, status, headers, config) {
+      $scope.selectedUserGroup=angular.fromJson(data);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to get group data.';
+    });
   }
 
   $scope.displayCalendarInfo = function() {
     $scope.title = 'Calendar Information';
-    $scope.text = 'N/A';
+    $scope.text = '';
     $scope.selector = 2;
 
     $http.get('/calendars').
@@ -50,23 +48,42 @@ app.controller('sideBarController', function($scope, $http) {
     });
   }
 
+  //User Group Manipulation
   $scope.createGroup = function(groupNameInput) {
     $http.post('/usergroup', {groupName: groupNameInput, userEmails: []}).
     success(function(data, status, headers, config) {
-      displayUserGroups();
+      $scope.displayUserGroups();
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to create group.';
+    });
+  }
+  $scope.deleteUserGroup = function(groupIdInput) {
+    $http.delete('/usergroup/'+groupIdInput).
+    success(function(data, status, headers, config) {
+      $scope.displayUserGroups();
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to delete group.';
     });
   }
 
   $scope.addUserToGroup = function(userEmailInput) {
     $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
     success(function(data, status, headers, config) {
-      $scope.displayUserGroup($scope.selectedUserGroup.name);
+      $scope.displayUserGroup($scope.selectedUserGroup);
     }).
     error(function(data, status, headers, config) {
-      $scope.text = 'Failed to create group.';
+      $scope.text = 'Failed to add user.';
+    });
+  }
+  $scope.deleteUserFromGroup = function(userEmailInput) {
+    $http.delete('/usergroup/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
+    success(function(data, status, headers, config) {
+      $scope.displayUserGroup($scope.selectedUserGroup);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to delete user.\n' + data;
     });
   }
 });

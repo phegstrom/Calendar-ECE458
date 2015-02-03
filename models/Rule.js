@@ -11,6 +11,8 @@ var RuleSchema = new Schema({
 	assocUserGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}]
 }, {collection: collectionName});
 
+
+
 RuleSchema.methods.addUserGroupView = function (cb) {
 	//this.canView.push(ObjectID of each user);
 	//this.save(cb);

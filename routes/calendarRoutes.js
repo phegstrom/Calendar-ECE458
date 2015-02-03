@@ -50,6 +50,7 @@ router.delete('/modList/:calId', function(req, res, next) {
 					}
 				}
 			});
+
 });
 
 router.get('/:calType', function (req, res, next) {

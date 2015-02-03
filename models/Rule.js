@@ -8,8 +8,6 @@ var RuleSchema = new Schema({
 	canNotView: [{type: Schema.Types.ObjectId, ref: 'User'}]
 }, {collection: collectionName});
 
-
-
 RuleSchema.methods.addUserGroupView = function (cb) {
 	//this.canView.push(ObjectID of each user);
 	//this.save(cb);

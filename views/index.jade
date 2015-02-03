@@ -32,7 +32,7 @@ block content
         #sideBar(ng-controller="sideBarController")
           .btn-group
             button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
-            button.btn.btn-primary(ng-click="displayUserInfo()") User Debug
+            button.btn.btn-primary(ng-click="displayCalendars()") Calendars
           h3 {{ title }}
           #userGroupWindow(ng-hide="selector != 0")
             ul
@@ -50,7 +50,12 @@ block content
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup(inputUser)") Add User
 
           #calendarInfo(ng-hide="selector != 2")
-          |{{ text }}
+            ul
+              li(ng-repeat="calendar in calendars")
+                a(href, ng-click="displayCalendar()") {{ calendar.name }}
+            form(name="createCalendarForm")
+              input(type="text", ng-model="inputCalendarName", required)
+              button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
     br
     .span9
       #bottomBar(ng-controller="bottomAreaController")

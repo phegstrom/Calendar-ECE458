@@ -33,20 +33,46 @@ app.controller('sideBarController', function($scope, $http) {
       }
     }
   }
+  // display contents of single calendar
+  $scope.displayCalendar = function(calendarName) {
+    $scope.title = calendarName;
+    $scope.text = 'N/A';
+    $scope.selector = 2;
+    
+    $scope.selectedCalendar = [];
 
-  $scope.displayCalendarInfo = function() {
+    for(i=0; i < $scope.calendars.length; i++) {
+      if($scope.calendars[i].name === calendarName) {
+        $scope.selectedCalendar = $scope.calendars[i];
+        break;
+      }
+    }
+  }
+
+  $scope.displayCalendars = function() {
     $scope.title = 'Calendar Information';
     $scope.text = 'N/A';
     $scope.selector = 2;
 
     $http.get('/calendars').
     success(function(data, status, headers, config) {
-      $scope.text = angular.fromJson(data);
+      $scope.calendars = angular.fromJson(data);
+      console.log($scope.calendars);
       //Parse the object into a set of groups filled with users
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
+    });
+  }
+
+  $scope.createCalendar = function(calendarNameInput) {
+    $http.post('/calendars', {name: calendarNameInput, owner: 'userID_fromsession?'}).
+    success(function(data, status, headers, config) {
+      displayCalendars();
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to create calendar.';
     });
   }
 

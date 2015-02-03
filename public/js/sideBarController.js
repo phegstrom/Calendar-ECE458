@@ -32,28 +32,27 @@ app.controller('sideBarController', function($scope, $http) {
       $scope.text = 'Failed to get group data.';
     });
   }
-  // display contents of single calendar
-  $scope.displayCalendar = function(calendarName) {
-    $scope.title = calendarName;
+  // display contents of single calendar -- won't work until server creates GET route
+  $scope.displayCalendar = function(calendar) {
+    $scope.title = calendar.title;
     $scope.text = 'N/A';
     $scope.selector = 2;
     
-    $scope.selectedCalendar = [];
-
-    for(i=0; i < $scope.calendars.length; i++) {
-      if($scope.calendars[i].name === calendarName) {
-        $scope.selectedCalendar = $scope.calendars[i];
-        break;
-      }
-    }
+    $http.get('/calendar/' + calendar._id).
+    success(function(data, status, headers, config) {
+      $scope.selectedCalendar=angular.fromJson(data);
+      console.log(calendar._id);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to get calendar data.';
+    });
   }
 
-  $scope.displayModCalendars = function() {
-    $scope.title = 'Calendar Information';
+  $scope.displayCalendars = function() {
+    $scope.title = 'Calendars';
     $scope.text = '';
     $scope.selector = 2;
-
-    $http.get('/calendars/modCalId').
+    $http.get('/calendar/modCalId').
     success(function(data, status, headers, config) {
       $scope.modCalendars = angular.fromJson(data);
       console.log($scope.modCalendars);
@@ -63,32 +62,20 @@ app.controller('sideBarController', function($scope, $http) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
     });
-  }
-  $scope.displayViewCalendars = function() {
-    $scope.title = 'Calendar Information';
-    $scope.text = '';
-    $scope.selector = 2;
-
-    $http.get('/calendars/canView').
+    $http.get('/calendar/canView').
     success(function(data, status, headers, config) {
       $scope.viewCalendars = angular.fromJson(data);
-      console.log($scope.modCalendars);
+      console.log($scope.viewCalendars);
 
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
     });
-  }
-  $scope.displayViewBusyCalendars = function() {
-    $scope.title = 'Calendar Information';
-    $scope.text = '';
-    $scope.selector = 2;
-
-    $http.get('/calendars/canViewBusy').
+    $http.get('/calendar/canViewBusy').
     success(function(data, status, headers, config) {
       $scope.viewBusyCalendars = angular.fromJson(data);
-      console.log($scope.modCalendars);
+      console.log($scope.viewBusyCalendars);
 
     }).
     error(function(data, status, headers, config) {
@@ -98,9 +85,9 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.createCalendar = function(calendarNameInput) {
-    $http.post('/calendars', {name: calendarNameInput}).
+    $http.post('/calendar', {name: calendarNameInput}).
     success(function(data, status, headers, config) {
-      displayCalendars();
+      $scope.displayCalendars();
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to create calendar.';

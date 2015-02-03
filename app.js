@@ -44,18 +44,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-var User = require('./models/User');
-
-//passport.use(new LocalStrategy(Account.authenticate()));
-passport.use(User.createStrategy());
-
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 app.use(session({
   cookieName: 'session',
   secret: 'eg[isfd-8yF9-7w2315df{}+Ijsli;;to8',
@@ -71,6 +59,18 @@ app.use(session({
   secure: true,
   ephemeral: true
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+var User = require('./models/User');
+
+//passport.use(new LocalStrategy(Account.authenticate()));
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 
 // Added
 mongoose.connect('mongodb://localhost/Calendar', function(err) {

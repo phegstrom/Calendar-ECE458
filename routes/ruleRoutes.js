@@ -121,6 +121,10 @@ router.delete('/:ruleId&:calendId', function (req, res, next) {
 		
 
 	});
+
+	Rule.findByIdAndDelete({_id: req.params.ruleId}, function (err, rule) {
+		if(err) next(err);
+	});
 });
 
 module.exports = router;

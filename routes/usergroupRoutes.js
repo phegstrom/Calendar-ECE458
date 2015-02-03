@@ -45,7 +45,7 @@ router.get('/', function(req, res, next) {
 				}
 				myUser = user;
 				UserGroup.find({_id: {$in: req.session.user.userGroups }})
-						 .populate('users', 'name')
+						 .populate('users', 'name email')
 						 .exec(function(err, userGroup) {
 						 	if(err) {
 						 		next(err);
@@ -183,6 +183,8 @@ function delTest(id, groupId) {
 
 	});
 }
+
+
 
 function peterCreateGroup() {
 	var ug = new UserGroup({ name: "g1", users: ["54c9484c65c89945c06054ce"]});

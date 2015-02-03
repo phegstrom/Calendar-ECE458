@@ -53,18 +53,22 @@ block content
               {{ text }}
 
           #calendarInfo(ng-hide="selector != 2")
+            |Owner
+            ul
+              li(ng-repeat="calendar in myCalendars")
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             |Modify
             ul
               li(ng-repeat="calendar in modCalendars")
-                a(href, ng-click="displayCalendar(calendar)") {{ calendar._id }}
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             |See All
             ul
               li(ng-repeat="calendar in viewCalendars")
-                a(href, ng-click="displayCalendar(calendar)") {{ calendar._id }}
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             |Busy Only
             ul
               li(ng-repeat="calendar in viewBusyCalendars")
-                a(href, ng-click="displayCalendar(calendar)") {{ calendar._id }}
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             form(name="createCalendarForm")
               input(type="text", ng-model="inputCalendarName", required)
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar

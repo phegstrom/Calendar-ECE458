@@ -52,6 +52,16 @@ app.controller('sideBarController', function($scope, $http) {
     $scope.title = 'Calendars';
     $scope.text = '';
     $scope.selector = 2;
+    $http.get('/calendar/myCalId').
+    success(function(data, status, headers, config) {
+      $scope.myCalendars = angular.fromJson(data);
+      console.log($scope.modCalendars);
+
+    }).
+    error(function(data, status, headers, config) {
+      // called asynchronously if an error occurs
+      // or server returns response with an error status.
+    });
     $http.get('/calendar/modCalId').
     success(function(data, status, headers, config) {
       $scope.modCalendars = angular.fromJson(data);

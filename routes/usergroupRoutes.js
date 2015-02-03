@@ -19,8 +19,9 @@ router.post('/', function (req, res, next) {
 				if (err) {
 					next(err);
 				}
-				//var id_t = req.session.user._id;
-				var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
+
+				var id_t = req.session.user._id;
+				// var id_t = '54cc0da5ada915af1993872e'; // for use with POSTman
 				User.update({ _id: id_t }, 
 						{$push: {userGroups: uGroup._id}}, 
 						function(err, numAffected) {
@@ -135,11 +136,12 @@ router.put('/:groupId', function(req, res, next) {
 });
 
 // deletes a list of users from a UserGroup
-router.delete('/user/:groupId', function(req, res, next) {
+router.post('/delete/user/:groupId', function(req, res, next) {
 	var userIds = [];
 
 	User.find({email: {$in: req.body.userEmails}}, function(err, usersT) {
-
+			if(!usersT) next(new Error('Failed to find any Users'));
+			
 			for (var i = 0; i < usersT.length; i++) {
 
 				userIds.push(usersT[i]._id);

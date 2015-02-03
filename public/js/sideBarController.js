@@ -19,12 +19,12 @@ app.controller('sideBarController', function($scope, $http) {
     });
   }
 
-  $scope.displayUsers = function(groupName) {
+  $scope.displayUserGroup = function(groupName) {
     $scope.title = groupName;
     $scope.text = 'N/A';
     $scope.selector = 1;
     
-    $scope.selectedUserGroup = null;
+    $scope.selectedUserGroup = [];
 
     for(i=0; i < $scope.userGroups.length; i++) {
       if($scope.userGroups[i].name === groupName) {
@@ -51,10 +51,19 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.createGroup = function(groupNameInput) {
-    console.log(groupNameInput);
     $http.post('/usergroup', {groupName: groupNameInput, userEmails: []}).
     success(function(data, status, headers, config) {
-      $scope.displayUserGroups();
+      displayUserGroups();
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to create group.';
+    });
+  }
+
+  $scope.addUserToGroup = function(userEmailInput) {
+    $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
+    success(function(data, status, headers, config) {
+      $scope.displayUserGroup($scope.selectedUserGroup.name);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to create group.';

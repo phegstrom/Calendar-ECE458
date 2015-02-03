@@ -43,8 +43,8 @@ block content
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup(inputUserGroup)") Create Group
           #userListWindow(ng-hide="selector != 1")
             ul
-              li(ng-repeat="user in selectedUserGroup")
-                user.name
+              li(ng-repeat="user in selectedUserGroup.users")
+                {{ user.name }}
             form(name="addUserForm")
               input(type="text", ng-model="inputUser", required)
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup(inputUser)") Add User

@@ -64,5 +64,18 @@ router.post('/:calendId', function (req, res, next) {
 
 });
 
+// delete rule from Calendar's rules and then loop through the Calendar's rules to reimplement
+router.delete('/:ruleId&:calendId', function (req, res, next) {
+	Calendar.findOne({_id: req.params.calendId}, function (err, cal) {
+		// remove rule from Calendar's rules
+		var index = cal.rules.indexOf(req.params.ruleId);
+		if(index > -1) {
+			cal.rules.splice(index, 1);
+		}
+
+		
+
+	});
+});
 
 module.exports = router;

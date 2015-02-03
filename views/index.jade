@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  div
+  div(ng-app="calendarApp")
     if (user)
       p You are currently logged in as #{user.name}
     else
@@ -9,96 +9,94 @@ block content
     br
 
     link(rel='stylesheet', href='/css/calendar.min.css')
+    link(rel='stylesheet', href='/css/angular-csp.css')
 
     br
-    body(ng-app="calendarApp")
-      .page-header
-        .pull-right.form-inline
-          .btn-group
-            button.btn.btn-primary(onclick="navigate('prev');") << Prev
-            button.btn(onclick="navigate('today');") Today
-            button.btn.btn-primary(onclick="navigate('next');") Next >>
-          .btn-group#viewLengthButtons
-            button.btn.btn-warning(calendarView="year", onclick="setViewLength('year');") Year
-            button.btn.btn-warning.active(calendarView="month", onclick="setViewLength('month');") Month
-            button.btn.btn-warning(calendarView="week", onclick="setViewLength('week');") Week
-            button.btn.btn-warning(calendarView="day", onclick="setViewLength('day');") Day
-        h3
-        br
-      .row
-        .span9
-          #calendar
-        .span3
-          #sideBar(ng-controller="sideBarController")
-            .btn-group
-              button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
-            #userGroupWindow
-              h3 {{ title }}
-              ul
-                li(ng-repeat="group in userGroups")
-                  [<a href ng-click="displayUserGroup(group.name)">group.name</a>]
-            #userListWindow(ng-hide)
-              h3 {{ title }}
-              ul
-                li(ng-repeat="user in group")
-                  user.name
+    .page-header
+      .pull-right.form-inline
+        .btn-group
+          button.btn.btn-primary(onclick="navigate('prev');") << Prev
+          button.btn(onclick="navigate('today');") Today
+          button.btn.btn-primary(onclick="navigate('next');") Next >>
+        .btn-group#viewLengthButtons
+          button.btn.btn-warning(calendarView="year", onclick="setViewLength('year');") Year
+          button.btn.btn-warning.active(calendarView="month", onclick="setViewLength('month');") Month
+          button.btn.btn-warning(calendarView="week", onclick="setViewLength('week');") Week
+          button.btn.btn-warning(calendarView="day", onclick="setViewLength('day');") Day
+      h3
       br
-      p#eventFrame
-      script(type='text/javascript', src='/js/underscore-min.js')
-      script(type='text/javascript', src='/js/calendar.min.js')
-      script(type='text/javascript', src='/js/angular.min.js')
-      script(type='text/javascript').
-        var calendar = $("#calendar").calendar(
-        {
-          view: "month",
-          tmpl_path: "/tmpls/",
-          events_source: function () { return [
-            {
-              "id": 293,
-              "title": "Event 1",
-              "url": "javascript:void(0)",
-              "class": "event-important",
-              "start": 1422424903780, // Milliseconds
-              "end": 1422434903780 // Milliseconds
-            }
-            ];},
-          onAfterViewLoad: function(view) {
-            $('.btn-group button').removeClass('active');
-            $('button[calendarView="' + view + '"]').addClass('active');
-            $('.page-header h3').text(this.getTitle());
+    .row
+      .span9
+        #calendar
+      .span3
+        #sideBar(ng-controller="sideBarController")
+          .btn-group
+            button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
+            button.btn.btn-primary(ng-click="displayCalendars()") Calendars
+          h3 {{ title }}
+          #userGroupWindow(ng-hide="selector != 0")
+            ul
+              li(ng-repeat="group in userGroups")
+                a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
+                a(href, ng-click="deleteUserGroup(group._id)") [X]
+            form(name="createGroupForm")
+              input(type="text", ng-model="inputUserGroup", required)
+              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup(inputUserGroup)") Create Group
+          #userListWindow(ng-hide="selector != 1")
+            ul
+              li(ng-repeat="user in selectedUserGroup.users")
+                {{ user.name + " " }}
+                a(href, ng-click="deleteUserFromGroup(user.email)") [X]
+            form(name="addUserForm")
+              input(type="text", ng-model="inputUser", required)
+              button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup(inputUser)") Add User
+              {{ text }}
 
-            $('a[data-event-id]').click(function() {
-              $('#eventFrame').text($(this).attr('data-event-id'));
-            });
-          }
-        });
-        function setViewLength(viewLength) {
-          calendar.view(viewLength);
-        }
-        function navigate(where) {
-          calendar.navigate(where);
-        }
-
-        //Angular code
-        var app = angular.module('calendarApp', []);
-        app.run(function($rootScope, $http) {
-        });
-        app.controller('sideBarController', function($scope, $http) {
-          $scope.title = 'Select an Option';
-          $scope.text = 'N/A';
-
-          $scope.displayUserGroups = function() {
-            $scope.title = 'User Groups';
-            $scope.text = 'N/A';
-
-            $http.get('/usergroup').
-            success(function(data, status, headers, config) {
-              $scope.text = angular.fromJson(data);
-              //Parse the object into a set of groups filled with users
-            }).
-            error(function(data, status, headers, config) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-            });
-          }
-        });
+          #calendarInfo(ng-hide="selector != 2")
+            ul
+              li(ng-repeat="calendar in calendars")
+                a(href, ng-click="displayCalendar()") {{ calendar.name }}
+            form(name="createCalendarForm")
+              input(type="text", ng-model="inputCalendarName", required)
+              button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
+    br
+    .span9
+      #bottomBar(ng-controller="bottomAreaController")
+        #displayEvent(ng-hide="selector != 0")
+          |Event Details
+        #createEvent(ng-hide="selector != 1")
+          form(name="eventForm")
+            |Event Name
+            br
+            input(type="text", ng-model="selectedEvent.name", required)
+            br
+            |Description
+            br
+            textarea(rows="10", cols="50", ng-model="selectedEvent.description", required)
+            br
+            |Location
+            br
+            input(type="text", ng-model="selectedEvent.location", required)
+            br
+            |Start Time
+            br
+            input(type="datetime-local", ng-model="selectedEvent.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            br
+            |End Time
+            br
+            input(type="datetime-local", ng-model="selectedEvent.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            br
+            |Containing Calendar
+            br
+            select(ng-model="selectedEvent.calendar", ng-options="calendar.name for calendar in calendars", required)
+            br
+            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData(selectedEvent)") Save
+            br
+          br
+          |{{ text }}
+    script(type='text/javascript', src='/js/underscore-min.js')
+    script(type='text/javascript', src='/js/calendar.min.js')
+    script(type='text/javascript', src='/js/angular.js')
+    script(type='text/javascript', src='/js/index.js')
+    script(type='text/javascript', src='/js/bottomAreaController.js')
+    script(type='text/javascript', src='/js/sideBarController.js')

@@ -52,7 +52,7 @@ router.put('/:eventId', function(req, res, next) {
 
 	 	ev.save();
 
-	 	res.redirect('/');		
+	 	res.redirect('/');
 	});
 });
 

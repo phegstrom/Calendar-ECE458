@@ -52,47 +52,8 @@ app.controller('sideBarController', function($scope, $http) {
     $scope.title = 'Calendars';
     $scope.text = '';
     $scope.selector = 2;
-<<<<<<< HEAD
     
     $scope.$parent.getCalendarData();
-=======
-    $http.get('/calendar/myCalId').
-    success(function(data, status, headers, config) {
-      $scope.myCalendars = angular.fromJson(data);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
-    $http.get('/calendar/modCalId').
-    success(function(data, status, headers, config) {
-      $scope.modCalendars = angular.fromJson(data);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
-    $http.get('/calendar/canView').
-    success(function(data, status, headers, config) {
-      $scope.viewCalendars = angular.fromJson(data);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
-    $http.get('/calendar/canViewBusy').
-    success(function(data, status, headers, config) {
-      $scope.viewBusyCalendars = angular.fromJson(data);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
->>>>>>> 45fa78ed1d3f3b5a8522e40d93e6440df95f2511
   }
 
   $scope.createCalendar = function(calendarNameInput) {

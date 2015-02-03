@@ -26,6 +26,7 @@ app.controller('sideBarController', function($scope, $http) {
     $http.get('/usergroup/' + userGroup._id).
     success(function(data, status, headers, config) {
       $scope.selectedUserGroup=angular.fromJson(data);
+      console.log(userGroup._id);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to get group data.';
@@ -136,8 +137,9 @@ app.controller('sideBarController', function($scope, $http) {
     });
   }
   $scope.deleteUserFromGroup = function(userEmailInput) {
-    $http.delete('/usergroup/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
+    $http.post('/usergroup/delete/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
     success(function(data, status, headers, config) {
+      console.log(data);
       $scope.displayUserGroup($scope.selectedUserGroup);
     }).
     error(function(data, status, headers, config) {

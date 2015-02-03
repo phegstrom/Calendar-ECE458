@@ -2,18 +2,23 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var collectionName = 'rulesC';
 
+// for the enum type
+var states = 'canView canViewBusy canNotView'.split(' ');
+
 var RuleSchema = new Schema({
-	canView: [{type: Schema.Types.ObjectId, ref: 'User'}],
-	canViewBusy: [{type: Schema.Types.ObjectId, ref: 'User'}],
-	canNotView: [{type: Schema.Types.ObjectId, ref: 'User'}]
+	ruleType: {type: String, enum: states},
+	assocUsers: [{type: Schema.Types.ObjectId, ref: 'User'}],
+	assocUserGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}]
 }, {collection: collectionName});
+
+
 
 RuleSchema.methods.addUserGroupView = function (cb) {
 	//this.canView.push(ObjectID of each user);
 	//this.save(cb);
 };
 
-RuleSchema.methods.addUserGroupBusy = function (cb) {
+RuleSchema.methods.addUserGroupViewBusy = function (cb) {
 	//this.canView.push(ObjectID of each user);
 	//this.save(cb);
 };

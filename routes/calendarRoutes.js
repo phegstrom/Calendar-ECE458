@@ -44,7 +44,7 @@ router.put('/modList/:calId', function(req, res, next) {
 	// 	});		
 	// }
 
-	User.findByIdAndUpdate({_id: {$in: {req.body.modList}}}, {$push: {modCalId: req.params.calId}}, function (err, doc))
+	// User.findByIdAndUpdate({_id: {$in: {req.body.modList}}}, {$push: {modCalId: req.params.calId}}, function (err, doc))
 
 	res.send('HI');
 });

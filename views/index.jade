@@ -15,14 +15,14 @@ block content
     .page-header
       .pull-right.form-inline
         .btn-group
-          button.btn.btn-primary(onclick="navigate('prev');") << Prev
-          button.btn(onclick="navigate('today');") Today
-          button.btn.btn-primary(onclick="navigate('next');") Next >>
+          button.btn.btn-primary(ng-click="navigate('prev');") << Prev
+          button.btn(ng-click="navigate('today');") Today
+          button.btn.btn-primary(ng-click="navigate('next');") Next >>
         .btn-group#viewLengthButtons
-          button.btn.btn-warning(calendarView="year", onclick="setViewLength('year');") Year
-          button.btn.btn-warning.active(calendarView="month", onclick="setViewLength('month');") Month
-          button.btn.btn-warning(calendarView="week", onclick="setViewLength('week');") Week
-          button.btn.btn-warning(calendarView="day", onclick="setViewLength('day');") Day
+          button.btn.btn-warning(calendarView="year", ng-click="setViewLength('year');") Year
+          button.btn.btn-warning.active(calendarView="month", ng-click="setViewLength('month');") Month
+          button.btn.btn-warning(calendarView="week", ng-click="setViewLength('week');") Week
+          button.btn.btn-warning(calendarView="day", ng-click="setViewLength('day');") Day
       h3
       br
     .row

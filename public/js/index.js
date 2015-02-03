@@ -1,6 +1,6 @@
 //Angular code
 var app = angular.module('calendarApp', []);
-app.run(function($rootScope, $http) {
+app.run(function($rootScope, $q, $http) {
   $rootScope.calendar = $("#calendar").calendar(
   {
     view: "month",
@@ -34,4 +34,71 @@ app.run(function($rootScope, $http) {
   $rootScope.navigate = function(where) {
     $rootScope.calendar.navigate(where);
   }
+
+  $rootScope.getCalendarData = function() {
+    var ownGet = $http.get('/calendar/myCalId').
+    success(function(data, status, headers, config) {
+      $rootScope.myCalendars = angular.fromJson(data);
+
+      $rootScope.myCalendars.forEach(function(element, index, array) {
+        element.grouping = 'Owned Calendar';
+      });
+
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve owned calendars.');
+    });
+
+    var modGet = $http.get('/calendar/modCalId').
+    success(function(data, status, headers, config) {
+      $rootScope.modCalendars = angular.fromJson(data);
+
+      $rootScope.modCalendars.forEach(function(element, index, array) {
+        element.grouping = 'Modifiable Calendar';
+      });
+
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve modifiable calendars.');
+    });
+
+
+    var viewGet = $http.get('/calendar/canView').
+    success(function(data, status, headers, config) {
+      $rootScope.viewCalendars = angular.fromJson(data);
+
+      $rootScope.viewCalendars.forEach(function(element, index, array) {
+        element.grouping = 'Viewable Calendar';
+      });
+
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve viewable calendars.');
+    });
+
+
+    var busyGet = $http.get('/calendar/canViewBusy').
+    success(function(data, status, headers, config) {
+      $rootScope.viewBusyCalendars = angular.fromJson(data);
+
+      $rootScope.viewBusyCalendars.forEach(function(element, index, array) {
+        element.grouping = 'Busy Calendar';
+      });
+
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve busy calendars.');
+    });
+    
+
+    $q.all([ownGet, modGet, viewGet, busyGet]).then(function() {
+      $rootScope.calendars = [];
+      $rootScope.calendars = $rootScope.calendars.concat($rootScope.myCalendars, $rootScope.modCalendars, $rootScope.viewCalendars, $rootScope.viewBusyCalendars);
+      console.log($rootScope.calendars);
+    });
+  }
+
+  
+  //Initialization
+  $rootScope.getCalendarData();
 });

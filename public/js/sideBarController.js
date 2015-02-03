@@ -52,46 +52,8 @@ app.controller('sideBarController', function($scope, $http) {
     $scope.title = 'Calendars';
     $scope.text = '';
     $scope.selector = 2;
-    $http.get('/calendar/myCalId').
-    success(function(data, status, headers, config) {
-      $scope.myCalendars = angular.fromJson(data);
-      console.log($scope.modCalendars);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
-    $http.get('/calendar/modCalId').
-    success(function(data, status, headers, config) {
-      $scope.modCalendars = angular.fromJson(data);
-      console.log($scope.modCalendars);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
-    $http.get('/calendar/canView').
-    success(function(data, status, headers, config) {
-      $scope.viewCalendars = angular.fromJson(data);
-      console.log($scope.viewCalendars);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
-    $http.get('/calendar/canViewBusy').
-    success(function(data, status, headers, config) {
-      $scope.viewBusyCalendars = angular.fromJson(data);
-      console.log($scope.viewBusyCalendars);
-
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
+    
+    $scope.$parent.getCalendarData();
   }
 
   $scope.createCalendar = function(calendarNameInput) {
@@ -105,14 +67,16 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   //User Group Manipulation
-  $scope.createGroup = function(groupNameInput) {
-    $http.post('/usergroup', {groupName: groupNameInput, userEmails: []}).
+  $scope.createGroup = function() {
+    $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
     success(function(data, status, headers, config) {
       $scope.displayUserGroups();
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to create group.';
     });
+
+    $scope.inputUserGroup = '';
   }
   $scope.deleteUserGroup = function(groupIdInput) {
     $http.delete('/usergroup/'+groupIdInput).
@@ -124,14 +88,16 @@ app.controller('sideBarController', function($scope, $http) {
     });
   }
 
-  $scope.addUserToGroup = function(userEmailInput) {
-    $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
+  $scope.addUserToGroup = function() {
+    $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [$scope.inputUserEmail]}).
     success(function(data, status, headers, config) {
       $scope.displayUserGroup($scope.selectedUserGroup);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to add user.';
     });
+
+    $scope.inputUserEmail = '';
   }
   $scope.deleteUserFromGroup = function(userEmailInput) {
     $http.post('/usergroup/delete/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).

@@ -39,6 +39,8 @@ app.controller('bottomAreaController', function($scope, $http) {
       eventDetails.repeats = [repeats];
     }
 
+    console.log(eventDetails);
+
     var request = {};
 
     if(eventDetails._id) {

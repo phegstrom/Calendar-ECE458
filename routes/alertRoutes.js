@@ -32,7 +32,7 @@ var transporter = nodemailer.createTransport({
 //router.get('/', function (req, res, next) {
 
 function intervalFunction() {
-	Alert.findOne({_id: '54d1e81419822733777b9a3e'})
+	Alert.findOne({_id: '54d1f1a799bf6b887dbcdf7c'})
 		.populate('myEvent')
 		.exec(function (err, alert) {
 				User.findOne({_id: alert.owner})

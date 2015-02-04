@@ -1,7 +1,8 @@
 var express     = require('express');
-var nodemailer = require('nodemailer');
+var nodemailer 	= require('nodemailer');
 var router      = express.Router();
-var Event = require('../models/Event');
+var Event       = require('../models/Event');
+var Alert 		= require('../models/Alert');
 
 
 var transporter = nodemailer.createTransport({
@@ -11,15 +12,6 @@ var transporter = nodemailer.createTransport({
         pass: 'soCal458password'
     }
 });
-
-// setup e-mail data with unicode symbols
-var mailOptions = {
-    from: 'soCal Staff <foo@blurdybloop.com>', // sender address', // sender address
-    to: 'parker.hegstrom@gmail.com', // list of receivers
-    subject: 'A friendly reminder!', // Subject line
-    text: 'You are reminded of the event!' // plaintext body
-    //html: '<b>Hello world ✔</b>' // html body
-};
 
 // var User = require('../models/User');
 

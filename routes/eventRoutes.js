@@ -1,5 +1,5 @@
-var express = require('express');
-var mongoose = require('mongoose');
+var express 	= require('express');
+var mongoose 	= require('mongoose');
 var Event 		= require('../models/Event');
 var Calendar	= require('../models/Calendar');
 var Alert		= require('../models/Calendar');
@@ -10,7 +10,7 @@ var router 		= express.Router();
 router.post('/', function(req, res, next) {
 	var newEvent = new Event();
 
-	console.log(req.body);
+	//console.log(req.body);
 
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
@@ -18,8 +18,11 @@ router.post('/', function(req, res, next) {
 	newEvent.start = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
-	newEvent.alerts = req.body.alerts;
+	newEvent.alerts = createAlertSchemas(req.body.alerts);
 	newEvent.repeats = req.body.repeats;
+
+
+	console.log(newEvent);
 
 	newEvent.creator = req.session.user._id;
 	//for use with POSTman
@@ -35,6 +38,24 @@ router.post('/', function(req, res, next) {
 		res.send("Event Created");
 	});
 });
+
+// creates individual
+function createAlertSchemas(objArray) {
+	var toRet = [];
+	if (objArray == null) return toRet;
+	
+	for (var i = 0; i < objArray.length; i++) {
+		var alertObj = new Event({time: objArray[i].time, 
+							   method: objArray[i].method, 
+							   users: req.session.user._id});
+		toRet.push(obj._id);
+		alertObj.save(function (err, obj) {	
+
+		});
+	}
+	console.log(toRet);
+	return toRet;
+}
 
 // edit Event
 router.put('/:eventId', function(req, res, next) {

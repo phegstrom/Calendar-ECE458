@@ -18,11 +18,7 @@ var EventSchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: 'Calendar'
 	},
-	// alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
-	alerts: [{
-		time: Date,
-		method: String
-	}],
+	alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
 	// repeats: [{type: Schema.Types.ObjectId, ref: 'Repeat'}],
 	repeats: [{
 		frequency: {type: Number, default: null},

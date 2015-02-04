@@ -3,6 +3,7 @@ app.controller('sideBarController', function($scope, $http) {
   $scope.text = 'N/A';
   $scope.selector = -1;
 
+  // USER GROUP DISPLAYS
   $scope.displayUserGroups = function() {
     $scope.title = 'User Groups';
     $scope.text = '';
@@ -32,13 +33,15 @@ app.controller('sideBarController', function($scope, $http) {
       $scope.text = 'Failed to get group data.';
     });
   }
-  // display contents of single calendar -- won't work until server creates GET route
+
+  // CALENDAR ROUTES
+  // display contents of single calendar
   $scope.displayCalendar = function(calendar) {
     $scope.title = calendar.title;
     $scope.text = 'N/A';
     $scope.selector = 2;
     
-    $http.get('/calendar/' + calendar._id).
+    $http.get('/calendar/id/' + calendar._id).
     success(function(data, status, headers, config) {
       $scope.selectedCalendar=angular.fromJson(data);
       console.log(calendar._id);

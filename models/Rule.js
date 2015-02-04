@@ -25,7 +25,7 @@ RuleSchema.methods.addUserGroupViewBusy = function (cb) {
 };
 
 // return all assocUsers and users in assocUserGroups without repeats
-RuleSchema.methods.getAllUsersInRule = function () {
+RuleSchema.methods.getAllUsersInRule = function (cb) {
 	var toRet = [];
 
 	for (var i = 0; i < this.assocUsers.length; i++) {
@@ -46,7 +46,9 @@ RuleSchema.methods.getAllUsersInRule = function () {
 			}
 		}
 		console.log(toRet);
-		return toRet;
+		console.log("RETURN USERS");
+		// return toRet;
+		cb(toRet);
 	});
 
 	// for (var i = 0; i < this.assocUserGroups.length; i++) {
@@ -66,5 +68,6 @@ RuleSchema.methods.getAllUsersInRule = function () {
 
 	// return toRet;
 };
+
 
 module.exports = mongoose.model('Rule', RuleSchema);

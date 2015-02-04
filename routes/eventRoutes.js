@@ -2,8 +2,6 @@ var express = require('express');
 var mongoose = require('mongoose');
 var Event 		= require('../models/Event');
 var Calendar	= require('../models/Calendar');
-var Alert		= require('../models/Calendar');
-var Repeat		= require('../models/Calendar');
 var router 		= express.Router();
 
 // post new Event
@@ -61,14 +59,18 @@ router.put('/:eventId', function(req, res, next) {
 router.delete('/:eventId', function(req, res, next) {
 	console.log("DELETE TIME");
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
-		Calendar.findOne({_id: ev.calendar}, function(err, cal) {
-			console.log(cal);
+		Calendar.update({_id: ev.calendar}, {$pull: {events: req.params.eventId}}, function(err, num, raw) {
 
-			var index = cal.events.indexOf(req.params.eventId);
-			cal.events.splice(index, 1);
+		})
 
-			cal.save();
-		});
+		// Calendar.findOne({_id: ev.calendar}, function(err, cal) {
+		// 	console.log(cal);
+
+		// 	var index = cal.events.indexOf(req.params.eventId);
+		// 	cal.events.splice(index, 1);
+
+		// 	cal.save();
+		// });
 
 		Event.findByIdAndRemove({_id: mongoose.Types.ObjectId(req.params.eventId)}, function(err) {
 			if(err)

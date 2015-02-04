@@ -29,7 +29,6 @@ router.post('/:calendId', function (req, res, next) {
 		var hasUserGroup = false;
 
 		// add rule stuff for userGroups
-		console.log("!! "+ req.body.userGroupIds);	
 		for (var i = 0; i < userGroupIds.length; i++) {
 			hasUserGroup = true;
 			UserGroup.find({_id: userGroupIds[i]}, function (err, uGroup) {
@@ -71,12 +70,36 @@ router.delete('/:ruleId/:calId', function (req, res, next) {
 		var delIndex = rules.indexOf(req.params.ruleId);
 		calendar.rules.splice(delIndex, 1);
 
+		calendar.save();
+
 		//pull stuff 
 
 		// remove effects of rule
-		deleteRuleForUsers(req.params.ruleId, req.params.calId);
+		// deleteRuleForUsers(req.params.ruleId, req.params.calId);
 
-		for(var i = 0; i < rules.length; i++) {
+		Rule.findOne({_id: req.params.ruleId}, function(err, rule) {
+			rule.getAllUsersInRule(function (users) {
+				for(var i = 0; i < users.length; i++) {
+					User.update({_id: users[i]}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
+						if(err) next(err);
+					})
+					User.update({_id: users[i]}, {$pull: {canView: req.params.calId}}, function (err, num, raw) {
+						if(err) next(err);
+					})
+					User.update({_id: users[i]}, {$pull: {canViewBusy: req.params.calId}}, function (err, num, raw) {
+						if(err) next(err);
+					})
+
+					Rule.findByIdAndRemove({_id: mongoose.Types.ObjectId(req.params.ruleId)}, function(err) {
+
+					});
+				}
+				res.send(users);
+			});
+		});
+
+		console.log(rules.length);
+		for(var i = 0; i < rules.length-1; i++) {
 			Rule.findOne({_id: rules[i]}, function(err, rule) {
 				rule.getAllUsersInRule(function (users) {
 					var usersAdded = [];
@@ -86,11 +109,13 @@ router.delete('/:ruleId/:calId', function (req, res, next) {
 				});
 			});
 		}
+
 	});
 });
 
 function deleteRuleForUsers(ruleId, calId) {
-	Rule.find({_id: ruleId}, function (err, rule) {
+
+	Rule.findOne({_id: mongoose.Types.ObjectId(ruleId)}, function (err, rule) {
 		rule.getAllUsersInRule(function (users) {
 			for(var i = 0; i < users.length; i++) {
 				User.update({_id: users[i]}, {$pull: {modCalId: calId}}, function(err, num, raw) {

@@ -41,16 +41,15 @@ app.controller('sideBarController', function($scope, $http) {
     $scope.title = calendar.name;
     $scope.text = 'N/A';
     $scope.selector = 3;
-    $scope.owner = calendar.owner;
 
-    // $http.get('/calendar/id/' + calendar._id).
-    // success(function(data, status, headers, config) {
-    //   $scope.selectedCalendar=angular.fromJson(data);
-    //   console.log($scope.selectedCalendar);
-    // }).
-    // error(function(data, status, headers, config) {
-    //   $scope.text = 'Failed to get calendar data.';
-    // });
+    $http.get('/calendar/id/' + calendar._id).
+    success(function(data, status, headers, config) {
+      $scope.selectedCalendar=angular.fromJson(data);
+      console.log($scope.selectedCalendar);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to get calendar data.';
+    });
   }
 
   // pulls all calendars into $scope variable, getCalendarData() in index.js

@@ -65,7 +65,7 @@ router.get('/id/:calendarId', function (req, res, next) {
 	// right now, it is returning whatever calendar is requested
 	// it is not taking into account which user is trying to access it
 	Calendar.findOne({_id: req.params.calendarId})
-			.populate('events')
+			.populate('events owner modList')
 			.exec(function (err, calendar) {
 				if(err) next(err);
 
@@ -91,7 +91,7 @@ router.get('/:calType', function (req, res, next) {
 			var cType = req.params.calType;
 
 			Calendar.find({_id: {$in: user[cType]}})
-					.populate(req.params.calType + ' owner modList')
+					.populate(req.params.calType )
 					.exec(function (err, calendar) {
 						if(err) next(err);
 

@@ -1,7 +1,6 @@
 app.controller('bottomAreaController', function($scope, $http) {
   $scope.title = '';
   $scope.text = '';
-  $scope.selector = 1;
   $scope.eventDetails = {};
 
   var defaultForm = {

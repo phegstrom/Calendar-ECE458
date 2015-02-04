@@ -2,38 +2,81 @@
 var app = angular.module('calendarApp', []);
 app.run(function($rootScope, $q, $http) {
 
-  $rootScope.calendar = $("#calendar").calendar(
-  {
-    view: "month",
-    tmpl_path: "/tmpls/",
-    modal_title: function(event) { return event.title },
-    modal: "#events-modal",
-    modal_type: "template",
-    events_source: [
-        {
-            "id": 293,
-            "title": "Event 1",
-            "url": "http://example.com",
-            "class": "event-important",
-            "start": 12039485678000, // Milliseconds
-            "end": 1234576967000 // Milliseconds
-        }
-    ],
-    onAfterViewLoad: function(view) {
-      $('.btn-group button').removeClass('active');
-      $('button[calendarView="' + view + '"]').addClass('active');
-      $('.page-header h3').text(this.getTitle());
+  $rootScope.bottomSelector = -1;
+  $rootScope.events = [
+          {
+              "id": 293,
+              "title": "Event 1",
+              "url": "http://example.com",
+              "class": "event-important",
+              "start": 12039485678000, // Milliseconds
+              "end": 1234576967000 // Milliseconds
+          }
+      ];
 
-      $('a[data-event-id]').click(function() {
-        $('#eventFrame').text($(this).attr('data-event-id'));
-      });
-    }
-  });
+  $rootScope.createCalendar = function() {
+    $rootScope.calendar = $("#calendar").calendar(
+    {
+      view: "month",
+      tmpl_path: "/tmpls/",
+      modal_title: function(event) { return event.title },
+      modal: "#events-modal",
+      modal_type: "template",
+      events_source: $rootScope.events,
+      onAfterViewLoad: function(view) {
+        $('.btn-group button').removeClass('active');
+        $('button[calendarView="' + view + '"]').addClass('active');
+        $('.page-header h3').text(this.getTitle());
+
+        $('a[data-event-id]').click(function() {
+          $('#eventFrame').text($(this).attr('data-event-id'));
+        });
+      }
+    });
+  }
   $rootScope.setViewLength = function(viewLength) {
     $rootScope.calendar.view(viewLength);
+    $rootScope.updateLocalEvents();
   }
   $rootScope.navigate = function(where) {
     $rootScope.calendar.navigate(where);
+    $rootScope.updateLocalEvents();
+  }
+  $rootScope.updateLocalEvents = function() {
+    $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getStartDate());
+  }
+
+  $rootScope.parseDatabaseEvents = function() {
+    var eventList = [];
+
+    $rootScope.calendars.forEach(function(element, index, array) {
+      eventList = eventList.concat(element.events);
+    });
+
+    var calendarEventList = [];
+
+    eventList.forEach(function(element, index, array) {
+      var newEvent = {};
+      newEvent.id = element._id;
+      newEvent.title = element.name;
+      newEvent.url = 'javascript:void(0)';
+      newEvent.class = 'event-important';
+      newEvent.start = new Date(element.start).getTime();
+      newEvent.end = new Date(element.end).getTime();
+
+      newEvent.parentData = element;
+
+      calendarEventList.push(newEvent);
+    });
+
+    $rootScope.events = calendarEventList;
+    $rootScope.createCalendar();
+  }
+
+  $rootScope.displayEventDetails = function(event) {
+    $rootScope.bottomSelector=0;
+
+    $rootScope.selectedEvent = event.parentData;
   }
 
   $rootScope.getCalendarData = function() {
@@ -95,37 +138,26 @@ app.run(function($rootScope, $q, $http) {
     $q.all([ownGet, modGet, viewGet, busyGet]).then(function() {
       $rootScope.calendars = [];
       $rootScope.calendars = $rootScope.calendars.concat($rootScope.myCalendars, $rootScope.modCalendars, $rootScope.viewCalendars, $rootScope.viewBusyCalendars);
-      console.log($rootScope.calendars);
-    });
 
-    $rootScope.parseDatabaseEvents = function() {
-      var eventList = [];
-
+      var calendarEventPopulation = [];
       $rootScope.calendars.forEach(function(element, index, array) {
-        eventList = eventList.concat(element.events);
+        calendarEventPopulation.push(
+          $http.get('/calendar/id/'+element._id).
+          success(function(data, status, headers, config) {
+            element.events = angular.fromJson(data).events;
+          })
+        );
       });
-
-      var calendarEventList = [];
-
-      eventList.forEach(function(element, index, array) {
-        var newEvent = {};
-        newEvent.id = element._id;
-        newEvent.title = element.name;
-        newEvent.url = 'javascript:void(0)';
-        newEvent.class = 'event-important';
-        newEvent.start = element.start;
-        newEvent.end = element.end;
-
-        calendarEventList.push(newEvent);
+      $q.all(calendarEventPopulation).then(function() {
+        $rootScope.parseDatabaseEvents();
+        $rootScope.updateLocalEvents();
       });
-
-      $rootScope.events = calendarEventList;
-      console.log($rootScope.events);
-      calendar({events_source: $rootScope.events});
-    }
+    });
   }
 
   
   //Initialization
+  $rootScope.createCalendar();
   $rootScope.getCalendarData();
+  $rootScope.updateLocalEvents();
 });

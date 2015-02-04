@@ -109,7 +109,7 @@ router.delete('/:groupId', function(req, res, next) {
 			});
 		});
 
-	UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
+		UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
 	});
 
 	res.status(200);

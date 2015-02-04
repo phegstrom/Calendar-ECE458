@@ -148,14 +148,17 @@ function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 	return usersAdded;
 }
 
-// router.delete('/:ruleId', function (req, res, next) {
-// 	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
-// 		console.log(rule);
-// 		var test = rule.getAllUsersInRule();
-// 		console.log(test);
-// 	});
-// })
+router.delete('/:ruleId', function (req, res, next) {
+	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
+		console.log(rule);
+		var test = rule.getAllUsersInRule(function(users) {
+			console.log(users);
+			res.send(users);
+		});
+		console.log(test);
+	});
+})
 
 module.exports = router;
 
-module.exports.testFunction = deleteRuleForUsers;
+module.exports.deleteRuleForUsers = deleteRuleForUsers;

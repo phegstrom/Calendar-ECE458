@@ -75,7 +75,7 @@ block content
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
           #calendarDetailsWindow(ng-hide="selector != 3")
             b Owner: 
-            |{{ owner }}
+            |{{ selectedCalendar.owner }}
             br
             b Rules:
             ul

@@ -94,6 +94,15 @@ block content
               li(ng-repeat="rule in selectedCalendar.rules")
                 {{ rule.ruleType + " " }}
                 a(href, ng-click="deleteRule(rule._id)") [X]
+                br
+                | Groups: 
+                ul
+                  li(ng-repeat="groupId in rule.assocUserGroups")
+                    {{ groupId }}
+                | Users: 
+                ul
+                  li(ng-repeat="userId in rule.assocUsers")
+                    {{ userId }}
             br
             b Users with Modify: 
             ul

@@ -76,7 +76,8 @@ block content
           #calendarDetailsWindow(ng-hide="selector != 3")
             b Owner: 
             |{{ owner }}
-            b Rules
+            br
+            b Rules:
             ul
               li(ng-repeat="rule in selectedCalendar.rules")
                 {{ rule.ruleType.type }}

@@ -71,6 +71,7 @@ router.get('/id/:calendarId', function (req, res, next) {
 
 				res.send(calendar);
 			});
+
 });
 
 // get Calendars based on user's calType

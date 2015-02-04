@@ -37,18 +37,18 @@ app.controller('sideBarController', function($scope, $http) {
   // CALENDAR ROUTES
   // display contents of single calendar
   $scope.displayCalendar = function(calendar) {
-    console.log(calendar);
-    $scope.title = calendar.name;
     $scope.text = 'N/A';
     $scope.selector = 3;
 
     $http.get('/calendar/id/' + calendar._id).
     success(function(data, status, headers, config) {
       $scope.selectedCalendar=angular.fromJson(data);
+      $scope.title = $scope.selectedCalendar.name;
       console.log($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to get calendar data.';
+
     });
   }
 

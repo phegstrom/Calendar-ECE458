@@ -4,6 +4,7 @@ var UserGroup 	= require('../models/UserGroup');
 var Calendar 	= require('../models/Calendar');
 var User 		= require('../models/User');
 var Event		= require('../models/Event');
+var Alert		= require('../models/Alert');
 var Rule 		= require('../models/Rule');
 var RuleRoutes	= require('../routes/ruleRoutes');
 var router 		= express.Router();
@@ -100,7 +101,7 @@ router.get('/:calType', function (req, res, next) {
 						for(var i = 0; i < calendar.length; i++) {
 							Event.find({_id: {$in: calendar[i].events}})
 								 .populate('name')
-								 .exec(function(err, event) {
+								 .exec(function(err, ev) {
 								 	if(err) next(err);
 
 								 	user[cType].push(calendar);

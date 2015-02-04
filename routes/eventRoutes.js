@@ -19,7 +19,9 @@ router.post('/', function(req, res, next) {
 	newEvent.start = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
-	newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
+	// console.log("!!!!! "+newEvent.alerts);
+	if(req.body.alerts != undefined)
+		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
 	newEvent.repeats = req.body.repeats;
 
 	console.log("EVENT CREATED");
@@ -71,7 +73,6 @@ function createAlertSchemas(objArray, ev, req) {
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
-
 	 	ev.name = req.body.name;
 	 	ev.description = req.body.description;
 	 	ev.location = req.body.location;
@@ -79,7 +80,10 @@ router.put('/:eventId', function(req, res, next) {
 	 	ev.end = req.body.end;
 	 	ev.calendar = req.body.calendar;
 
-	 	ev.alerts = createAlertSchemas(req.body.alerts, req);
+ 		if(req.body.alerts == undefined)
+ 			ev.alerts = new Alert();
+ 		else
+		 	ev.alerts = createAlertSchemas(req.body.alerts, req);
 	 	ev.repeats = req.body.repeats;
 
 	 	ev.creator = req.session.user._id;

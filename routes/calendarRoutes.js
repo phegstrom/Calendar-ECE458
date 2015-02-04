@@ -4,6 +4,7 @@ var UserGroup 	= require('../models/UserGroup');
 var Calendar 	= require('../models/Calendar');
 var User 		= require('../models/User');
 var Event		= require('../models/Event');
+var Rule 		= require('../models/Rule');
 var router 		= express.Router();
 
 // post new calendar
@@ -110,12 +111,41 @@ router.get('/:calType', function (req, res, next) {
 		});
 });
 
+router.get('/rules/:ruleId', function (req, res, next) {
+	var r = Rule.findOne({_id: req.params.ruleId})
+		.exec(function (err, rule) {
+			// res.send(rule);
+			console.log("HEY" + rule.getAllUsersInRule());
+			res.send(rule.getAllUsersInRule());
+		});
+
+	// res.send(r.getAllUsersInRule());
+
+});
+
 // deletes entire Calendar, its events, its rules, and ref to them in users
-// router.delete('/:calId', function (req, res, next) {
-// 	Calendar.findOne({_id: req.params.calId}, function (err, calendar) {
-// 		Event.findByIdAndRemove()
-// 		// Event.findByIdAndRemove()
-// 	});
-// });
+router.delete('/:calId', function (req, res, next) {
+	Calendar.findOne({_id: req.params.calId}, function (err, calendar) {
+		// delete events
+		for(var i = 0; i < calendar.events.length; i++) {
+			Event.findByIdAndRemove(calendar.events[i], {}, function (err, obj) {
+				if(err) next(err);
+			});
+		}
+
+		// rules
+
+		// remove calId from users
+		User.findByIdAndRemove(calendar.owner, {}, function (err, obj) {
+			if(err) next(err);
+		});
+
+		for(var k = 0; k < calendar.modList.length; k++) {
+			User.findByIdAndRemove(calendar.modList[k], {}, function (err, obj) {
+				if (err) next(err);
+			});
+		}
+	});
+});
 
 module.exports = router;

@@ -76,13 +76,16 @@ block content
           #calendarDetailsWindow(ng-hide="selector != 3")
             b Owner: 
             |{{ owner }}
-            b Rules
+            br
+            b Rules:
             ul
               li(ng-repeat="rule in selectedCalendar.rules")
                 {{ rule.ruleType.type }}
+            br
+            b Users with Modify:
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ rule.ruleType.type }}
+                {{ modUser.name }}
     br
     .span9
       #bottomBar(ng-controller="bottomAreaController")

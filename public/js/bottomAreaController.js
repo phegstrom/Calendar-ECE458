@@ -18,8 +18,30 @@ app.controller('bottomAreaController', function($scope, $http) {
     calendar: null
   }
 
-  $scope.sendEventData = function(postData) {
-    var request = $http.post('/events', postData).
+  $scope.sendEventData = function() {
+
+    $scope.eventDetails.calendar = $scope.eventDetails.calendar._id;
+    $scope.eventDetails.alerts.forEach(function(element, index, array) {
+        element.method = 'email';
+      });
+    var repeats = {};
+    if($scope.eventDetails.willRepeat) {
+      switch($scope.eventDetails.repeatMode) {
+        case 'Number':
+          repeats.frequency = $scope.eventDetails.repeatCount;
+          break;
+        case 'End Date':
+          repeats.endDate = $scope.eventDetails.repeatUntil;
+          break;
+        default:
+          console.log('Repeat method not found.');
+      }
+      repeats.days = [$scope.eventDetails.start];
+
+      $scope.eventDetails.repeat = [repeats];
+    }
+
+    var request = $http.post('/events', $scope.eventDetails).
     success(function(data, status, headers, config) {
       $scope.text = angular.fromJson(data);
       //Parse the object into a set of groups filled with users

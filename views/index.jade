@@ -119,14 +119,14 @@ block content
                 option End Date
               div(ng-hide="eventDetails.repeatMode != 'Number'")
                 label Repeat Count
-                input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer")
+                input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
               div(ng-hide="eventDetails.repeatMode != 'End Date'")
                 label End Date
                 input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
             label Containing Calendar
             select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
             br
-            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData(eventDetails)") Save
+            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()") Save
             br
           br
           |{{ text }}

@@ -19,7 +19,7 @@ router.post('/', function(req, res, next) {
 	newEvent.calendar = req.body.calendar;
 	newEvent.alerts = req.body.alerts;
 	newEvent.repeats = req.body.repeats;
-	newEvent.creator = req.body.creator;
+	newEvent.creator = req.session.user._id;
 
 	newEvent.save(function(err) {
 		if(err) {
@@ -31,7 +31,8 @@ router.post('/', function(req, res, next) {
 			cal.save();
 		});
 
-		res.redirect('/');
+		res.status(200);
+		res.send();
 	});
 });
 

@@ -115,12 +115,12 @@ router.get('/rules/:ruleId', function (req, res, next) {
 	var r = Rule.findOne({_id: req.params.ruleId})
 		.exec(function (err, rule) {
 			// res.send(rule);
-			console.log("HEY" + rule.getAllUsersInRule());
-			res.send(rule.getAllUsersInRule());
+			var users = rule.getAllUsersInRule(function(users) {
+				console.log("CALENDAR"+users);
+				res.send(users);
+			});
+
 		});
-
-	// res.send(r.getAllUsersInRule());
-
 });
 
 // deletes entire Calendar, its events, its rules, and ref to them in users
@@ -134,9 +134,28 @@ router.delete('/:calId', function (req, res, next) {
 		}
 
 		// rules
+		Rule.find({_id: {$in: calendar.rules}}, function(err, rules) {
+			for(var r = 0; r < rules.length; r++) {
+				rules[r].getAllUsersInRule(function(users) {
+					for(var i = 0; i < users.length; i++) {
+
+						User.update({_id: users[i]}, {$pull: {modCalId: req.params.calId}}, function(err, num, raw) {
+							if(err) next(err);
+						});
+						User.update({_id: users[i]}, {$pull: {canView: req.params.calId}}, function(err, num, raw) {
+							if(err) next(err);
+						});
+						User.update({_id: users[i]}, {$pull: {canViewBusy: req.params.calId}}, function(err, num, raw) {
+							if(err) next(err);
+						});
+					}
+				});
+
+			}
+		});
 
 		// remove calId from users
-		User.findByIdAndRemove(calendar.owner, {}, function (err, obj) {
+		User.update({_id: calendar.owner}, {$pull: {myCalId: calendar._id}}, function(err, num, raw) {
 			if(err) next(err);
 		});
 
@@ -146,6 +165,8 @@ router.delete('/:calId', function (req, res, next) {
 			});
 		}
 	});
+
+	res.send("I hope a calendar just deleted");
 });
 
 module.exports = router;

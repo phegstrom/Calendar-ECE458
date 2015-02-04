@@ -4,6 +4,7 @@ var UserGroup 	= require('../models/UserGroup');
 var Calendar 	= require('../models/Calendar');
 var User 		= require('../models/User');
 var Event		= require('../models/Event');
+var Rule 		= require('../models/Rule');
 var router 		= express.Router();
 
 // post new calendar
@@ -108,6 +109,18 @@ router.get('/:calType', function (req, res, next) {
 						res.send(user[cType]);
 					});
 		});
+});
+
+router.get('/rules/:ruleId', function (req, res, next) {
+	var r = Rule.findOne({_id: req.params.ruleId})
+		.exec(function (err, rule) {
+			// res.send(rule);
+			console.log("HEY" + rule.getAllUsersInRule());
+			res.send(rule.getAllUsersInRule());
+		});
+
+	// res.send(r.getAllUsersInRule());
+
 });
 
 // deletes entire Calendar, its events, its rules, and ref to them in users

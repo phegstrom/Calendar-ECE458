@@ -8,8 +8,16 @@ app.run(function($rootScope, $q, $http) {
     modal_title: function(event) { return event.title },
     modal: "#events-modal",
     modal_type: "template",
-    events_source: $rootScope.getCalendarData,
-    onAfterViewLoad: function(view) {
+    events_source: function () { return [
+     {
+        "id": 293,
+        "title": "Event 1",
+        "url": "javascript:void(0)",
+        "class": "event-important",
+        "start": 1422424903780, // Milliseconds
+        "end": 1422434903780 // Milliseconds
+      }
+      ];},    onAfterViewLoad: function(view) {
       $('.btn-group button').removeClass('active');
       $('button[calendarView="' + view + '"]').addClass('active');
       $('.page-header h3').text(this.getTitle());
@@ -85,7 +93,7 @@ app.run(function($rootScope, $q, $http) {
     $q.all([ownGet, modGet, viewGet, busyGet]).then(function() {
       $rootScope.calendars = [];
       $rootScope.calendars = $rootScope.calendars.concat($rootScope.myCalendars, $rootScope.modCalendars, $rootScope.viewCalendars, $rootScope.viewBusyCalendars);
-      console.log($rootScope.calendars);
+      //console.log($rootScope.calendars);
     });
 
     $rootScope.parseDatabaseEvents = function() {

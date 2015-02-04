@@ -125,4 +125,10 @@ app.controller('sideBarController', function($scope, $http) {
       $scope.text = 'Failed to delete user.\n' + data;
     });
   }
+
+  //Event display
+  $scope.displayEvents = function() {
+    $scope.title = 'Events';
+    $scope.selector = 4;
+  }
 });

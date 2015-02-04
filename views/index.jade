@@ -33,8 +33,9 @@ block content
           .btn-group
             button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
             button.btn.btn-primary(ng-click="displayCalendars()") Calendars
+            button.btn.btn-primary(ng-click="displayEvents()") Events
           h3 {{ title }}
-          #userGroupWindow(ng-hide="selector != 0")
+          #userGroupWindow(ng-show="selector == 0")
             ul
               li(ng-repeat="group in userGroups")
                 a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
@@ -42,7 +43,7 @@ block content
             form(name="createGroupForm")
               input(type="text", ng-model="inputUserGroup", required)
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
-          #userListWindow(ng-hide="selector != 1")
+          #userListWindow(ng-show="selector == 1")
             ul
               li(ng-repeat="user in selectedUserGroup.users")
                 {{ user.name + " " }}
@@ -52,8 +53,7 @@ block content
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
               {{ text }}
 
-          #calendarInfo(ng-hide="selector != 2")
-            b Owner
+          #calendarInfo(ng-show="selector == 2")
             ul
               li(ng-repeat="calendar in myCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
@@ -73,6 +73,8 @@ block content
             form(name="createCalendarForm")
               input(type="text", ng-model="inputCalendarName", required)
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
+
+
           #calendarDetailsWindow(ng-hide="selector != 3")
             b Owner: 
             |{{ selectedCalendar.owner }}
@@ -86,12 +88,38 @@ block content
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
                 {{ modUser.name }}
+
+          #calendarEvents(ng-show="selector == 4")
+            |Events
+            ul
+              li(ng-repeat="event in localEvents")
+                a(href ng-click="displayEventDetails(event)") {{ event.name }}
     br
     .span9
       #bottomBar(ng-controller="bottomAreaController")
-        #displayEvent(ng-hide="selector != 0")
-          |Event Details
-        #createEvent(ng-hide="selector != 1")
+        #displayEvent(ng-show="bottomSelector == 0")
+          h3 {{ selectedEvent.name }}
+          h1 Description
+          p {{ selectedEvent.details }}
+          h1 At
+          p {{ selectedEvent.location }}
+          h1 From
+          p {{ selectedEvent.start }}
+          h1 To
+          p {{ selectedEvent.end }}
+          div(ng-show="selectedEvent.alerts")
+            h1 Alerts
+            ul
+              li(ng-repeat="alert in selectedEvent.alerts") {{ alert }}
+          h1 Repeats?
+          p {{ selectedEvent.willRepeat }}
+            div(ng-show="selectedEvent.willRepeat")
+              p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
+              p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
+          h1 Calendar
+          p {{ selectedEvent.calendar.name }}
+
+        #createEvent(ng-show="bottomSelector == 1")
           form(name="eventForm")
             label Event Name
             input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)

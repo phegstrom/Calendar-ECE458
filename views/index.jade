@@ -84,12 +84,6 @@ block content
               li(ng-repeat="event in localEvents | filter: {{ selectedCalendar._id }}")
                 a(href ng-click="displayEventDetails(event)") {{ event.name }}
 
-          #calendarEvents(ng-show="selector == 4")
-            ul
-              li(ng-repeat="event in localEvents")
-                a(href ng-click="displayEventDetails(event)") {{ event.title }}
-            button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
-
           #calendarOwnerDetailsWindow(ng-show="selector == 5")
             b Owner: 
             |{{ selectedCalendar.owner.name }}
@@ -103,6 +97,13 @@ block content
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
                 {{ modUser.name }}
+
+          #calendarEvents(ng-show="selector == 4")
+            ul(ng-repeat="(key, value) in localEvents | groupBy: 'calendarId'")
+              h4 {{ value[0].calendarName }}
+              li(ng-repeat="event in value")
+                a(href ng-click="displayEventDetails(event)") {{ event.title }}
+            button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
     br
     .span9
       #bottomBar(ng-controller="bottomAreaController")
@@ -115,9 +116,9 @@ block content
           p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
           p(ng-hide="selectedEvent.location") No location.
           h4 From
-          p {{ selectedEvent.start }}
+          p {{ selectedEvent.start.toLocaleString() }}
           h4 To
-          p {{ selectedEvent.end }}
+          p {{ selectedEvent.end.toLocaleString() }}
           div(ng-hide="selectedEvent.alerts == null")
             h4 Alerts
             ul
@@ -128,9 +129,8 @@ block content
               div(ng-show="selectedEvent.willRepeat")
                 p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
                 p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
-          //
-            h4 Calendar
-            p {{ selectedEvent.calendar.name }}
+          h4 Calendar
+          p {{ selectedEvent.calendarName }}
           .btn-group
             button.btn.btn-primary(ng-click="editSelectedEvent()") Edit Event
             button.btn.btn-warning(ng-click="deleteSelectedEvent()") Delete Event
@@ -188,6 +188,7 @@ block content
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript', src='/js/angular.js')
+    script(type='text/javascript', src='/js/angular-filter.min.js')
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/bottomAreaController.js')
     script(type='text/javascript', src='/js/sideBarController.js')

@@ -1,5 +1,5 @@
 //Angular code
-var app = angular.module('calendarApp', []);
+var app = angular.module('calendarApp', ['angular.filter']);
 app.run(function($rootScope, $q, $http) {
 
   $rootScope.bottomSelector = -1;
@@ -58,6 +58,11 @@ app.run(function($rootScope, $q, $http) {
     eventList.forEach(function(element, index, array) {
       element.start = new Date(element.start);
       element.end = new Date(element.end);
+      $rootScope.calendars.forEach(function(calendar, cIndex, cArray) {
+        if(calendar._id === element.calendar) {
+          element.calendarName = calendar.name;
+        }
+      });
 
       var newEvent = {};
       newEvent.id = element._id;
@@ -66,6 +71,8 @@ app.run(function($rootScope, $q, $http) {
       newEvent.class = 'event-important';
       newEvent.start = element.start.getTime();
       newEvent.end = element.end.getTime();
+      newEvent.calendarId = element.calendar;
+      newEvent.calendarName = element.calendarName;
 
       newEvent.parentData = element;
 
@@ -166,6 +173,11 @@ app.run(function($rootScope, $q, $http) {
 
   $rootScope.editSelectedEvent = function() {
     $rootScope.eventDetails = $rootScope.selectedEvent;
+    $rootScope.calendars.forEach(function(element, index, array) {
+      if(element._id === $rootScope.selectedEvent.calendar) {
+        $rootScope.eventDetails.calendar = element;
+      }
+    });
     $rootScope.bottomSelector = 1;
   }
 

@@ -43,7 +43,7 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.updateLocalEvents = function() {
     $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
 
-    console.log($rootScope.localEvents);
+    //console.log($rootScope.localEvents);
   }
 
   $rootScope.parseDatabaseEvents = function() {

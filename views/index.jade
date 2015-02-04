@@ -56,7 +56,7 @@ block content
           #calendarInfo(ng-show="selector == 2")
             ul
               li(ng-repeat="calendar in myCalendars")
-                a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name }}
+                a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
                 a(href, ng-click="deleteCalendar(calendar._id)") [X]
             b Modify
             ul
@@ -75,7 +75,22 @@ block content
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
 
 
-          #calendarDetailsWindow(ng-hide="selector != 3")
+          #calendarDetailsWindow(ng-show="selector == 3")
+            b Owner: 
+            |{{ selectedCalendar.owner.name }}
+            br
+            b Events:
+            ul
+              li(ng-repeat="event in localEvents | filter: {{ selectedCalendar._id }}")
+                a(href ng-click="displayEventDetails(event)") {{ event.name }}
+
+          #calendarEvents(ng-show="selector == 4")
+            ul
+              li(ng-repeat="event in localEvents")
+                a(href ng-click="displayEventDetails(event)") {{ event.title }}
+            button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
+
+          #calendarOwnerDetailsWindow(ng-show="selector == 5")
             b Owner: 
             |{{ selectedCalendar.owner.name }}
             br
@@ -88,12 +103,6 @@ block content
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
                 {{ modUser.name }}
-
-          #calendarEvents(ng-show="selector == 4")
-            ul
-              li(ng-repeat="event in localEvents")
-                a(href ng-click="displayEventDetails(event)") {{ event.title }}
-            button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
     br
     .span9
       #bottomBar(ng-controller="bottomAreaController")

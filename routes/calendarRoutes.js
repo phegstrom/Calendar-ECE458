@@ -137,37 +137,31 @@ router.delete('/:calId', function (req, res, next) {
 		}
 
 		// rules
-<<<<<<< HEAD
-		// for(var r = 0; r < rules.length; r++) {
-		// 	// deleteRuleForUsers(ruleId, calId)
-		// 	RuleRoutes.deleteRuleForUsers(rules[r], req.params.calId);
-		// }
-
-		Rule.find({_id: {$in: calendar.rules}}, function(err, rules) {
-			for(var r = 0; r < rules.length; r++) {
-				rules[r].getAllUsersInRule(function(users) {
-					for(var i = 0; i < users.length; i++) {
-
-						User.update({_id: users[i]}, {$pull: {modCalId: req.params.calId}}, function(err, num, raw) {
-							if(err) next(err);
-						});
-						User.update({_id: users[i]}, {$pull: {canView: req.params.calId}}, function(err, num, raw) {
-							if(err) next(err);
-						});
-						User.update({_id: users[i]}, {$pull: {canViewBusy: req.params.calId}}, function(err, num, raw) {
-							if(err) next(err);
-						});
-					}
-				});
-=======
-		for(var r = 0; r < calendar.rules.length; r++) {
+		for(var r = 0; r < rules.length; r++) {
 			// deleteRuleForUsers(ruleId, calId)
 			RuleRoutes.deleteRuleForUsers(rules[r], req.params.calId);
 		}
->>>>>>> master
 
-			}
-		});
+		// Rule.find({_id: {$in: calendar.rules}}, function(err, rules) {
+		// 	for(var r = 0; r < rules.length; r++) {
+		// 		rules[r].getAllUsersInRule(function(users) {
+		// 			for(var i = 0; i < users.length; i++) {
+
+		// 				User.update({_id: users[i]}, {$pull: {modCalId: req.params.calId}}, function(err, num, raw) {
+		// 					if(err) next(err);
+		// 				});
+		// 				User.update({_id: users[i]}, {$pull: {canView: req.params.calId}}, function(err, num, raw) {
+		// 					if(err) next(err);
+		// 				});
+		// 				User.update({_id: users[i]}, {$pull: {canViewBusy: req.params.calId}}, function(err, num, raw) {
+		// 					if(err) next(err);
+		// 				});
+		// 			}
+		// 		});
+
+
+		// 	}
+		// });
 
 		// remove calId from users
 		User.update({_id: calendar.owner}, {$pull: {myCalId: calendar._id}}, function(err, num, raw) {

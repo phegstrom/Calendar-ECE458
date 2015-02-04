@@ -69,4 +69,5 @@ RuleSchema.methods.getAllUsersInRule = function (cb) {
 	// return toRet;
 };
 
+
 module.exports = mongoose.model('Rule', RuleSchema);

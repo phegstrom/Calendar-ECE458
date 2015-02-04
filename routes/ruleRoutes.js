@@ -62,6 +62,52 @@ router.post('/:calendId', function (req, res, next) {
 
 });
 
+router.delete('/:ruleId/:calId', function (req, res, next) {
+	Calendar.findOne({_id: req.params.calId}, function (err, calendar) {
+		var rules = calendar.rules;
+		var delIndex = rules.indexOf(req.params.ruleId);
+		calendar.rules.splice(delIndex, 1);
+
+		//pull stuff 
+
+		// remove effects of rule
+		deleteRuleForUsers(req.params.ruleId, req.params.calId);
+
+		for(var i = 0; i < rules.length; i++) {
+			Rule.findOne({_id: rules[i]}, function(err, rule) {
+				rule.getAllUsersInRule(function (users) {
+					var usersAdded = [];
+
+					// potential scope problem?
+					propogateRuleForUsers(users, usersAdded, rule.ruleType, req.params.calId);
+				});
+			});
+		}
+	});
+});
+
+function deleteRuleForUsers(ruleId, calId) {
+	Rule.find({_id: ruleId}, function (err, rule) {
+		rule.getAllUsersInRule(function (users) {
+			for(var i = 0; i < users.length; i++) {
+				User.update({_id: users[i]}, {$pull: {modCalId: calId}}, function(err, num, raw) {
+					if(err) next(err);
+				});
+				User.update({_id: users[i]}, {$pull: {canView: calId}}, function(err, num, raw) {
+					if(err) next(err);
+				});
+				User.update({_id: users[i]}, {$pull: {canViewBusy: calId}}, function(err, num, raw) {
+					if(err) next(err);
+				});
+			}			
+		});
+	});
+
+	Rule.findByIdAndRemove({_id: mongoose.Types.ObjectId(ruleId)}, function(err) {
+
+	});
+}
+
 // takes in userIDArray and addes the calenderID to them!
 function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 	console.log("begin propogate");
@@ -111,3 +157,5 @@ function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 // })
 
 module.exports = router;
+
+module.exports.testFunction = deleteRuleForUsers;

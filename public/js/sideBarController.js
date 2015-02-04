@@ -78,6 +78,7 @@ app.controller('sideBarController', function($scope, $http) {
   $scope.createCalendar = function(calendarNameInput) {
     $http.post('/calendar', {name: calendarNameInput}).
     success(function(data, status, headers, config) {
+      $scope.inputCalendarName = '';
       $scope.displayCalendars();
     }).
     error(function(data, status, headers, config) {
@@ -99,6 +100,7 @@ app.controller('sideBarController', function($scope, $http) {
   $scope.addModUser = function(modUserID) {
     $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: [modUserID]}).
     success(function(data, status, headers, config) {
+      $scope.inputModUserID = '';
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
@@ -159,6 +161,11 @@ app.controller('sideBarController', function($scope, $http) {
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to delete user.\n' + data;
     });
+  }
+
+  // RULES ROUTES
+  $scope.addRule = function(ruleType, userGroupIds, userIds) {
+    
   }
 
   //Event display

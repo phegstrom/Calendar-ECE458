@@ -55,19 +55,19 @@ block content
 
           #calendarInfo(ng-show="selector == 2")
             ul
-            b Owner
+            h5 Owner
               li(ng-repeat="calendar in myCalendars")
                 a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
                 a(href, ng-click="deleteCalendar(calendar._id)") [X]
-            b Modify
+            h5 Modify
             ul
               li(ng-repeat="calendar in modCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
-            b See All
+            h5 See All
             ul
               li(ng-repeat="calendar in viewCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
-            b Busy Only
+            h5 Busy Only
             ul
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
@@ -106,8 +106,18 @@ block content
               li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
             form(name="addRuleForm")
-              input(type="text", ng-model="inputRule", required)
-              button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule(inputCalendarName)") Add Rule
+              input(type="radio", name="rules", value="canView", ng-model="ruleType")
+              | Can View
+              br
+              input(type="radio", name="rules", value="canViewBusy", ng-model="ruleType")
+              | Can View Busy
+              br
+              input(type="radio", name="rules", value="canNotView", ng-model="ruleType")
+              | Cannot View
+              br
+              input(type="text", ng-model="userGroupId")
+              input(type="text", ng-model="userId")
+              button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule(ruleType, userGroupId, userId)") Add Rule
             form(name="addModUserForm")
               input(type="text", ng-model="inputModUserID", required)
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser(inputModUserID)") Add User with Modify

@@ -92,14 +92,14 @@ block content
             b Rules: 
             ul
               li(ng-repeat="rule in selectedCalendar.rules")
-                {{ rule.ruleType.type }} + " "
+                {{ rule.ruleType.type + " " }}
                 a(href, ng-click="deleteRule(calendar._id)") [X]
             br
             b Users with Modify: 
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ modUser.name }} + " "
-                a(href, ng-click="deleteModUser(modUser._id)") [X]
+                {{ modUser.name + " " }}
+                a(href, ng-click="removeModUser(modUser._id)") [X]
             br
             b Events: 
             ul
@@ -114,6 +114,7 @@ block content
               br
               input(type="radio", name="rules", value="canNotView", ng-model="ruleType")
               | Cannot View
+              br
               br
               input(type="text", ng-model="userGroupId")
               input(type="text", ng-model="userId")

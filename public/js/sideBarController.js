@@ -37,20 +37,23 @@ app.controller('sideBarController', function($scope, $http) {
   // CALENDAR ROUTES
   // display contents of single calendar
   $scope.displayCalendar = function(calendar) {
-    $scope.title = calendar.title;
+    console.log(calendar);
+    $scope.title = calendar.name;
     $scope.text = 'N/A';
-    $scope.selector = 2;
-    
-    $http.get('/calendar/id/' + calendar._id).
-    success(function(data, status, headers, config) {
-      $scope.selectedCalendar=angular.fromJson(data);
-      console.log(calendar._id);
-    }).
-    error(function(data, status, headers, config) {
-      $scope.text = 'Failed to get calendar data.';
-    });
+    $scope.selector = 3;
+    $scope.owner = calendar.owner;
+
+    // $http.get('/calendar/id/' + calendar._id).
+    // success(function(data, status, headers, config) {
+    //   $scope.selectedCalendar=angular.fromJson(data);
+    //   console.log($scope.selectedCalendar);
+    // }).
+    // error(function(data, status, headers, config) {
+    //   $scope.text = 'Failed to get calendar data.';
+    // });
   }
 
+  // pulls all calendars into $scope variable, getCalendarData() in index.js
   $scope.displayCalendars = function() {
     $scope.title = 'Calendars';
     $scope.text = '';
@@ -58,7 +61,7 @@ app.controller('sideBarController', function($scope, $http) {
     
     $scope.$parent.getCalendarData();
   }
-
+  // POST to create calendar
   $scope.createCalendar = function(calendarNameInput) {
     $http.post('/calendar', {name: calendarNameInput}).
     success(function(data, status, headers, config) {
@@ -68,7 +71,7 @@ app.controller('sideBarController', function($scope, $http) {
       $scope.text = 'Failed to create calendar.';
     });
   }
-
+  // TODO!!! NOT IMPLEMENTED ON SERVER SIDE YET
   $scope.deleteCalendar = function(calendarIdInput) {
     $http.delete('/calendar/modList/'+calendarIdInput).
     success(function(data, status, headers, config) {

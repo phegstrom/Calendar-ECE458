@@ -99,9 +99,7 @@ app.use(function(req, res, next) {
   }
 });
 
-
 app.use('/', loginRoutes);
-// app.use('/', calRoutes);
 app.use('/calendar', calendarRoutes);
 app.use('/event', eventRoutes);
 app.use('/rule', ruleRoutes);

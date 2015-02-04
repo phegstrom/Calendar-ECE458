@@ -3,16 +3,14 @@ var app = angular.module('calendarApp', []);
 app.run(function($rootScope, $q, $http) {
 
   $rootScope.bottomSelector = -1;
-  $rootScope.events = [
-          {
-              "id": 293,
-              "title": "Event 1",
-              "url": "http://example.com",
-              "class": "event-important",
-              "start": 12039485678000, // Milliseconds
-              "end": 1234576967000 // Milliseconds
-          }
-      ];
+  $rootScope.events = [{
+      "id": 293,
+      "title": "Event 1",
+      "url": "javascript:void(0)",
+      "class": "event-important",
+      "start": 1422424903780, // Milliseconds
+      "end": 1422434903780 // Milliseconds
+    }];
 
   $rootScope.createCalendar = function() {
     $rootScope.calendar = $("#calendar").calendar(
@@ -139,6 +137,7 @@ app.run(function($rootScope, $q, $http) {
       $rootScope.calendars = [];
       $rootScope.calendars = $rootScope.calendars.concat($rootScope.myCalendars, $rootScope.modCalendars, $rootScope.viewCalendars, $rootScope.viewBusyCalendars);
 
+      
       var calendarEventPopulation = [];
       $rootScope.calendars.forEach(function(element, index, array) {
         calendarEventPopulation.push(

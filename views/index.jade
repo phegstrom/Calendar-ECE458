@@ -55,6 +55,7 @@ block content
 
           #calendarInfo(ng-show="selector == 2")
             ul
+            b Owner
               li(ng-repeat="calendar in myCalendars")
                 a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
                 a(href, ng-click="deleteCalendar(calendar._id)") [X]
@@ -79,24 +80,37 @@ block content
             b Owner: 
             |{{ selectedCalendar.owner.name }}
             br
-            b Events:
+            b Events: 
             ul
-              li(ng-repeat="event in localEvents | filter: {{ selectedCalendar._id }}")
-                a(href ng-click="displayEventDetails(event)") {{ event.name }}
+              li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
+                a(href ng-click="displayEventDetails(event)") {{ event.title }}
 
           #calendarOwnerDetailsWindow(ng-show="selector == 5")
             b Owner: 
             |{{ selectedCalendar.owner.name }}
             br
-            b Rules:
+            b Rules: 
             ul
               li(ng-repeat="rule in selectedCalendar.rules")
-                {{ rule.ruleType.type }}
+                {{ rule.ruleType.type }} + " "
+                a(href, ng-click="deleteRule(calendar._id)") [X]
             br
-            b Users with Modify:
+            b Users with Modify: 
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ modUser.name }}
+                {{ modUser.name }} + " "
+                a(href, ng-click="deleteModUser(modUser._id)") [X]
+            br
+            b Events: 
+            ul
+              li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
+                a(href ng-click="displayEventDetails(event)") {{ event.title }}
+            form(name="addRuleForm")
+              input(type="text", ng-model="inputRule", required)
+              button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule(inputCalendarName)") Add Rule
+            form(name="addModUserForm")
+              input(type="text", ng-model="inputModUserID", required)
+              button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser(inputModUserID)") Add User with Modify
 
           #calendarEvents(ng-show="selector == 4")
             ul(ng-repeat="(key, value) in localEvents | groupBy: 'calendarId'")

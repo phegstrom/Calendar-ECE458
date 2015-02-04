@@ -41,15 +41,15 @@ block content
                 a(href, ng-click="deleteUserGroup(group._id)") [X]
             form(name="createGroupForm")
               input(type="text", ng-model="inputUserGroup", required)
-              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup(inputUserGroup)") Create Group
+              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
           #userListWindow(ng-hide="selector != 1")
             ul
               li(ng-repeat="user in selectedUserGroup.users")
                 {{ user.name + " " }}
                 a(href, ng-click="deleteUserFromGroup(user.email)") [X]
             form(name="addUserForm")
-              input(type="text", ng-model="inputUser", required)
-              button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup(inputUser)") Add User
+              input(type="text", ng-model="inputUserEmail", required)
+              button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
               {{ text }}
 
           #calendarInfo(ng-hide="selector != 2")
@@ -80,31 +80,50 @@ block content
           |Event Details
         #createEvent(ng-hide="selector != 1")
           form(name="eventForm")
-            |Event Name
+            label Event Name
+            input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
+
+            label Description
+            textarea(rows="10", cols="50", ng-model="eventDetails.description", placeholder="Description")
+
+            label Location
+            input(type="text", ng-model="eventDetails.location", placeholder="Location")
+            //
+              label All Day?
+              input(type="checkbox", ng-model="eventDetails.isAllDay")
+
+            label Start Time
+            input(type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            
+            label End Time
+            input(type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+
+            //Currently this naively assumes the date in alertTime is valid
+            label Add Alert
+            input(type="datetime-local", ng-model="alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
             br
-            input(type="text", ng-model="selectedEvent.name", required)
+            button.btn(type="button", ng-click="addAlert()") Add Alert
+            ul
+             li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
+               a(href ng-click="removeAlert(time)") [X]
+            
+            label Repeat?
+            input(type="checkbox", ng-model="eventDetails.willRepeat")
+            div(ng-hide="!eventDetails.willRepeat")
+              label Repeat Mode
+              select(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
+                option Number
+                option End Date
+              div(ng-hide="eventDetails.repeatMode != 'Number'")
+                label Repeat Count
+                input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
+              div(ng-hide="eventDetails.repeatMode != 'End Date'")
+                label End Date
+                input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+            label Containing Calendar
+            select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
             br
-            |Description
-            br
-            textarea(rows="10", cols="50", ng-model="selectedEvent.description", required)
-            br
-            |Location
-            br
-            input(type="text", ng-model="selectedEvent.location", required)
-            br
-            |Start Time
-            br
-            input(type="datetime-local", ng-model="selectedEvent.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
-            br
-            |End Time
-            br
-            input(type="datetime-local", ng-model="selectedEvent.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
-            br
-            |Containing Calendar
-            br
-            select(ng-model="selectedEvent.calendar", ng-options="calendar.name for calendar in calendars", required)
-            br
-            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData(selectedEvent)") Save
+            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()") Save
             br
           br
           |{{ text }}

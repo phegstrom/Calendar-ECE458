@@ -110,8 +110,10 @@ router.delete('/:groupId', function(req, res, next) {
 		});
 
 	UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
-
 	});
+
+	res.status(200);
+    res.send();
 });
 
 // adds a list of users to a UserGroup

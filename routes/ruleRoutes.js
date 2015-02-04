@@ -38,37 +38,7 @@ router.post('/:calendId', function (req, res, next) {
 					usersAdded = propogateRuleForUsers(userIdArray,
 										  usersAdded,
 										  req.body.ruleType,
-										  req.params.calendId);
-					// for (var j = 0; j < userIdArray.length; j++) {
-					// 	var currId = userIdArray[j];
-					// 	usersAdded.push(currId.toString());
-
-					// 	if (req.body.ruleType != CANT_VIEW) {
-
-					// 		User.findOne({_id: currId}, function (err, user) {
-					// 			if (err) next(err);
-					// 			user[req.body.ruleType].push(req.params.calendId);
-					// 			user.save(function (err) {
-					// 				if (err) next(err);
-					// 			});
-					// 		});
-
-					// 	} else {
-					// 		User.update({
-					// 				_id: currId
-					// 			}, {
-					// 				$pull: {
-					// 					modCalId: req.params.calendId,
-					// 					canView: req.params.calendId,
-					// 					canViewBusy: req.params.calendId
-					// 				}
-					// 			},
-					// 			function(err, num, raw) {
-					// 				if (err) next(err);
-					// 		});
-					// 	}				
-					// }	
-
+										  req.params.calendId);	
 
 				// now add rule stuff for individual users
 				propogateRuleForUsers(req.body.userIds,
@@ -132,8 +102,6 @@ function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 	return usersAdded;
 }
 
-
-
 // router.delete('/:ruleId', function (req, res, next) {
 // 	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
 // 		console.log(rule);
@@ -141,6 +109,5 @@ function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 // 		console.log(test);
 // 	});
 // })
-
 
 module.exports = router;

@@ -27,8 +27,8 @@ router.post('/:calendId', function (req, res, next) {
 		var userGroupIds = req.body.userGroupIds;
 		var uGroupArray = [];
 		var hasUserGroup = false;
+
 		// add rule stuff for userGroups
-		console.log(userGroupIds.length);	
 		for (var i = 0; i < userGroupIds.length; i++) {
 			hasUserGroup = true;
 			UserGroup.find({_id: userGroupIds[i]}, function (err, uGroup) {
@@ -63,17 +63,43 @@ router.post('/:calendId', function (req, res, next) {
 });
 
 router.delete('/:ruleId/:calId', function (req, res, next) {
+	console.log("!! "+req.params.calId);
+
 	Calendar.findOne({_id: req.params.calId}, function (err, calendar) {
 		var rules = calendar.rules;
 		var delIndex = rules.indexOf(req.params.ruleId);
 		calendar.rules.splice(delIndex, 1);
 
+		calendar.save();
+
 		//pull stuff 
 
 		// remove effects of rule
-		deleteRuleForUsers(req.params.ruleId, req.params.calId);
+		// deleteRuleForUsers(req.params.ruleId, req.params.calId);
 
-		for(var i = 0; i < rules.length; i++) {
+		Rule.findOne({_id: req.params.ruleId}, function(err, rule) {
+			rule.getAllUsersInRule(function (users) {
+				for(var i = 0; i < users.length; i++) {
+					User.update({_id: users[i]}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
+						if(err) next(err);
+					})
+					User.update({_id: users[i]}, {$pull: {canView: req.params.calId}}, function (err, num, raw) {
+						if(err) next(err);
+					})
+					User.update({_id: users[i]}, {$pull: {canViewBusy: req.params.calId}}, function (err, num, raw) {
+						if(err) next(err);
+					})
+
+					Rule.findByIdAndRemove({_id: mongoose.Types.ObjectId(req.params.ruleId)}, function(err) {
+
+					});
+				}
+				res.send(users);
+			});
+		});
+
+		console.log(rules.length);
+		for(var i = 0; i < rules.length-1; i++) {
 			Rule.findOne({_id: rules[i]}, function(err, rule) {
 				rule.getAllUsersInRule(function (users) {
 					var usersAdded = [];
@@ -83,11 +109,13 @@ router.delete('/:ruleId/:calId', function (req, res, next) {
 				});
 			});
 		}
+
 	});
 });
 
 function deleteRuleForUsers(ruleId, calId) {
-	Rule.find({_id: ruleId}, function (err, rule) {
+
+	Rule.findOne({_id: mongoose.Types.ObjectId(ruleId)}, function (err, rule) {
 		rule.getAllUsersInRule(function (users) {
 			for(var i = 0; i < users.length; i++) {
 				User.update({_id: users[i]}, {$pull: {modCalId: calId}}, function(err, num, raw) {
@@ -148,14 +176,17 @@ function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 	return usersAdded;
 }
 
-// router.delete('/:ruleId', function (req, res, next) {
-// 	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
-// 		console.log(rule);
-// 		var test = rule.getAllUsersInRule();
-// 		console.log(test);
-// 	});
-// })
+router.delete('/:ruleId', function (req, res, next) {
+	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
+		console.log(rule);
+		var test = rule.getAllUsersInRule(function(users) {
+			console.log(users);
+			res.send(users);
+		});
+		console.log(test);
+	});
+})
 
 module.exports = router;
 
-module.exports.testFunction = deleteRuleForUsers;
+module.exports.deleteRuleForUsers = deleteRuleForUsers;

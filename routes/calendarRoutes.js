@@ -4,6 +4,7 @@ var UserGroup 	= require('../models/UserGroup');
 var Calendar 	= require('../models/Calendar');
 var User 		= require('../models/User');
 var Event		= require('../models/Event');
+var Alert		= require('../models/Alert');
 var Rule 		= require('../models/Rule');
 var RuleRoutes	= require('../routes/ruleRoutes');
 var router 		= express.Router();
@@ -15,7 +16,7 @@ router.post('/', function(req, res, next) {
 
 	newCal.owner = req.session.user._id;
 	// for PostMan
-	//newCal.owner = req.body.owner;
+	// newCal.owner = req.body.owner;
 
 	newCal.save(function(err) {
 		if(err) {
@@ -24,7 +25,7 @@ router.post('/', function(req, res, next) {
 
 		User.update({_id: req.session.user._id}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
 		// for PostMan
-		//User.update({_id: req.body.owner}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
+		// User.update({_id: req.body.owner}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
 			if (err) next(err);
 		});
 
@@ -34,11 +35,12 @@ router.post('/', function(req, res, next) {
 
 // adding user to calendar modList and calendar to users' modLists
 router.put('/modList/add/:calId', function (req, res, next) {
-	Calendar.update({_id: req.params.calId}, {$push: {modList: req.body.modList}}, function(err, num, raw) {
-		if (err) next(err);
-	});
-
 	for(var i = 0; i < req.body.modList.length; i++) {
+		Calendar.update({_id: req.params.calId}, {$push: {modList: req.body.modList[i]}}, function(err, num, raw) {
+			if (err) next(err);
+		});
+
+
 		User.update({_id: req.body.modList[i]}, {$push: {modCalId: req.params.calId}}, function (err, num, raw) {
 			if(err) next(err);
 		});
@@ -49,11 +51,11 @@ router.put('/modList/add/:calId', function (req, res, next) {
 
 // removes users from calendar modList and calendar from users' modLists
 router.put('/modList/remove/:calId', function (req, res, next) {
-	Calendar.update({_id: req.params.calId}, {$pull: {modList: req.body.modList}}, function(err, num, raw) {
-		if (err) next(err);
-	});
-
 	for(var i = 0; i < req.body.modList.length; i++) {
+		Calendar.update({_id: req.params.calId}, {$pull: {modList: req.body.modList[i]}}, function(err, num, raw) {
+			if (err) next(err);
+		});
+
 		User.update({_id: req.body.modList[i]}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
 			if(err) next(err);
 		});
@@ -67,7 +69,7 @@ router.get('/id/:calendarId', function (req, res, next) {
 	// right now, it is returning whatever calendar is requested
 	// it is not taking into account which user is trying to access it
 	Calendar.findOne({_id: req.params.calendarId})
-			.populate('events owner modList')
+			.populate('events owner modList rules')
 			.exec(function (err, calendar) {
 				if(err) next(err);
 
@@ -99,7 +101,7 @@ router.get('/:calType', function (req, res, next) {
 						for(var i = 0; i < calendar.length; i++) {
 							Event.find({_id: {$in: calendar[i].events}})
 								 .populate('name')
-								 .exec(function(err, event) {
+								 .exec(function(err, ev) {
 								 	if(err) next(err);
 
 								 	user[cType].push(calendar);
@@ -159,6 +161,7 @@ router.delete('/:calId', function (req, res, next) {
 		// 			}
 		// 		});
 
+
 		// 	}
 		// });
 
@@ -172,6 +175,10 @@ router.delete('/:calId', function (req, res, next) {
 				if(err) next(err);
 			});
 		}
+
+		Calendar.findByIdAndRemove(req.params.calId, function(err, cal) {
+
+		});
 	});
 
 	res.send("I hope a calendar just deleted");

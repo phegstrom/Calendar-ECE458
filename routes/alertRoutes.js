@@ -80,12 +80,12 @@ function createEventEmail(alert) {
     toRet += '<b>Start Time: </b>';
     toRet += alert.myEvent.start.getMonth() + '/' + 
              alert.myEvent.start.getDate() + '/' +  
-             alert.myEvent.start.getYear() + 
+             alert.myEvent.start.getFullYear() + 
              ' at ' + alert.myEvent.start.toTimeString() + ' <br>';
     toRet += '<b>Request Alert Time: </b>';             
     toRet += alert.time.getMonth() + '/' + 
              alert.time.getDate() + '/' +  
-             alert.time.getYear() + 
+             alert.time.getFullYear() + 
              ' at ' + alert.time.toTimeString() + ' <br>';             
     toRet += '<b>Current Time: </b>' + date.toTimeString();
 

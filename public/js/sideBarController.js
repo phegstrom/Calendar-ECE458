@@ -50,7 +50,7 @@ app.controller('sideBarController', function($scope, $http) {
       $scope.text = 'Failed to get calendar data.';
     });    
   }
-
+  // display contents of a single calendar you are owner of
   $scope.displayOwnerCalendar = function(calendar) {
     $scope.text = 'N/A';
     $scope.selector = 5;
@@ -84,9 +84,9 @@ app.controller('sideBarController', function($scope, $http) {
       $scope.text = 'Failed to create calendar.';
     });
   }
-  // TODO!!! NOT IMPLEMENTED ON SERVER SIDE YET
+  // delete calendar
   $scope.deleteCalendar = function(calendarIdInput) {
-    $http.delete('/calendar/modList/'+calendarIdInput).
+    $http.delete('/calendar/'+calendarIdInput).
     success(function(data, status, headers, config) {
       $scope.displayCalendars();
     }).

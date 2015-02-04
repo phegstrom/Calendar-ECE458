@@ -1,8 +1,7 @@
 app.controller('bottomAreaController', function($scope, $http) {
   $scope.title = '';
   $scope.text = '';
-  $scope.selector = 1;
-  $scope.eventDetails = {};
+  $scope.$parent.eventDetails = {};
 
   var defaultForm = {
     name: '',
@@ -16,59 +15,73 @@ app.controller('bottomAreaController', function($scope, $http) {
   }
 
   $scope.sendEventData = function() {
-    console.log($scope.eventDetails.start instanceof Date);
-    $scope.eventDetails.calendar = $scope.eventDetails.calendar._id;
-    if($scope.eventDetails.alerts) {
-      $scope.eventDetails.alerts.forEach(function(element, index, array) {
+    var eventDetails = $scope.$parent.eventDetails;
+    eventDetails.calendar = eventDetails.calendar._id;
+    if(eventDetails.alerts) {
+      eventDetails.alerts.forEach(function(element, index, array) {
           element.method = 'email';
         });
     }
     var repeats = {};
-    if($scope.eventDetails.willRepeat) {
-      switch($scope.eventDetails.repeatMode) {
+    if(eventDetails.willRepeat) {
+      switch(eventDetails.repeatMode) {
         case 'Number':
-          repeats.frequency = $scope.eventDetails.repeatCount;
+          repeats.frequency = eventDetails.repeatCount;
           break;
         case 'End Date':
-          repeats.endDate = $scope.eventDetails.repeatUntil;
+          repeats.endDate = eventDetails.repeatUntil;
           break;
         default:
           console.log('Repeat method not found.');
       }
-      repeats.days = [$scope.eventDetails.start];
+      repeats.days = [eventDetails.start];
 
-      $scope.eventDetails.repeat = [repeats];
+      eventDetails.repeat = [repeats];
     }
 
-    var request = $http.post('/event', $scope.eventDetails).
-    success(function(data, status, headers, config) {
-      //Parse the object into a set of groups filled with users
-    }).
-    error(function(data, status, headers, config) {
-      // called asynchronously if an error occurs
-      // or server returns response with an error status.
-    });
+    var request = {};
+
+    if(eventDetails._id) {
+      request = $http.put('/event/'+eventDetails._id, eventDetails).
+      success(function(data, status, headers, config) {
+        //Parse the object into a set of groups filled with users
+      }).
+      error(function(data, status, headers, config) {
+        // called asynchronously if an error occurs
+        // or server returns response with an error status.
+      });
+    }
+    else {
+      request = $http.post('/event', eventDetails).
+      success(function(data, status, headers, config) {
+        //Parse the object into a set of groups filled with users
+      }).
+      error(function(data, status, headers, config) {
+        // called asynchronously if an error occurs
+        // or server returns response with an error status.
+      });
+    }
 
     request.then(function() {
       $scope.eventForm.$setPristine();
-      $scope.eventDetails = defaultForm;
+      eventDetails = defaultForm;
 
-      $scope.$parent.parseDatabaseEvents();
+      $scope.$parent.getCalendarData();
     });
   }
 
   $scope.addAlert = function() {
     var newAlert = new Date($scope.alertTime);
-    if($scope.eventDetails.alerts) {
-      $scope.eventDetails.alerts.push(newAlert);
+    if($scope.$parent.eventDetails.alerts) {
+      $scope.$parent.eventDetails.alerts.push(newAlert);
     }
     else {
-      $scope.eventDetails.alerts = [newAlert];
+      $scope.$parent.eventDetails.alerts = [newAlert];
     }
   }
 
   $scope.removeAlert = function(time) {
-    $scope.eventDetails.alerts = $scope.eventDetails.alerts.filter(function(alert){
+    $scope.$parent.eventDetails.alerts = $scope.$parent.eventDetails.alerts.filter(function(alert){
       return alert != time;
     });
   }

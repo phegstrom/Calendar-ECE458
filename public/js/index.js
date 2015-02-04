@@ -142,8 +142,8 @@ app.run(function($rootScope, $q, $http) {
 
   $rootScope.displayEventDetails = function(event) {
     $rootScope.bottomSelector=0;
-
     $rootScope.selectedEvent = event.parentData;
+    console.log($rootScope.selectedEvent);
   }
 
   $rootScope.getCalendarData = function() {

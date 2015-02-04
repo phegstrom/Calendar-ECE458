@@ -94,6 +94,15 @@ block content
               li(ng-repeat="rule in selectedCalendar.rules")
                 {{ rule.ruleType + " " }}
                 a(href, ng-click="deleteRule(rule._id)") [X]
+                br
+                | Groups: 
+                ul
+                  li(ng-repeat="groupId in rule.assocUserGroups")
+                    {{ groupId }}
+                | Users: 
+                ul
+                  li(ng-repeat="userId in rule.assocUsers")
+                    {{ userId }}
             br
             b Users with Modify: 
             ul
@@ -141,16 +150,16 @@ block content
         #displayEvent(ng-show="bottomSelector == 0")
           h2 {{ selectedEvent.name }}
           h4 Description
-          p(ng-show="selectedEvent.details") {{ selectedEvent.details }}
-          p(ng-hide="selectedEvent.details") No description.
+          p(ng-show="selectedEvent.description") {{ selectedEvent.description }}
+          p(ng-hide="selectedEvent.description") No description provided.
           h4 At
           p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
-          p(ng-hide="selectedEvent.location") No location.
+          p(ng-hide="selectedEvent.location") No location provided.
           h4 From
           p {{ selectedEvent.start.toLocaleString() }}
           h4 To
           p {{ selectedEvent.end.toLocaleString() }}
-          div(ng-hide="selectedEvent.alerts == null")
+          div(ng-hide="selectedEvent.alerts.length == 0")
             h4 Alerts
             ul
               li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}

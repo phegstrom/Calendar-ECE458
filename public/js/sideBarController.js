@@ -109,7 +109,7 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   // delete users from modify users list
-  $scope.deleteModUser = function(modUserID) {
+  $scope.removeModUser = function(modUserID) {
     $http.put('/calendar/modList/remove/' + $scope.selectedCalendar._id, {modList: [modUserID]}).
     success(function(data, status, headers, config) {
       $scope.displayOwnerCalendar($scope.selectedCalendar);

@@ -8,8 +8,9 @@ var router 		= express.Router();
 
 // post new Event
 router.post('/', function(req, res, next) {
-
 	var newEvent = new Event();
+
+	console.log(req.body);
 
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
@@ -19,19 +20,16 @@ router.post('/', function(req, res, next) {
 	newEvent.calendar = req.body.calendar;
 	newEvent.alerts = req.body.alerts;
 	newEvent.repeats = req.body.repeats;
-	newEvent.creator = req.body.creator;
+	newEvent.creator = req.session.user._id;
 
 	newEvent.save(function(err) {
-		if(err) {
-			next(err);
-		}
+		if(err) next(err);
 		// add event to calendar
-		Calendar.findOne({_id: req.body.calendar}, function(err, cal) {
-			cal.events.push(newEvent._id);
-			cal.save();
+		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+			if(err) next(err);
 		});
 
-		res.redirect('/');
+		res.send("Event Created");
 	});
 });
 
@@ -52,7 +50,7 @@ router.put('/:eventId', function(req, res, next) {
 
 	 	ev.save();
 
-	 	res.redirect('/');
+	 	res.send("Event Updated");
 	});
 });
 

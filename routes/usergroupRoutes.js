@@ -21,8 +21,8 @@ router.post('/', function (req, res, next) {
 					next(err);
 				}
 
-				//var id_t = req.session.user._id;
-				var id_t = '54d06afb55d013111eea5759'; // for use with POSTman
+				var id_t = req.session.user._id;
+				//var id_t = '54d06afb55d013111eea5759'; // for use with POSTman
 				User.update({ _id: id_t }, 
 						{$push: {userGroups: uGroup._id}}, 
 						function(err, numAffected) {
@@ -110,8 +110,10 @@ router.delete('/:groupId', function(req, res, next) {
 		});
 
 	UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
-		res.send(200);
 	});
+
+	res.status(200);
+    res.send();
 });
 
 // adds a list of users to a UserGroup

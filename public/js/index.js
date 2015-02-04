@@ -41,7 +41,9 @@ app.run(function($rootScope, $q, $http) {
     $rootScope.updateLocalEvents();
   }
   $rootScope.updateLocalEvents = function() {
-    $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getStartDate());
+    $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
+
+    console.log($rootScope.localEvents);
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -54,13 +56,16 @@ app.run(function($rootScope, $q, $http) {
     var calendarEventList = [];
 
     eventList.forEach(function(element, index, array) {
+      element.start = new Date(element.start);
+      element.end = new Date(element.end);
+
       var newEvent = {};
       newEvent.id = element._id;
       newEvent.title = element.name;
       newEvent.url = 'javascript:void(0)';
       newEvent.class = 'event-important';
-      newEvent.start = new Date(element.start).getTime();
-      newEvent.end = new Date(element.end).getTime();
+      newEvent.start = element.start.getTime();
+      newEvent.end = element.end.getTime();
 
       newEvent.parentData = element;
 
@@ -151,6 +156,29 @@ app.run(function($rootScope, $q, $http) {
         $rootScope.parseDatabaseEvents();
         $rootScope.updateLocalEvents();
       });
+    });
+  }
+
+  $rootScope.displayEventCreator = function() {
+    $rootScope.eventDetails = {};
+    $rootScope.bottomSelector = 1;
+  }
+
+  $rootScope.editSelectedEvent = function() {
+    $rootScope.eventDetails = $rootScope.selectedEvent;
+    $rootScope.bottomSelector = 1;
+  }
+
+  $rootScope.deleteSelectedEvent = function() {
+    $rootScope.bottomSelector = -1;
+
+    $http.delete('/event/'+$rootScope.selectedEvent._id).
+    success(function(data, status, headers, config) {
+      console.log('Event deleted: ' + $rootScope.selectedEvent._id);
+      $rootScope.getCalendarData();
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
     });
   }
 

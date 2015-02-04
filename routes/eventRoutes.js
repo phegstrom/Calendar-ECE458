@@ -20,7 +20,10 @@ router.post('/', function(req, res, next) {
 	newEvent.calendar = req.body.calendar;
 	newEvent.alerts = req.body.alerts;
 	newEvent.repeats = req.body.repeats;
-	newEvent.creator = req.session.user._id;
+
+	//newEvent.creator = req.session.user._id;
+	//for use with POSTman
+	newEvent.creator = req.body.creator;
 
 	newEvent.save(function(err) {
 		if(err) next(err);

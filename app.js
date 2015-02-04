@@ -22,6 +22,7 @@ var eventRoutes = require('./routes/eventRoutes');
 var ruleRoutes = require('./routes/ruleRoutes');
 var userRoutes = require('./routes/userRoutes');
 var usergroupRoutes = require('./routes/usergroupRoutes');
+var alertRoutes = require('./routes/alertRoutes');
 
 var app = express();
 
@@ -105,6 +106,7 @@ app.use('/event', eventRoutes);
 app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
 app.use('/usergroup', usergroupRoutes);
+app.use('/alert', alertRoutes);
 
 function requireLogin (req, res, next) {
   if (!req.user) {
@@ -113,7 +115,21 @@ function requireLogin (req, res, next) {
     next();
   }
 };
-    
+
+
+// var User = require('./models/User');
+// setInterval(intervalFunction, 1000 * 5);
+
+// function intervalFunction() {
+//   User.findOne({email: 'aaa'})
+//       .exec(function (err, user) {
+//           console.log("Just pinged: " + user.name);
+//       });
+// } 
+
+
+ 
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

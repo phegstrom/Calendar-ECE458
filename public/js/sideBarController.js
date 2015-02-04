@@ -97,15 +97,27 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   // add users to modify users list
-  $scope.addModUser = function(modUserID) {
-    $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: [modUserID]}).
+  $scope.addModUser = function() {
+    console.log({modList: $scope.modUserList});
+    $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: $scope.modUserList}).
     success(function(data, status, headers, config) {
-      $scope.inputModUserID = '';
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to add user with modify.';
     });
+    $scope.modUserList = [];
+  }
+
+  $scope.addModUsertoList = function() {
+    var newModUserId = angular.copy($scope.inputModUserId);
+    if($scope.modUserList) {
+      $scope.modUserList.push(newModUserId);
+    }
+    else {
+      $scope.modUserList = [newModUserId];
+    }
+    $scope.inputModUserId = '';
   }
 
   // delete users from modify users list
@@ -164,8 +176,48 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   // RULES ROUTES
-  $scope.addRule = function(ruleType, userGroupIds, userIds) {
-    
+  $scope.addUserIdToRule = function() {
+    var newUserId = angular.copy($scope.userId);
+    if($scope.newRule.userIds) {
+      $scope.newRule.userIds.push(newUserId);
+    }
+    else {
+      $scope.newRule.userIds = [newUserId];
+    }
+    $scope.userId = '';
+  }
+
+  $scope.addUserGroupIdToRule = function() {
+    var newGroupId = angular.copy($scope.userGroupId);
+    if($scope.newRule.userGroupIds) {
+      $scope.newRule.userGroupIds.push(newGroupId);
+    }
+    else {
+      $scope.newRule.userGroupIds = [newGroupId];
+    }
+    $scope.userGroupId = '';
+  }
+
+  $scope.addRule = function() {
+    console.log($scope.newRule);
+    $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
+    success(function(data, status, headers, config) {
+      $scope.displayOwnerCalendar($scope.selectedCalendar);
+      $scope.newRule = {};
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to create rule.';
+    });
+  }
+
+  $scope.deleteRule = function(ruleId) {
+    $http.delete('/rule/'+ $scope.selectedCalendar._id + '/' + ruleId).
+    success(function(data, status, headers, config) {
+      $scope.displayOwnerCalendar($scope.selectedCalendar);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to delete rule.';
+    });
   }
 
   //Event display

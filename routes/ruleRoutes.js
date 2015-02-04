@@ -27,8 +27,9 @@ router.post('/:calendId', function (req, res, next) {
 		var userGroupIds = req.body.userGroupIds;
 		var uGroupArray = [];
 		var hasUserGroup = false;
+
 		// add rule stuff for userGroups
-		console.log(userGroupIds.length);	
+		console.log("!! "+ req.body.userGroupIds);	
 		for (var i = 0; i < userGroupIds.length; i++) {
 			hasUserGroup = true;
 			UserGroup.find({_id: userGroupIds[i]}, function (err, uGroup) {
@@ -63,6 +64,8 @@ router.post('/:calendId', function (req, res, next) {
 });
 
 router.delete('/:ruleId/:calId', function (req, res, next) {
+	console.log("!! "+req.params.calId);
+
 	Calendar.findOne({_id: req.params.calId}, function (err, calendar) {
 		var rules = calendar.rules;
 		var delIndex = rules.indexOf(req.params.ruleId);

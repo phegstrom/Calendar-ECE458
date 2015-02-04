@@ -199,7 +199,13 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.addRule = function() {
+    if (typeof $scope.newRule.userGroupIds === "undefined") {
+      $scope.newRule.userGroupIds = [];
+    } else if (typeof $scope.newRule.userIds === "undefined") {
+      $scope.newRule.userIds = [];
+    }
     console.log($scope.newRule);
+
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
       $scope.displayOwnerCalendar($scope.selectedCalendar);
@@ -211,7 +217,7 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.deleteRule = function(ruleId) {
-    $http.delete('/rule/'+ $scope.selectedCalendar._id + '/' + ruleId).
+    $http.delete('/rule/'+ ruleId + '/' + $scope.selectedCalendar._id).
     success(function(data, status, headers, config) {
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).

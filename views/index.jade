@@ -92,7 +92,7 @@ block content
             b Rules: 
             ul
               li(ng-repeat="rule in selectedCalendar.rules")
-                {{ rule.ruleType.type + " " }}
+                {{ rule.ruleType + " " }}
                 a(href, ng-click="deleteRule(rule._id)") [X]
             br
             b Users with Modify: 

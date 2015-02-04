@@ -39,7 +39,6 @@ app.controller('sideBarController', function($scope, $http) {
   $scope.displayCalendar = function(calendar) {
     $scope.text = 'N/A';
     $scope.selector = 3;
-    console.log(calendar);
 
     $http.get('/calendar/id/' + calendar._id).
     success(function(data, status, headers, config) {
@@ -49,8 +48,8 @@ app.controller('sideBarController', function($scope, $http) {
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to get calendar data.';
-    });    
-    // $scope.owner = calendar.owner;
+
+    });
   }
 
   // pulls all calendars into $scope variable, getCalendarData() in index.js

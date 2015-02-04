@@ -6,8 +6,11 @@ var Alert		= require('../models/Calendar');
 var Repeat		= require('../models/Calendar');
 var router 		= express.Router();
 
+// post new Event
 router.post('/', function(req, res, next) {
 	var newEvent = new Event();
+
+	console.log(req.body);
 
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
@@ -15,97 +18,65 @@ router.post('/', function(req, res, next) {
 	newEvent.start = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
-
-	// add event to calendar
-	Calendar.findOne({_id: req.body.calendar})
-			.exec(function(err, cal) {
-				cal.events.push(newEvent._id);
-			});
-
 	newEvent.alerts = req.body.alerts;
 	newEvent.repeats = req.body.repeats;
-	newEvent.creator = req.body.creator;
+	newEvent.creator = req.session.user._id;
 
 	newEvent.save(function(err) {
-		if(err) {
-			next(err);
-		}
+		if(err) next(err);
+		// add event to calendar
+		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+			if(err) next(err);
+		});
 
-		res.redirect('/');
-	});	
+		res.send("Event Created");
+	});
 });
 
+// edit Event
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
-	Event.findOne({_id: req.params.eventId})
-		 .exec(function(err, ev) {
-		 	ev.name = req.body.name;
-		 	ev.description = req.body.description;
-		 	ev.location = req.body.location;
-		 	ev.start = req.body.start;
-		 	ev.end = req.body.end;
-		 	ev.calendar = req.body.calendar;
-		 	ev.alerts = req.body.alerts;
-		 	ev.repeats = req.body.repeats;
-		 	ev.creator = req.body.creator;
+	Event.findOne({_id: req.params.eventId}, function(err, ev) {
+	 	ev.name = req.body.name;
+	 	ev.description = req.body.description;
+	 	ev.location = req.body.location;
+	 	ev.start = req.body.start;
+	 	ev.end = req.body.end;
+	 	ev.calendar = req.body.calendar;
+	 	ev.creator = req.body.creator;
 
-		 	var delAlertArr = ev.alerts.filter(function(val) {
-		 		return req.body.alerts.indexOf(val) == -1;
-		 	});
+	 	ev.alerts = req.body.alerts;
+	 	ev.repeats = req.body.repeats;
 
-		 	var delRepeatArr = ev.repeats.filter(function(val) {
-		 		return req.body.repeats.indexOf(val) == -1;
-		 	});
+	 	ev.save();
 
-		 	for(var i = 0; i < delAlertArr.length; i++) {
-		 		Alert.findByIdAndRemove(delAlertArr[i]);
-		 	}
-
-		 	for(var j = 0; j < delRepeatArr.length; j++) {
-		 		Alert.findByIdAndRemove(delAlertArr[i]);
-		 	}
-
-		 	res.redirect('/');
-
-		 });
+	 	res.send("Event Updated");
+	});
 });
 
-router.delete('/:eventId', function(req, res, next) {
 // delete the event, the event from the calendar, and the alerts and repeats
-	Event.findOne({_id: req.params.eventId})
-		 .exec(function (err, ev) {
-		 	//remove event from calendar
-		 	Calendar.findOne({_id: ev.calendar._id})
-		 			.exec(function(err, cal) {
-		 				if(err) {
-		 					next(err);
-		 				}
+router.delete('/:eventId', function(req, res, next) {
+	console.log("DELETE TIME");
+	Event.findOne({_id: req.params.eventId}, function(err, ev) {
+		Calendar.findOne({_id: ev.calendar}, function(err, cal) {
+			console.log(cal);
 
-		 				var index = cal.events.indexOf(req.params.eventId);
-		 				cal.events.splice(index, 1);
+			var index = cal.events.indexOf(req.params.eventId);
+			cal.events.splice(index, 1);
 
-		 				cal.save(function(err) {
-		 					if(err) {		 						
-		 						next(err);
-		 					}
-		 				});
-		 			});
+			cal.save();
+		});
 
-		 	//delete alerts
-		 	for(var i = 0; i < ev.alerts.length; i++) {
-		 		Alert.findByIdAndRemove(ev.alerts[i]);
-		 	}
+		Event.findByIdAndRemove({_id: mongoose.Types.ObjectId(req.params.eventId)}, function(err) {
+			if(err)
+				next(err);
+		});
 
-		 	//delete repeats
-		 	for(var j = 0; j < ev.repeats; j++) {
-		 		Repeat.findByIdAndRemove(ev.repeats[i]);
-		 	}
-		 });
+	});
 
-	// delete the event
-	Event.findByIdAndRemove(req.params.eventId);
+	// Event.findByIdAndRemove({_id: req.params.eventId});
 
-	res.redirect('/');
+	res.send("HELLO");
 });
 
 module.exports = router;

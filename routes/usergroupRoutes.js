@@ -8,63 +8,47 @@ var router 		= express.Router();
 // creates a usergroup with a group of emails
 router.post('/', function (req, res, next) {
 	var userIds = [];
-	console.log(req.body.userEmails);
-	console.log(req.session.user);
-	User.find({email: {$in: req.body.userEmails}})
-	//User.find({email: 'aaa'})
-		.exec(function (err, users) {
+
+	User.find({email: {$in: req.body.userEmails}}, function(err, users) {
+			console.log(users);
 			for (var i = 0; i < users.length; i++) {
-				userIds.push(users[0]._id);
+				userIds.push(users[i]._id);
 			}
-			console.log(userIds);
-			console.log(req.body.groupName);
-			var uGroup = new UserGroup({name: req.body.groupName,
-								users: userIds});
+			// console.log(Object.prototype.toString.call(userIds));
+			var uGroup = new UserGroup({name: req.body.groupName, users: userIds});
 			uGroup.save(function (err) {
 				if (err) {
-					// handle error
+					next(err);
 				}
 
-				//req.session.user.userGroups.push(uGroup);
-				// req.session.user.save(function (err) {
+				var id_t = req.session.user._id;
+				//var id_t = '54d06afb55d013111eea5759'; // for use with POSTman
+				User.update({ _id: id_t }, 
+						{$push: {userGroups: uGroup._id}}, 
+						function(err, numAffected) {
+							if (err) next(err);
+						});
 
-				// });	
-			res.redirect('/');
+				res.status(200);
+				res.send();
 			});
-		});
 	});
-
-router.get('/test', function(req, res, next) {
-
-	var promise = User.find({_id: 'aaa'}).exec(function (err, user) {
-		console.log("FOUND USER");
-	});
-
-	promise.addBack(function(err, user) {
-		console.log("DISPLAYING INFO");
-		console.log(val);
-		console.log(promise);
-	});
-
-	res.redirect('/');
 });
 
+// returns the user with the user groups populated
 router.get('/', function(req, res, next) {
 		var myUser = null;
+
 		if (req.session.user) {
-
-
 		User.findOne({_id: req.session.user._id})
 			.populate('userGroups')
 			.exec(function (err, user) {
 				if (err) {
 					next(err);
 				}
-
 				myUser = user;
-
 				UserGroup.find({_id: {$in: req.session.user.userGroups }})
-						 .populate('users', 'name')
+						 .populate('users', 'name email')
 						 .exec(function(err, userGroup) {
 						 	if(err) {
 						 		next(err);
@@ -79,6 +63,7 @@ router.get('/', function(req, res, next) {
 		}
 	});
 
+// a route to test group creation, will not need later on
 router.get('/createGroup', function(req, res, next) {
 	// hardcoded user added to group by id
 	parkerCreateGroup();
@@ -93,6 +78,7 @@ router.get('/createGroup', function(req, res, next) {
 	res.redirect('/');
 });
 
+// returns a list of users associated with a group id
 router.get('/:groupId', function(req, res, next) {
 		UserGroup.findOne({_id: req.params.groupId})
 				.populate('users')
@@ -106,46 +92,81 @@ router.get('/:groupId', function(req, res, next) {
 				});
 	});
 
-router.get('/:userId', function(req, res, next) {
-		var uid = req.query.usergroup.userId;
+// deletes a userGroup based on the groupID passed in
+router.delete('/:groupId', function(req, res, next) {
 
-		User.findOne({_id: req.params.userId})
-			.populate('userGroups')
-			.exec(function (err, user) {
+	User.findOne({
+			_id: req.session.user
+		})
+		.exec(function(err, user) {
+			var index = user.userGroups.indexOf(req.params.groupId);
+			user.userGroups.splice(index, 1);
+
+			user.save(function(err) {
 				if (err) {
 					next(err);
 				}
-				console.log("test");
-				console.log(req.params.userId);
-				console.log(uid);
-				console.log(typeof uid);
-
-				var toRet = user.userGroups;
-				res.send(toRet);
 			});
+		});
+
+	UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
 	});
 
-router.delete('/:groupId', function(req, res, next) {
-		User.findOne({_id: req.session.user})
-			.exec(function (err, user) {
-				var index = user.userGroups.indexOf(req.params.groupId);
-				user.userGroups.splice(index, 1);
+	res.status(200);
+    res.send();
+});
 
-				user.save(function(err) {
-					if (err) {
-						next(err);
-					}
-				});
-			});
+// adds a list of users to a UserGroup
+router.put('/:groupId', function(req, res, next) {
+	var userIds = [];
 
-		UserGroup.findByIdAndRemove(req.params.groupId, function(err, usergroup) {
+	User.find({email: {$in: req.body.userEmails}}, function(err, usersT) {
 
-		});		
-	});
+			for (var i = 0; i < usersT.length; i++) {
+				userIds.push(usersT[i]._id);
+			}
 
+				UserGroup.update({_id: req.params.groupId}, {$pushAll: {users: userIds}}, function (err, numAffected, raw) {
+			    	if (err) next(err);
+			    	console.log("NAMES ADDED: " + numAffected);	
+			    	console.log(raw);
+	    		});
+
+			// console.log(userIds);
+			// console.log(req.params.groupId);
+			res.send('USERS ADDED');
+	});	
+});
+
+// deletes a list of users from a UserGroup
+router.post('/delete/user/:groupId', function(req, res, next) {
+	var userIds = [];
+
+	User.find({email: {$in: req.body.userEmails}}, function(err, usersT) {
+			if(!usersT) next(new Error('Failed to find any Users'));
+			
+			for (var i = 0; i < usersT.length; i++) {
+
+				userIds.push(usersT[i]._id);
+				UserGroup.update({_id: req.params.groupId}, {$pull: {users: usersT[i]._id}}, function (err, numAffected, raw) {
+			    	if (err) next(err);
+			    	console.log("NAMES REMOVED: " + numAffected);	
+			    	console.log(raw);
+	    		});
+
+			}
+			// console.log(userIds);
+			// console.log(req.params.groupId);
+			res.send('USER DELETED');
+	});	
+});
+
+
+
+// a delete test, so I could delete from URL only
 router.get('/deltest/:id', function(req, res, next) {
 	delTest(req.session.user._id, req.params.id);
-	res.redirect('/');
+	res.redirect('/query');
 });
 
 //temp
@@ -168,12 +189,14 @@ function delTest(id, groupId) {
 	});
 }
 
+
+
 function peterCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54c9484c65c89945c06054ce"]});
+	var ug = new UserGroup({ name: "g1", users: ["54ceb38e276326989dc6a9f8"]});
 
 	ug.save(function(err) {
 		//handle error
-		User.findOne({email: 'aaa'})
+		User.findOne({email: 'waynexyou+ECE458@gmail.com'})
 		.exec(function (err, user) {
 			if (err) {
 				next(err);
@@ -191,12 +214,12 @@ function peterCreateGroup() {
 
 
 function parkerCreateGroup() {
-	var ug = new UserGroup({ name: "g1", users: ["54cc0daaada915af1993872f"]});
+	var ug = new UserGroup({ name: "g1", users: ["54ceb38e276326989dc6a9f8"]});
 	ug.save(function(err) {
 		if(err){
 			next(err);
 		}
-		User.findOne({email: 'aaa'})
+		User.findOne({email: 'waynexyou+ECE458@gmail.com'})
 		.exec(function (err, user) {
 			if (err) {
 				next(err);
@@ -214,6 +237,15 @@ function parkerCreateGroup() {
 }
 
 
+
+// requires a logged in user, if not logged in then redirect
+// function requireLogin (req, res, next) {
+// 	if (!req.user) {
+// 		res.redirect('/login');
+// 	} else {
+// 		next();
+// 	}
+// };
 
 
 

@@ -8,13 +8,39 @@ var EventSchema = new Schema({
 	name: String,
 	description: String,
 	location: String,
-	start: {type: Date},
-	end: {type: Date},
-	calendar: {type: Schema.Types.ObjectId, ref: 'Calendar'},
-	alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
-	repeats: [{type: Schema.Types.ObjectId, ref: 'Repeat'}],
-	creator: {type: Schema.Types.ObjectId, ref: 'User'}
-}, {collection: collectionName});
+	start: {
+		type: Date
+	},
+	end: {
+		type: Date
+	},
+	calendar: {
+		type: Schema.Types.ObjectId,
+		ref: 'Calendar'
+	},
+	// alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
+	alerts: [{
+		time: Date,
+		method: String
+	}],
+	// repeats: [{type: Schema.Types.ObjectId, ref: 'Repeat'}],
+	repeats: [{
+		frequency: {type: Number, default: null},
+		endDate: {
+			type: Date,
+			default: null
+		},
+		days: [{
+			type: Date
+		}]
+	}],
+
+	creator: {
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	}
+}, {
+	collection: collectionName
+});
 
 module.exports = mongoose.model('Event', EventSchema);
-

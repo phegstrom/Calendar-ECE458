@@ -2,6 +2,22 @@ app.controller('bottomAreaController', function($scope, $http) {
   $scope.title = '';
   $scope.text = '';
   $scope.$parent.eventDetails = {};
+  $scope.daysOfTheWeek = [
+    {name: 'Sunday',
+      number: 0},
+    {name: 'Monday',
+      number: 1},
+    {name: 'Tuesday',
+      number: 2},
+    {name: 'Wednesday',
+      number: 3},
+    {name: 'Thursday',
+      number: 4},
+    {name: 'Friday',
+      number: 5},
+    {name: 'Saturday',
+      number: 6},
+  ];
 
   var defaultForm = {
     name: '',
@@ -11,16 +27,21 @@ app.controller('bottomAreaController', function($scope, $http) {
     willRepeat: false,
     repeatMode: '',
     repeatCount: 0,
-    calendar: null
+    calendar: null,
+    weekdayRepeats: [false, false, false, false, false, false, false]
   }
 
   $scope.sendEventData = function() {
     var eventDetails = $scope.$parent.eventDetails;
     eventDetails.calendar = eventDetails.calendar._id;
     if(eventDetails.alerts) {
-      eventDetails.alerts.forEach(function(element, index, array) {
-          element.method = 'email';
-        });
+      var newAlerts = [];
+      for(var index = 0; index < eventDetails.alerts.length; index++) {
+        var alert = new Object();
+        alert = {time: new Date(eventDetails.alerts[index]), method: 'email'};
+        newAlerts.push(alert);
+      }
+      eventDetails.alerts = newAlerts;
     }
     var repeats = {};
     if(eventDetails.willRepeat) {
@@ -34,10 +55,19 @@ app.controller('bottomAreaController', function($scope, $http) {
         default:
           console.log('Repeat method not found.');
       }
-      repeats.days = [eventDetails.start];
+
+      repeats.days = [];
+      for(var day = 0; day < $scope.daysOfTheWeek.length; day++) {
+        if(eventDetails.weekdayRepeats[day]) {
+          console.log(day);
+          repeats.days.push(Date.parse($scope.daysOfTheWeek[day].name));
+        }
+      }
 
       eventDetails.repeats = [repeats];
     }
+
+    console.log(eventDetails);
 
     var request = {};
 
@@ -66,6 +96,7 @@ app.controller('bottomAreaController', function($scope, $http) {
       $scope.eventForm.$setPristine();
       eventDetails = defaultForm;
 
+      $scope.$parent.bottomSelector = -1;
       $scope.$parent.getCalendarData();
     });
   }

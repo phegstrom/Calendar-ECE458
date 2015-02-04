@@ -45,8 +45,6 @@ app.run(function($rootScope, $q, $http) {
   }
   $rootScope.updateLocalEvents = function() {
     $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
-
-    console.log($rootScope.localEvents);
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -118,6 +116,7 @@ app.run(function($rootScope, $q, $http) {
           var endDate = new Date(repetition.endDate);
           var currentTime = new Date(newEvent.start);
           var eventIterations = [];
+          var i = 0;
           while(currentTime < endDate) {
             eventIterations.push(angular.copy(newEvent));
             eventIterations[i].start +=  DAY * weekdays[weekdayIndex];
@@ -129,7 +128,8 @@ app.run(function($rootScope, $q, $http) {
               weekdayIndex = 0;
             }
 
-            currentTime = eventIteration.start;
+            currentTime = eventIterations[i].start;
+            i++;
           }
           calendarEventList = calendarEventList.concat(eventIterations);
         }

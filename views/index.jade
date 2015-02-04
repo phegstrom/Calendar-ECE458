@@ -113,7 +113,7 @@ block content
           div(ng-hide="selectedEvent.alerts == null")
             h4 Alerts
             ul
-              li(ng-repeat="alert in selectedEvent.alerts") {{ alert }}
+              li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
           div(ng-hide="selectedEvent.willRepeat == null")
             h4 Repeats?
             p {{ selectedEvent.willRepeat }}
@@ -122,6 +122,7 @@ block content
                 p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
           h4 Calendar
           p {{ selectedEvent.calendarName }}
+          h2(ng-show="selectedEvent.repeats") Part of a series of events.
           .btn-group
             button.btn.btn-primary(ng-click="editSelectedEvent()") Edit Event
             button.btn.btn-warning(ng-click="deleteSelectedEvent()") Delete Event
@@ -168,6 +169,9 @@ block content
               div(ng-hide="eventDetails.repeatMode != 'End Date'")
                 label End Date
                 input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+              div(ng-repeat="day in daysOfTheWeek")
+                label {{ day.name }}
+                input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
             label Containing Calendar
             select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
             br
@@ -180,6 +184,7 @@ block content
     script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript', src='/js/angular.js')
     script(type='text/javascript', src='/js/angular-filter.min.js')
+    script(type='text/javascript', src='/js/date.js')
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/bottomAreaController.js')
     script(type='text/javascript', src='/js/sideBarController.js')

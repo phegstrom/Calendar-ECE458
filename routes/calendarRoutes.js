@@ -68,7 +68,7 @@ router.get('/id/:calendarId', function (req, res, next) {
 	// right now, it is returning whatever calendar is requested
 	// it is not taking into account which user is trying to access it
 	Calendar.findOne({_id: req.params.calendarId})
-			.populate('events owner modList')
+			.populate('events owner modList rules')
 			.exec(function (err, calendar) {
 				if(err) next(err);
 

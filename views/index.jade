@@ -55,18 +55,19 @@ block content
 
           #calendarInfo(ng-show="selector == 2")
             ul
+            h5 Owner
               li(ng-repeat="calendar in myCalendars")
-                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
+                a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
                 a(href, ng-click="deleteCalendar(calendar._id)") [X]
-            b Modify
+            h5 Modify
             ul
               li(ng-repeat="calendar in modCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
-            b See All
+            h5 See All
             ul
               li(ng-repeat="calendar in viewCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
-            b Busy Only
+            h5 Busy Only
             ul
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
@@ -75,23 +76,56 @@ block content
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
 
 
-          #calendarDetailsWindow(ng-hide="selector != 3")
+          #calendarDetailsWindow(ng-show="selector == 3")
             b Owner: 
-            |{{ selectedCalendar.owner }}
+            |{{ selectedCalendar.owner.name }}
             br
-            b Rules:
+            b Events: 
+            ul
+              li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
+                a(href ng-click="displayEventDetails(event)") {{ event.title }}
+
+          #calendarOwnerDetailsWindow(ng-show="selector == 5")
+            b Owner: 
+            |{{ selectedCalendar.owner.name }}
+            br
+            b Rules: 
             ul
               li(ng-repeat="rule in selectedCalendar.rules")
-                {{ rule.ruleType.type }}
+                {{ rule.ruleType.type }} + " "
+                a(href, ng-click="deleteRule(calendar._id)") [X]
             br
-            b Users with Modify:
+            b Users with Modify: 
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ modUser.name }}
+                {{ modUser.name }} + " "
+                a(href, ng-click="deleteModUser(modUser._id)") [X]
+            br
+            b Events: 
+            ul
+              li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
+                a(href ng-click="displayEventDetails(event)") {{ event.title }}
+            form(name="addRuleForm")
+              input(type="radio", name="rules", value="canView", ng-model="ruleType")
+              | Can View
+              br
+              input(type="radio", name="rules", value="canViewBusy", ng-model="ruleType")
+              | Can View Busy
+              br
+              input(type="radio", name="rules", value="canNotView", ng-model="ruleType")
+              | Cannot View
+              br
+              input(type="text", ng-model="userGroupId")
+              input(type="text", ng-model="userId")
+              button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule(ruleType, userGroupId, userId)") Add Rule
+            form(name="addModUserForm")
+              input(type="text", ng-model="inputModUserID", required)
+              button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser(inputModUserID)") Add User with Modify
 
           #calendarEvents(ng-show="selector == 4")
-            ul
-              li(ng-repeat="event in localEvents")
+            ul(ng-repeat="(key, value) in localEvents | groupBy: 'calendarId'")
+              h4 {{ value[0].calendarName }}
+              li(ng-repeat="event in value")
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
             button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
     br
@@ -106,22 +140,22 @@ block content
           p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
           p(ng-hide="selectedEvent.location") No location.
           h4 From
-          p {{ selectedEvent.start }}
+          p {{ selectedEvent.start.toLocaleString() }}
           h4 To
-          p {{ selectedEvent.end }}
+          p {{ selectedEvent.end.toLocaleString() }}
           div(ng-hide="selectedEvent.alerts == null")
             h4 Alerts
             ul
-              li(ng-repeat="alert in selectedEvent.alerts") {{ alert }}
+              li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
           div(ng-hide="selectedEvent.willRepeat == null")
             h4 Repeats?
             p {{ selectedEvent.willRepeat }}
               div(ng-show="selectedEvent.willRepeat")
                 p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
                 p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
-          //
-            h4 Calendar
-            p {{ selectedEvent.calendar.name }}
+          h4 Calendar
+          p {{ selectedEvent.calendarName }}
+          h2(ng-show="selectedEvent.repeats") Part of a series of events.
           .btn-group
             button.btn.btn-primary(ng-click="editSelectedEvent()") Edit Event
             button.btn.btn-warning(ng-click="deleteSelectedEvent()") Delete Event
@@ -168,6 +202,9 @@ block content
               div(ng-hide="eventDetails.repeatMode != 'End Date'")
                 label End Date
                 input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+              div(ng-repeat="day in daysOfTheWeek")
+                label {{ day.name }}
+                input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
             label Containing Calendar
             select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
             br
@@ -179,6 +216,8 @@ block content
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript', src='/js/angular.js')
+    script(type='text/javascript', src='/js/angular-filter.min.js')
+    script(type='text/javascript', src='/js/date.js')
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/bottomAreaController.js')
     script(type='text/javascript', src='/js/sideBarController.js')

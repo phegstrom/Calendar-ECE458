@@ -138,7 +138,7 @@ router.delete('/:calId', function (req, res, next) {
 		}
 
 		// rules
-		for(var r = 0; r < calendar.rules.length; r++) {
+		for(var r = 0; r < rules.length; r++) {
 			// deleteRuleForUsers(ruleId, calId)
 			RuleRoutes.deleteRuleForUsers(rules[r], req.params.calId);
 		}
@@ -159,6 +159,7 @@ router.delete('/:calId', function (req, res, next) {
 		// 				});
 		// 			}
 		// 		});
+
 
 		// 	}
 		// });

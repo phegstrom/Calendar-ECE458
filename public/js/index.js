@@ -1,6 +1,9 @@
 //Angular code
-var app = angular.module('calendarApp', []);
+var app = angular.module('calendarApp', ['angular.filter']);
 app.run(function($rootScope, $q, $http) {
+
+  //Store a week in milliseconds
+  var DAY = 1000*60*60*24;
 
   $rootScope.bottomSelector = -1;
   $rootScope.events = [{
@@ -42,8 +45,6 @@ app.run(function($rootScope, $q, $http) {
   }
   $rootScope.updateLocalEvents = function() {
     $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
-
-    console.log($rootScope.localEvents);
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -55,9 +56,15 @@ app.run(function($rootScope, $q, $http) {
 
     var calendarEventList = [];
 
-    eventList.forEach(function(element, index, array) {
+    for(var evNum=0;evNum<eventList.length;evNum++) {
+      var element = eventList[evNum];
       element.start = new Date(element.start);
       element.end = new Date(element.end);
+      $rootScope.calendars.forEach(function(calendar, cIndex, cArray) {
+        if(calendar._id === element.calendar) {
+          element.calendarName = calendar.name;
+        }
+      });
 
       var newEvent = {};
       newEvent.id = element._id;
@@ -66,11 +73,68 @@ app.run(function($rootScope, $q, $http) {
       newEvent.class = 'event-important';
       newEvent.start = element.start.getTime();
       newEvent.end = element.end.getTime();
+      newEvent.calendarId = element.calendar;
+      newEvent.calendarName = element.calendarName;
 
       newEvent.parentData = element;
 
       calendarEventList.push(newEvent);
-    });
+
+      for(var rep=0;rep<element.repeats.length;rep++) {
+        var repetition = element.repeats[rep];
+        var weekdays = [];
+
+        for(var weekdayNum=0; weekdayNum<repetition.days.length; weekdayNum++) {
+          day = new Date(repetition.days[weekdayNum]);
+          day = day.getDay() - element.start.getDay();
+          if(day <= 0) {
+            day += 7;
+          }
+
+          weekdays[weekdayNum] = day;
+        }
+
+        weekdays.sort();
+
+        var weekdayIndex = 0;
+        if(repetition.frequency) {
+          var eventIterations = [];
+          for(var i=0; i<repetition.frequency;i++) {
+            eventIterations.push(angular.copy(newEvent));
+            eventIterations[i].start +=  DAY * weekdays[weekdayIndex];
+            eventIterations[i].end += DAY * weekdays[weekdayIndex];
+
+            weekdays[weekdayIndex] += 7;
+            weekdayIndex++;
+            if(weekdayIndex >= weekdays.length) {
+              weekdayIndex = 0;
+            }
+          }
+          calendarEventList = calendarEventList.concat(eventIterations);
+        }
+        else if(repetition.endDate) {
+          var endDate = new Date(repetition.endDate);
+          var currentTime = new Date(newEvent.start);
+          var eventIterations = [];
+          var i = 0;
+          while(currentTime < endDate) {
+            eventIterations.push(angular.copy(newEvent));
+            eventIterations[i].start +=  DAY * weekdays[weekdayIndex];
+            eventIterations[i].end += DAY * weekdays[weekdayIndex];
+
+            weekdays[weekdayIndex] += 7;
+            weekdayIndex++;
+            if(weekdayIndex >= weekdays.length) {
+              weekdayIndex = 0;
+            }
+
+            currentTime = eventIterations[i].start;
+            i++;
+          }
+          calendarEventList = calendarEventList.concat(eventIterations);
+        }
+      }
+    }
 
     $rootScope.events = calendarEventList;
     $rootScope.createCalendar();
@@ -166,6 +230,11 @@ app.run(function($rootScope, $q, $http) {
 
   $rootScope.editSelectedEvent = function() {
     $rootScope.eventDetails = $rootScope.selectedEvent;
+    $rootScope.calendars.forEach(function(element, index, array) {
+      if(element._id === $rootScope.selectedEvent.calendar) {
+        $rootScope.eventDetails.calendar = element;
+      }
+    });
     $rootScope.bottomSelector = 1;
   }
 

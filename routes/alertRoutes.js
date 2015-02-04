@@ -3,6 +3,7 @@ var nodemailer 	= require('nodemailer');
 var router      = express.Router();
 var Event       = require('../models/Event');
 var Alert 		= require('../models/Alert');
+var User 		= require('../models/User');
 
 
 var transporter = nodemailer.createTransport({
@@ -21,62 +22,75 @@ var transporter = nodemailer.createTransport({
 //           console.log("Just pinged: " + user.name);
 //       });
 // } 
-// setInterval(intervalFunction, 1000 * 5);
+
+ setInterval(intervalFunction, 1000 * 15);
 
 // send mail with defined transport object
 
  
 
-router.get('/', function (req, res, next) {
+//router.get('/', function (req, res, next) {
 
-  Event.findOne({_id: "54d1ca4f4e356fd2589bb1e1"})
-        .exec(function (err, event_t) {
-            var htmlString = createEventEmail(event_t);
-            var mailOptions = setOptions(htmlString);
+function intervalFunction() {
+	Alert.findOne({_id: '54d1e81419822733777b9a3e'})
+		.populate('myEvent')
+		.exec(function (err, alert) {
+				User.findOne({_id: alert.owner})
+					.exec( function (err, user) {
 
-          console.log("sending email...");
-          console.log(htmlString);
-          console.log(mailOptions);
-          console.log(event_t);
+				var htmlString = createEventEmail(alert);
+	          	var mailOptions = setOptions(htmlString, user.email);
 
-        if (event_t) {
-          transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Message sent: ' + info.response);
-                }
-            });
-        }
+		      console.log("sending email...");
+		      console.log(htmlString);
+		      console.log(mailOptions);
+		      //console.log(event_t);
 
-            res.redirect('/');
-       });
+		       if (alert) {
+		          transporter.sendMail(mailOptions, function(error, info) {
+		                if (error) {
+		                    console.log(error);
+		                } else {
+		                    console.log('Message sent: ' + info.response);
+		                }
+		            });
+		        }
+		       // res.redirect('/');
+			});
 
-
-});
+		});
+}
+//});
 
 // takes in Event object
-function createEventEmail(ev) {
+function createEventEmail(alert) {
+	var date = new Date();
     var toRet = '';
     toRet += '<b>Event Name: </b>';
-    toRet += ev.name + ' <br> ';
+    toRet += alert.myEvent.name + ' <br> ';
     toRet += '<b>Description: </b>';
-    toRet += ev.description + ' <br>';
+    toRet += alert.myEvent.description + ' <br>';
     toRet += '<b>Start Time: </b>';
-    toRet += ev.start.getMonth() + '/' + 
-             ev.start.getDate() + '/' +  
-             ev.start.getYear() + 
-             ' at ' + ev.start.toTimeString() + ' <br>';
+    toRet += alert.myEvent.start.getMonth() + '/' + 
+             alert.myEvent.start.getDate() + '/' +  
+             alert.myEvent.start.getYear() + 
+             ' at ' + alert.myEvent.start.toTimeString() + ' <br>';
+    toRet += '<b>Request Alert Time: </b>';             
+    toRet += alert.time.getMonth() + '/' + 
+             alert.time.getDate() + '/' +  
+             alert.time.getYear() + 
+             ' at ' + alert.time.toTimeString() + ' <br>';             
+    toRet += '<b>Current Time: </b>' + date.toTimeString();
+
 
     return toRet;
 }
 
 
-function setOptions(htmlString) {
-
+function setOptions(htmlString, email) {
     var mailOptions = {
         from: 'soCal Staff <foo@blurdybloop.com>', // sender address', // sender address
-        to: 'parker.hegstrom@gmail.com', // list of receivers
+        to: email, // list of receivers
         subject: 'A friendly reminder!', // Subject line
         text: 'See below for your event information:', // plaintext body
         html: htmlString // html body

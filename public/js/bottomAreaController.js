@@ -36,7 +36,7 @@ app.controller('bottomAreaController', function($scope, $http) {
       }
       repeats.days = [eventDetails.start];
 
-      eventDetails.repeat = [repeats];
+      eventDetails.repeats = [repeats];
     }
 
     var request = {};

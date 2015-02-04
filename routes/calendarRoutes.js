@@ -13,18 +13,18 @@ router.post('/', function(req, res, next) {
 	var newCal = new Calendar();
 	newCal.name = req.body.name;
 
-	// newCal.owner = req.session.user._id;
+	newCal.owner = req.session.user._id;
 	// for PostMan
-	newCal.owner = req.body.owner;
+	// newCal.owner = req.body.owner;
 
 	newCal.save(function(err) {
 		if(err) {
 			next(err);
 		}
 
-		// User.update({_id: req.session.user._id}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
+		User.update({_id: req.session.user._id}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
 		// for PostMan
-		User.update({_id: req.body.owner}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
+		// User.update({_id: req.body.owner}, {$push: {myCalId: newCal._id}}, function(err, num, raw) {
 			if (err) next(err);
 		});
 

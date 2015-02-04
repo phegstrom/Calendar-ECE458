@@ -8,22 +8,21 @@ app.controller('bottomAreaController', function($scope, $http) {
     name: '',
     description: '',
     location: '',
-    start: new Date(),
-    end: new Date(),
     alerts: [],
     willRepeat: false,
     repeatMode: '',
     repeatCount: 0,
-    repeatUntil: new Date(),
     calendar: null
   }
 
   $scope.sendEventData = function() {
-
+    console.log($scope.eventDetails.start instanceof Date);
     $scope.eventDetails.calendar = $scope.eventDetails.calendar._id;
-    $scope.eventDetails.alerts.forEach(function(element, index, array) {
-        element.method = 'email';
-      });
+    if($scope.eventDetails.alerts) {
+      $scope.eventDetails.alerts.forEach(function(element, index, array) {
+          element.method = 'email';
+        });
+    }
     var repeats = {};
     if($scope.eventDetails.willRepeat) {
       switch($scope.eventDetails.repeatMode) {
@@ -41,9 +40,8 @@ app.controller('bottomAreaController', function($scope, $http) {
       $scope.eventDetails.repeat = [repeats];
     }
 
-    var request = $http.post('/events', $scope.eventDetails).
+    var request = $http.post('/event', $scope.eventDetails).
     success(function(data, status, headers, config) {
-      $scope.text = angular.fromJson(data);
       //Parse the object into a set of groups filled with users
     }).
     error(function(data, status, headers, config) {
@@ -54,7 +52,8 @@ app.controller('bottomAreaController', function($scope, $http) {
     request.then(function() {
       $scope.eventForm.$setPristine();
       $scope.eventDetails = defaultForm;
-      $scope.alertTime = new Date();
+
+      $scope.$parent.parseDatabaseEvents();
     });
   }
 

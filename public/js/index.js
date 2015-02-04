@@ -1,6 +1,7 @@
 //Angular code
 var app = angular.module('calendarApp', []);
 app.run(function($rootScope, $q, $http) {
+
   $rootScope.calendar = $("#calendar").calendar(
   {
     view: "month",
@@ -17,7 +18,8 @@ app.run(function($rootScope, $q, $http) {
         "start": 1422424903780, // Milliseconds
         "end": 1422434903780 // Milliseconds
       }
-      ];},    onAfterViewLoad: function(view) {
+      ];},
+    onAfterViewLoad: function(view) {
       $('.btn-group button').removeClass('active');
       $('button[calendarView="' + view + '"]').addClass('active');
       $('.page-header h3').text(this.getTitle());
@@ -118,6 +120,8 @@ app.run(function($rootScope, $q, $http) {
       });
 
       $rootScope.events = calendarEventList;
+      console.log($rootScope.events);
+      calendar({events_source: $rootScope.events});
     }
   }
 

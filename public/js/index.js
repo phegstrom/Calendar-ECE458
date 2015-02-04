@@ -1,6 +1,7 @@
 //Angular code
 var app = angular.module('calendarApp', []);
 app.run(function($rootScope, $q, $http) {
+
   $rootScope.calendar = $("#calendar").calendar(
   {
     view: "month",
@@ -8,7 +9,16 @@ app.run(function($rootScope, $q, $http) {
     modal_title: function(event) { return event.title },
     modal: "#events-modal",
     modal_type: "template",
-    events_source: $rootScope.getCalendarData,
+    events_source: [
+        {
+            "id": 293,
+            "title": "Event 1",
+            "url": "http://example.com",
+            "class": "event-important",
+            "start": 12039485678000, // Milliseconds
+            "end": 1234576967000 // Milliseconds
+        }
+    ],
     onAfterViewLoad: function(view) {
       $('.btn-group button').removeClass('active');
       $('button[calendarView="' + view + '"]').addClass('active');
@@ -110,6 +120,8 @@ app.run(function($rootScope, $q, $http) {
       });
 
       $rootScope.events = calendarEventList;
+      console.log($rootScope.events);
+      calendar({events_source: $rootScope.events});
     }
   }
 

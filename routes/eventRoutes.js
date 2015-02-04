@@ -11,6 +11,8 @@ router.post('/', function(req, res, next) {
 
 	var newEvent = new Event();
 
+	console.log(req.body);
+
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
 	newEvent.location = req.body.location;

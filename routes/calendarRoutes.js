@@ -50,11 +50,11 @@ router.put('/modList/add/:calId', function (req, res, next) {
 
 // removes users from calendar modList and calendar from users' modLists
 router.put('/modList/remove/:calId', function (req, res, next) {
-	Calendar.update({_id: req.params.calId}, {$pull: {modList: req.body.modList}}, function(err, num, raw) {
-		if (err) next(err);
-	});
-
 	for(var i = 0; i < req.body.modList.length; i++) {
+		Calendar.update({_id: req.params.calId}, {$pull: {modList: req.body.modList[i]}}, function(err, num, raw) {
+			if (err) next(err);
+		});
+
 		User.update({_id: req.body.modList[i]}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
 			if(err) next(err);
 		});
@@ -138,7 +138,7 @@ router.delete('/:calId', function (req, res, next) {
 		}
 
 		// rules
-		for(var r = 0; r < rules.length; r++) {
+		for(var r = 0; r < calendar.rules.length; r++) {
 			// deleteRuleForUsers(ruleId, calId)
 			RuleRoutes.deleteRuleForUsers(rules[r], req.params.calId);
 		}

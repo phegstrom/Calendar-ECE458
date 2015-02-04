@@ -22,7 +22,7 @@ router.post('/', function (req, res, next) {
 				}
 
 				var id_t = req.session.user._id;
-				//var id_t = '54d06afb55d013111eea5759'; // for use with POSTman
+				// var id_t = '54d1cbd5c05f817ea567112a'; // for use with POSTman
 				User.update({ _id: id_t }, 
 						{$push: {userGroups: uGroup._id}}, 
 						function(err, numAffected) {

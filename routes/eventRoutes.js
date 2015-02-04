@@ -2,8 +2,6 @@ var express = require('express');
 var mongoose = require('mongoose');
 var Event 		= require('../models/Event');
 var Calendar	= require('../models/Calendar');
-var Alert		= require('../models/Calendar');
-var Repeat		= require('../models/Calendar');
 var router 		= express.Router();
 
 // post new Event

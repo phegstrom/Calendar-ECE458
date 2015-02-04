@@ -68,7 +68,7 @@ router.get('/:calType', function (req, res, next) {
 			var cType = req.params.calType;
 
 			Calendar.find({_id: {$in: user[cType]}})
-					.populate(req.params.calType)
+					.populate(req.params.calType + ' owner modList')
 					.exec(function (err, calendar) {
 						if(err) next(err);
 

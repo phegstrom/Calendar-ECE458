@@ -14,27 +14,27 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-// var User = require('../models/User');
-
-// function intervalFunction() {
-//   User.findOne({email: 'aaa'})
-//       .exec(function (err, user) {
-//           console.log("Just pinged: " + user.name);
-//       });
-// } 
-
- setInterval(intervalFunction, 1000 * 15);
+setInterval(intervalFunction, 1000 * 60);
 
 // send mail with defined transport object
 
  
-
-//router.get('/', function (req, res, next) {
-
 function intervalFunction() {
-	Alert.findOne({_id: '54d1f1a799bf6b887dbcdf7c'})
+	var now = new Date();
+	var lowerBound = new Date();
+	lowerBound.setMinutes(lowerBound.getMinutes() - 1);
+	var upperBound = new Date();
+	upperBound.setMinutes(upperBound.getMinutes() + 1);
+	// console.log(lowerBound);
+	// console.log(upperBound);
+	// console.log(now);
+	// Alert.findOne({_id: '54d1f1a799bf6b887dbcdf7c'})
+	Alert.findOne({time: {$gte: lowerBound, $lt: upperBound}})
 		.populate('myEvent')
 		.exec(function (err, alert) {
+			if (err) next(err);
+			// console.log(alert);
+			if(alert) {
 				User.findOne({_id: alert.owner})
 					.exec( function (err, user) {
 
@@ -42,8 +42,8 @@ function intervalFunction() {
 	          	var mailOptions = setOptions(htmlString, user.email);
 
 		      console.log("sending email...");
-		      console.log(htmlString);
-		      console.log(mailOptions);
+		      // console.log(htmlString);
+		      // console.log(mailOptions);
 		      //console.log(event_t);
 
 		       if (alert) {
@@ -53,16 +53,23 @@ function intervalFunction() {
 		                } else {
 		                    console.log('Message sent: ' + info.response);
 		                }
+		                Event.findOneAndUpdate({_id: alert.myEvent._id}, {$pull: {alerts: alert._id}}, function (err, num, raw) {
+		                	if (err) next(err);
+		                	// console.log('Alert deleted from event object');
+		                });
+		                Alert.findOneAndRemove({_id: alert._id}, function (err) {
+		                	if (err) next(err);
+		                	// console.log('deleted alert object');		                	
+		                });
 		            });
 		        }
 		       // res.redirect('/');
 			});
-
+		}
 		});
 }
-//});
 
-// takes in Event object
+// takes in Alert populated with Event object
 function createEventEmail(alert) {
 	var date = new Date();
     var toRet = '';

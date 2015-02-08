@@ -9,6 +9,7 @@ A calendar web app created for ECE 458 - Software Maintainability
 * Install node using [Node Version Manager](https://github.com/creationix/nvm). We suggest using the cURL install script.
 * Make sure you have MongoDB installed as well.  
 * git clone this repo into your working directory  
+* cd into the project directory
 * You now must install the dependencies that are embedded within the project. Do so by typing
 
  `$ npm install`  

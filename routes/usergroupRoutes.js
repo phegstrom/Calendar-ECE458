@@ -8,7 +8,7 @@ var router 		= express.Router();
 // creates a usergroup with a group of emails
 router.post('/', function (req, res, next) {
 	var userIds = [];
-
+	console.log(req.body);
 	User.find({email: {$in: req.body.userEmails}}, function(err, users) {
 			console.log(users);
 			for (var i = 0; i < users.length; i++) {

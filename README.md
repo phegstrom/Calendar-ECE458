@@ -22,4 +22,4 @@ A calendar web app created for ECE 458 - Software Maintainability
  3. Open new terminal window and type
 
   `$ node ./bin/www`
- 4. The server is now running and listening on localhost:3000!
+ 4. The server is now running and listening on localhost:3000! A verification statement that the DB had successfully connected should be console logged at this point in time. 

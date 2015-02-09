@@ -203,7 +203,7 @@ app.controller('sideBarController', function($scope, $http) {
   var populateUserGroups = function() {
     $http.get('/usergroup').
     success(function(data, status, headers, config) {
-      $scope.userGroups = angular.fromJson(data).userGroups;
+      $scope.userGroups = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs

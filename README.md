@@ -15,7 +15,7 @@ A calendar web app created for ECE 458 - Software Maintainability
  `$ npm install`  
 
 #### View production version
-The app is being hosted at [https://socal.nodejitsu.com](https://socal.nodejitsu.com)
+The app is being hosted at [https://socal.nodejitsu.com](https://socal.nodejitsu.com). Please do not use any of the buttons in the ribbon bar except for Log in / Log out. The other buttons like 'createGroup' or 'execQuery' were for developement testing purporses and were accidently left in the production version!
 
 #### Running the app locally
  1. Navigate to the project directory

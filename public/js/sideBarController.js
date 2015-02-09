@@ -2,6 +2,7 @@ app.controller('sideBarController', function($scope, $http) {
   $scope.title = 'Select an Option';
   $scope.text = 'N/A';
   $scope.selector = -1;
+  $scope.newRule = {};
 
   // USER GROUP DISPLAYS
   $scope.displayUserGroups = function() {
@@ -188,14 +189,14 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.addUserGroupIdToRule = function() {
-    var newGroupId = angular.copy($scope.userGroupId);
+    var newGroupId = angular.copy($scope.userGroupId._id);
     if($scope.newRule.userGroupIds) {
       $scope.newRule.userGroupIds.push(newGroupId);
     }
     else {
       $scope.newRule.userGroupIds = [newGroupId];
     }
-    $scope.userGroupId = '';
+    $scope.userGroupId = {};
   }
 
   $scope.addRule = function() {

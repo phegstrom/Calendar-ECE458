@@ -1,50 +1,28 @@
 //Angular code
-var app = angular.module('calendarApp', ['angular.filter']);
+var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar']);
 app.run(function($rootScope, $q, $http) {
 
   //Store a week in milliseconds
   var DAY = 1000*60*60*24;
 
   $rootScope.bottomSelector = -1;
-  $rootScope.events = [{
-      "id": 293,
-      "title": "Event 1",
-      "url": "javascript:void(0)",
-      "class": "event-important",
-      "start": 1422424903780, // Milliseconds
-      "end": 1422434903780 // Milliseconds
-    }];
+  var currentYear = moment().year();
+  var currentMonth = moment().month();
 
-  $rootScope.createCalendar = function() {
-    $rootScope.calendar = $("#calendar").calendar(
-    {
-      view: "month",
-      tmpl_path: "/tmpls/",
-      modal_title: function(event) { return event.title },
-      modal: "#events-modal",
-      modal_type: "template",
-      events_source: $rootScope.events,
-      onAfterViewLoad: function(view) {
-        $('.btn-group button').removeClass('active');
-        $('button[calendarView="' + view + '"]').addClass('active');
-        $('.page-header h3').text(this.getTitle());
+  $rootScope.events=[];
+  $rootScope.calendarView = 'month';
+  $rootScope.calendarDay = new Date();
 
-        $('a[data-event-id]').click(function() {
-          $('#eventFrame').text($(this).attr('data-event-id'));
-        });
-      }
-    });
-  }
   $rootScope.setViewLength = function(viewLength) {
-    $rootScope.calendar.view(viewLength);
+    $rootScope.calendarView = viewLength;
     $rootScope.updateLocalEvents();
   }
-  $rootScope.navigate = function(where) {
-    $rootScope.calendar.navigate(where);
+  $rootScope.goToToday = function() {
+    $rootScope.calendarDay = new Date();
     $rootScope.updateLocalEvents();
   }
   $rootScope.updateLocalEvents = function() {
-    $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
+    //$rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -69,20 +47,16 @@ app.run(function($rootScope, $q, $http) {
       element.canViewEvent = $rootScope.canViewEvent(element);
 
       var newEvent = {};
-      newEvent.id = element._id;
       newEvent.title = element.name;
-      newEvent.url = 'javascript:void(0)';
       if(element.canViewEvent) {
-        newEvent.class = 'event-info';
+        newEvent.type = 'warning';
       }
       else {
-        newEvent.class = 'event-important';
+        newEvent.type = 'important';
         newEvent.title = 'Event';
       }
-      newEvent.start = element.start.getTime();
-      newEvent.end = element.end.getTime();
-      newEvent.calendarId = element.calendar;
-      newEvent.calendarName = element.calendarName;
+      newEvent.starts_at = element.start.getTime();
+      newEvent.ends_at = element.end.getTime();
 
       newEvent.parentData = element;
 
@@ -145,7 +119,6 @@ app.run(function($rootScope, $q, $http) {
     }
 
     $rootScope.events = calendarEventList;
-    $rootScope.createCalendar();
   }
 
   $rootScope.displayEventDetails = function(event) {
@@ -284,7 +257,6 @@ app.run(function($rootScope, $q, $http) {
 
   
   //Initialization
-  $rootScope.createCalendar();
   $rootScope.getCalendarData();
   $rootScope.updateLocalEvents();
 });

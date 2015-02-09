@@ -8,27 +8,28 @@ block content
       p You are currently not logged in. Please login or register...
     br
 
-    link(rel='stylesheet', href='/css/calendar.min.css')
+    link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
     link(rel='stylesheet', href='/css/angular-csp.css')
 
     br
     .page-header
       .pull-right.form-inline
         .btn-group
-          button.btn.btn-primary(ng-click="navigate('prev');") << Prev
-          button.btn(ng-click="navigate('today');") Today
-          button.btn.btn-primary(ng-click="navigate('next');") Next >>
+          button.btn.btn-primary(ng-click="calendarControl.prev()") << Prev
+          button.btn(ng-click="goToToday()") Today
+          button.btn.btn-primary(ng-click="calendarControl.next()") Next >>
         .btn-group#viewLengthButtons
-          button.btn.btn-warning(calendarView="year", ng-click="setViewLength('year');") Year
-          button.btn.btn-warning.active(calendarView="month", ng-click="setViewLength('month');") Month
-          button.btn.btn-warning(calendarView="week", ng-click="setViewLength('week');") Week
-          button.btn.btn-warning(calendarView="day", ng-click="setViewLength('day');") Day
+          button.btn.btn-warning(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
+          button.btn.btn-warning(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
+          button.btn.btn-warning(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
+          button.btn.btn-warning(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
       h3
+        {{ calendarControl.getTitle() }}
       br
     .row
-      .span9
-        #calendar
-      .span3
+      .col-md-9
+        mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='displayEventDetails($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
+      .col-md-3
         #sideBar(ng-controller="sideBarController")
           .btn-group
             button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
@@ -117,12 +118,16 @@ block content
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
             form(name="addRuleForm")
               label Rule Type
+              br
               select(ng-model="newRule.ruleType")
                 option(value="canView") Can View
                 option(value="canViewBusy") Can View Busy
                 option(value="canNotView") Cannot View
-              label User Group ID
-              input(type="text", ng-model="userGroupId")
+              br
+              label User Group
+              br
+              select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
+              br
               button.btn(ng-click="addUserGroupIdToRule()") Add User Group ID
               ul
                 li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
@@ -183,60 +188,84 @@ block content
         #createEvent(ng-show="bottomSelector == 1")
           form(name="eventForm")
             label Event Name
+            br
             input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
+            br
 
             label Description
+            br
             textarea(rows="10", cols="50", ng-model="eventDetails.description", placeholder="Description")
+            br
 
             label Location
+            br
             input(type="text", ng-model="eventDetails.location", placeholder="Location")
+            br
             //
               label All Day?
               input(type="checkbox", ng-model="eventDetails.isAllDay")
 
             label Start Time
+            br
             input(type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            br
             
             label End Time
+            br
             input(type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            br
 
             //Currently this naively assumes the date in alertTime is valid
             label Add Alert
+            br
             input(type="datetime-local", ng-model="alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
             br
             button.btn(type="button", ng-click="addAlert()") Add Alert
+            br
             ul
              li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
                a(href ng-click="removeAlert(time)") [X]
             
             label Repeat?
+            br
             input(type="checkbox", ng-model="eventDetails.willRepeat")
+            br
             div(ng-hide="!eventDetails.willRepeat")
               label Repeat Mode
+              br
               select(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
                 option Number
                 option End Date
+              br
               div(ng-hide="eventDetails.repeatMode != 'Number'")
                 label Repeat Count
+                br
                 input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
+                br
               div(ng-hide="eventDetails.repeatMode != 'End Date'")
                 label End Date
+                br
                 input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+                br
               div(ng-repeat="day in daysOfTheWeek")
                 label {{ day.name }}
                 input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
             label Containing Calendar
+            br
             select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
             br
             input(type="text", ng-model="selectedEvent._id", ng-hide="true")
+            br
             btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()") Save
             br
           br
           |{{ text }}
     script(type='text/javascript', src='/js/underscore-min.js')
-    script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript', src='/js/angular.js')
+    script(type='text/javascript', src='/js/moment.js')
     script(type='text/javascript', src='/js/angular-filter.min.js')
+    script(type='text/javascript', src='/js/angular-bootstrap-calendar-tpls.min.js')
+    script(type='text/javascript', src='/js/ui-bootstrap-tpls.min.js')
     script(type='text/javascript', src='/js/date.js')
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/bottomAreaController.js')

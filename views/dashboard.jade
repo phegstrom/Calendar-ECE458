@@ -2,11 +2,6 @@ extends layout
 
 block content
   div(ng-app="calendarApp")
-    if (user)
-      p You are currently logged in as #{user.name}
-    else
-      p You are currently not logged in. Please login or register...
-    br
 
     link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
     link(rel='stylesheet', href='/css/angular-csp.css')
@@ -130,11 +125,11 @@ block content
               button.btn(ng-click="addUserGroupIdToRule()") Add User Group ID
               ul
                 li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
-              label User ID
-              input(type="text", ng-model="userId")
-              button.btn(ng-click="addUserIdToRule()") Add User ID
+              label User Email
+              input(type="text", ng-model="userEmail")
+              button.btn(ng-click="addUserEmailToRule()") Add User Email
               ul
-                li(ng-repeat="userId in newRule.userIds") {{ userId }}
+                li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
             form(name="addModUserForm")
               input(type="text", ng-model="inputModUserId")

@@ -11,25 +11,21 @@ html
     nav.navbar.navbar-inverse.navbar-fixed-top
       .container-fluid
         .navbar-header
-          a.navbar-brand(href='/') Example
+          a.navbar-brand(href='/') soCal
         div
           ul.nav.navbar-nav
-            if (typeof(user) == 'undefined')
-              li
-                a(href="/login") Log In
-              li
-                a(href="/query") Query Users
-            else
-              li
-                a(href="/logout") Log Out
-              li
-                a(href="/usergroup") execQuery        
-              li
-                a(href="/usergroup/createGroup") create group      
-              li
-                a(href="/query") Query Users
-              li
-                a(href="/user/populate/cal") Populate Calendar
+            li
+              a(href="/logout") Log Out
+            li
+              a(href="/usergroup") execQuery        
+            li
+              a(href="/usergroup/createGroup") create group      
+            li
+              a(href="/query") Query Users
+            li
+              a(href="/user/populate/cal") Populate Calendar
+            li
+              #{user.name}
 
     .container
       block content

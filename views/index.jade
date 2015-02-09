@@ -8,7 +8,7 @@ block content
       p You are currently not logged in. Please login or register...
     br
 
-    link(rel='stylesheet', href='/css/calendar.min.css')
+    link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
     link(rel='stylesheet', href='/css/angular-csp.css')
 
     br
@@ -27,14 +27,15 @@ block content
       br
     .row
       .span9
-        #calendar
+        mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='eventClicked($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
       .span3
         #sideBar(ng-controller="sideBarController")
           .btn-group
             button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
             button.btn.btn-primary(ng-click="displayCalendars()") Calendars
             button.btn.btn-primary(ng-click="displayEvents()") Events
-          h3 {{ title }}
+          //h3 {{ title }}
+          h3 {{ calendarControl.getTitle() }}
           #userGroupWindow(ng-show="selector == 0")
             ul
               li(ng-repeat="group in userGroups")
@@ -233,9 +234,11 @@ block content
           br
           |{{ text }}
     script(type='text/javascript', src='/js/underscore-min.js')
-    script(type='text/javascript', src='/js/calendar.min.js')
     script(type='text/javascript', src='/js/angular.js')
+    script(type='text/javascript', src='/js/moment.js')
     script(type='text/javascript', src='/js/angular-filter.min.js')
+    script(type='text/javascript', src='/js/angular-bootstrap-calendar-tpls.min.js')
+    script(type='text/javascript', src='/js/ui-bootstrap-tpls.min.js')
     script(type='text/javascript', src='/js/date.js')
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/bottomAreaController.js')

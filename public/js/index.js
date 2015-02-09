@@ -1,39 +1,39 @@
 //Angular code
-var app = angular.module('calendarApp', ['angular.filter']);
+var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar']);
 app.run(function($rootScope, $q, $http) {
 
   //Store a week in milliseconds
   var DAY = 1000*60*60*24;
 
   $rootScope.bottomSelector = -1;
-  $rootScope.events = [{
-      "id": 293,
-      "title": "Event 1",
-      "url": "javascript:void(0)",
-      "class": "event-important",
-      "start": 1422424903780, // Milliseconds
-      "end": 1422434903780 // Milliseconds
-    }];
+  var currentYear = moment().year();
+  var currentMonth = moment().month();
+
+  $rootScope.events = [
+    {
+      title: 'Event 1',
+      type: 'warning',
+      starts_at: new Date(currentYear,currentMonth,25,8,30),
+      ends_at: new Date(currentYear,currentMonth,25,9,30)
+    },
+    {
+      title: 'Event 2',
+      type: 'info',
+      starts_at: new Date(currentYear,currentMonth,19,7,30),
+      ends_at: new Date(currentYear,currentMonth,25,9,30)
+    },
+    {
+      title: 'This is a really long event title',
+      type: 'important',
+      starts_at: new Date(currentYear,currentMonth,25,6,30),
+      ends_at: new Date(currentYear,currentMonth,25,6,60)
+    },
+  ];
+
+  $rootScope.calendarView = 'month';
+  $rootScope.calendarDay = new Date();
 
   $rootScope.createCalendar = function() {
-    $rootScope.calendar = $("#calendar").calendar(
-    {
-      view: "month",
-      tmpl_path: "/tmpls/",
-      modal_title: function(event) { return event.title },
-      modal: "#events-modal",
-      modal_type: "template",
-      events_source: $rootScope.events,
-      onAfterViewLoad: function(view) {
-        $('.btn-group button').removeClass('active');
-        $('button[calendarView="' + view + '"]').addClass('active');
-        $('.page-header h3').text(this.getTitle());
-
-        $('a[data-event-id]').click(function() {
-          $('#eventFrame').text($(this).attr('data-event-id'));
-        });
-      }
-    });
   }
   $rootScope.setViewLength = function(viewLength) {
     $rootScope.calendar.view(viewLength);
@@ -44,7 +44,7 @@ app.run(function($rootScope, $q, $http) {
     $rootScope.updateLocalEvents();
   }
   $rootScope.updateLocalEvents = function() {
-    $rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
+    //$rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
   }
 
   $rootScope.parseDatabaseEvents = function() {

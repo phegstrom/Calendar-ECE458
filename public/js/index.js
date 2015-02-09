@@ -47,9 +47,7 @@ app.run(function($rootScope, $q, $http) {
       element.canViewEvent = $rootScope.canViewEvent(element);
 
       var newEvent = {};
-      newEvent.id = element._id;
       newEvent.title = element.name;
-      newEvent.url = 'javascript:void(0)';
       if(element.canViewEvent) {
         newEvent.type = 'warning';
       }
@@ -59,8 +57,6 @@ app.run(function($rootScope, $q, $http) {
       }
       newEvent.starts_at = element.start.getTime();
       newEvent.ends_at = element.end.getTime();
-      newEvent.calendarId = element.calendar;
-      newEvent.calendarName = element.calendarName;
 
       newEvent.parentData = element;
 

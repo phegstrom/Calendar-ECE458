@@ -144,15 +144,15 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   // RULES ROUTES
-  $scope.addUserIdToRule = function() {
-    var newUserId = angular.copy($scope.userId);
-    if($scope.newRule.userIds) {
-      $scope.newRule.userIds.push(newUserId);
+  $scope.addUserEmailToRule = function() {
+    var newUserEmail = angular.copy($scope.userEmail);
+    if($scope.newRule.userEmails) {
+      $scope.newRule.userEmails.push(newUserEmail);
     }
     else {
-      $scope.newRule.userIds = [newUserId];
+      $scope.newRule.userEmails = [newUserEmail];
     }
-    $scope.userId = '';
+    $scope.userEmail = '';
   }
 
   $scope.addUserGroupIdToRule = function() {

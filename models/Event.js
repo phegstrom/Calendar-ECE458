@@ -14,6 +14,8 @@ var EventSchema = new Schema({
 	end: {
 		type: Date
 	},
+
+	// `need to phase this out
 	calendar: {
 		type: Schema.Types.ObjectId,
 		ref: 'Calendar'

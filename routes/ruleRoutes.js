@@ -110,19 +110,41 @@ router.delete('/:ruleId/:calId', function (req, res, next) {
 			});
 		});
 
-		for(var i = 0; i < rules.length-1; i++) {
-			Rule.findOne({_id: rules[i]}, function(err, rule) {
-				rule.getAllUsersInRule(function (users) {
-					var usersAdded = [];
-
-					// potential scope problem?
-					propogateRuleForUsers(users, usersAdded, rule.ruleType, req.params.calId);
-				});
-			});
-		}
-
+		updateRules(rules);
 	});
 });
+
+router.delete('/:ruleId', function (req, res, next) {
+	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
+		console.log(rule);
+		var test = rule.getAllUsersInRule(function(users) {
+			console.log(users);
+			res.send(users);
+		});
+		console.log(test);
+	});
+});
+
+router.put('/reorder/:calId', function (req, res, next) {
+	Calendar.findOne({_id: req.params.calId}, function (err, calendar) {
+		calendar.rules = req.body.rules;
+		calendar.save;
+
+		updateRules(calendar.rules);	
+	});
+});
+
+function updateRules(rules) {
+	for(var i = 0; i < rules.length - 1; i++) {
+		Rule.findOne({_id: rules[i]}, function (err, rule) {
+			rule.getAllUsersInRule(function (users) {
+				var usersAdded = [];
+
+				propogateRuleForUsers(users, usersAdded, rule.ruleType, req.params.calId);
+			})
+		});
+	}	
+}
 
 function deleteRuleForUsers(ruleId, calId) {
 
@@ -186,17 +208,6 @@ function propogateRuleForUsers(userIdArray, usersAdded, ruleType, calendId) {
 	}
 	return usersAdded;
 }
-
-router.delete('/:ruleId', function (req, res, next) {
-	Rule.findOne({_id: req.params.ruleId}, function (err, rule) {
-		console.log(rule);
-		var test = rule.getAllUsersInRule(function(users) {
-			console.log(users);
-			res.send(users);
-		});
-		console.log(test);
-	});
-})
 
 module.exports = router;
 

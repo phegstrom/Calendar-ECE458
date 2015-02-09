@@ -11,54 +11,66 @@ var CANT_VIEW = 'canNotView';
 // route that creates a RULE for a certain calendId
 router.post('/:calendId', function (req, res, next) {
 
-	var rule  = new Rule({ruleType: req.body.ruleType,
-						  assocUsers: req.body.userIds,
-						  assocUserGroups: req.body.userGroupIds});
-
-	rule.save(function (err) {
+	// now add rule stuff for individual users, 
+	// first create array of ids
+	var emailToIDArray = [];
+	User.find({email: req.body.userIds}, function (err, users) {
 		if (err) next(err);
+		users.forEach(function (user) {
+			emailToIDArray.push(user._id);
+		});				
+	// });	
 
-		var usersAdded = [];
+		var rule  = new Rule({ruleType: req.body.ruleType,
+							  assocUsers: emailToIDArray,
+							  assocUserGroups: req.body.userGroupIds});
 
-		Calendar.update({_id: req.params.calendId}, {$push: {rules: rule._id}}, function (err, num, raw) {
+		rule.save(function (err) {
 			if (err) next(err);
-		});
 
-		var userGroupIds = req.body.userGroupIds;
-		var uGroupArray = [];
-		var hasUserGroup = false;
-
-		// add rule stuff for userGroups
-		for (var i = 0; i < userGroupIds.length; i++) {
-			hasUserGroup = true;
-			UserGroup.find({_id: userGroupIds[i]}, function (err, uGroup) {
+			var usersAdded = [];
+			console.log("CAL ID: " + req.params.calendId);
+			Calendar.update({_id: req.params.calendId}, {$push: {rules: rule._id}}, function (err, num, raw) {
 				if (err) next(err);
-					userIdArray = uGroup[0].users;
-
-					usersAdded = propogateRuleForUsers(userIdArray,
-										  usersAdded,
-										  req.body.ruleType,
-										  req.params.calendId);	
-
-				// now add rule stuff for individual users
-				propogateRuleForUsers(req.body.userIds,
-									  usersAdded,
-									  req.body.ruleType,
-									  req.params.calendId);
-								
 			});
 
-		}
+			var userGroupIds = req.body.userGroupIds;
+			var uGroupArray = [];
+			var hasUserGroup = false;
 
-		 if (!hasUserGroup) {
-			propogateRuleForUsers(req.body.userIds,
-								  usersAdded,
-								  req.body.ruleType,
-								  req.params.calendId);
-		 }
+			// add rule stuff for userGroups
+			for (var i = 0; i < userGroupIds.length; i++) {
+				hasUserGroup = true;
+				UserGroup.find({_id: userGroupIds[i]}, function (err, uGroup) {
+					if (err) next(err);
+						userIdArray = uGroup[0].users;
 
-		res.send("RULE CREATED");
-	});
+						usersAdded = propogateRuleForUsers(userIdArray,
+											  usersAdded,
+											  req.body.ruleType,
+											  req.params.calendId);	
+
+
+						propogateRuleForUsers(emailToIDArray,
+											  usersAdded,
+											  req.body.ruleType,
+											  req.params.calendId);					
+					
+				});
+
+			}
+
+			 if (!hasUserGroup) {
+					propogateRuleForUsers(emailToIDArray,
+										  usersAdded,
+										  req.body.ruleType,
+										  req.params.calendId);					
+			 }
+
+			res.send("RULE CREATED");
+		});
+
+	});	
 
 });
 

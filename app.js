@@ -71,8 +71,21 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-// Added
-mongoose.connect('mongodb://localhost/Calendar', function(err) {
+var dbString = 'mongodb://nodejitsu:28d2f50724f0f90b91e33914338b14c3@troup.mongohq.com:10063/nodejitsudb4576003544';
+// developm112ent error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
+    });
+    dbString = 'mongodb://localhost/Calendar';
+}
+
+mongoose.connect(dbString, function(err) {
     if(err) {
         console.log('connection error', err);
     } else {
@@ -139,17 +152,7 @@ app.use(function(req, res, next) {
 
 // error handlers
 
-// developm112ent error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
+
 
 // production error handler
 // no stacktraces leaked to user

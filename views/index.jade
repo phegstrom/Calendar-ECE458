@@ -183,52 +183,74 @@ block content
         #createEvent(ng-show="bottomSelector == 1")
           form(name="eventForm")
             label Event Name
+            br
             input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
+            br
 
             label Description
+            br
             textarea(rows="10", cols="50", ng-model="eventDetails.description", placeholder="Description")
+            br
 
             label Location
+            br
             input(type="text", ng-model="eventDetails.location", placeholder="Location")
+            br
             //
               label All Day?
               input(type="checkbox", ng-model="eventDetails.isAllDay")
 
             label Start Time
+            br
             input(type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            br
             
             label End Time
+            br
             input(type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            br
 
             //Currently this naively assumes the date in alertTime is valid
             label Add Alert
+            br
             input(type="datetime-local", ng-model="alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
             br
             button.btn(type="button", ng-click="addAlert()") Add Alert
+            br
             ul
              li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
                a(href ng-click="removeAlert(time)") [X]
             
             label Repeat?
+            br
             input(type="checkbox", ng-model="eventDetails.willRepeat")
+            br
             div(ng-hide="!eventDetails.willRepeat")
               label Repeat Mode
+              br
               select(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
                 option Number
                 option End Date
+              br
               div(ng-hide="eventDetails.repeatMode != 'Number'")
                 label Repeat Count
+                br
                 input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
+                br
               div(ng-hide="eventDetails.repeatMode != 'End Date'")
                 label End Date
+                br
                 input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+                br
               div(ng-repeat="day in daysOfTheWeek")
                 label {{ day.name }}
                 input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
             label Containing Calendar
+            br
             select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
             br
             input(type="text", ng-model="selectedEvent._id", ng-hide="true")
+            br
             btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()") Save
             br
           br

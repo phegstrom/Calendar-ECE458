@@ -117,7 +117,7 @@ router.delete('/:calId', function (req, res, next) {
 		// rules
 		for(var r = 0; r < calendar.rules.length; r++) {
 			// deleteRuleForUsers(ruleId, calId)
-			RuleRoutes.deleteRuleForUsers(rules[r], req.params.calId);
+			RuleRoutes.deleteRuleForUsers(calendar.rules[r], req.params.calId);
 		}
 
 		// Rule.find({_id: {$in: calendar.rules}}, function(err, rules) {

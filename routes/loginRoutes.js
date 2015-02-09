@@ -2,10 +2,10 @@ var passport = require('passport');
 var User = require('../models/User');
 var router = require('express').Router();
 
-router.get('/', function(req, res, next) {
-  console.log('EVERYTIMEEEEE ');
-  res.render('index', {user: req.user});
+router.get('/', requireLogin, function(req, res, next) {
+  res.render('dashboard', {user: req.user});
 });
+
 
 router.get('/register', function(req, res) {
   res.render('register', {});
@@ -15,7 +15,7 @@ router.post('/register', function(req, res, next) {
   console.log('registering user');
   User.register(new User({ name: req.body.name, email: req.body.email}), req.body.password, function(err, acc) {
     if (err) { console.log('error while user register!', err); return next(err); }
-    res.redirect('/');
+    res.redirect('/login');
   });
 });
 
@@ -31,7 +31,7 @@ router.post('/login', passport.authenticate('local'), function(req, res) {
 router.get('/logout', function(req, res) {
   req.session.reset();
   req.logout();
-  res.redirect('/');
+  res.redirect('/login');
 });
 
 router.get('/query', function(req, res) {
@@ -39,5 +39,14 @@ router.get('/query', function(req, res) {
     res.send(users);
   });
 });
+
+
+function requireLogin (req, res, next) {
+  if (!req.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+};
 
 module.exports = router;

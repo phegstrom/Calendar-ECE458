@@ -69,21 +69,6 @@ router.get('/', function(req, res, next) {
 		}
 	});
 
-// a route to test group creation, will not need later on
-router.get('/createGroup', function(req, res, next) {
-	// hardcoded user added to group by id
-	parkerCreateGroup();
-	User.findOne({_id: req.session.user._id})
-		User.findOne({_id: req.session.user._id})
-		.exec(function(err, user) {
-			if (err) next(err);
-			req.session.user = user;
-		});
-	//peterCreateCal(next);
-	// peterCreateGroup();
-	res.redirect('/');
-});
-
 // returns a list of users associated with a group id
 router.get('/:groupId', function(req, res, next) {
 		UserGroup.findOne({_id: req.params.groupId})
@@ -138,8 +123,6 @@ router.put('/:groupId', function(req, res, next) {
 			    	console.log(raw);
 	    		});
 
-			// console.log(userIds);
-			// console.log(req.params.groupId);
 			res.send('USERS ADDED');
 	});	
 });
@@ -161,18 +144,9 @@ router.post('/delete/user/:groupId', function(req, res, next) {
 	    		});
 
 			}
-			// console.log(userIds);
-			// console.log(req.params.groupId);
+
 			res.send('USER DELETED');
 	});	
-});
-
-
-
-// a delete test, so I could delete from URL only
-router.get('/deltest/:id', function(req, res, next) {
-	delTest(req.session.user._id, req.params.id);
-	res.redirect('/query');
 });
 
 //temp
@@ -195,8 +169,6 @@ function delTest(id, groupId) {
 	});
 }
 
-
-
 function peterCreateGroup() {
 	var ug = new UserGroup({ name: "g1", users: ["54ceb38e276326989dc6a9f8"]});
 
@@ -217,7 +189,6 @@ function peterCreateGroup() {
 
 	});
 }
-
 
 function parkerCreateGroup() {
 	var ug = new UserGroup({ name: "g1", users: ["54ceb38e276326989dc6a9f8"]});
@@ -241,20 +212,5 @@ function parkerCreateGroup() {
 	});
 
 }
-
-
-
-// requires a logged in user, if not logged in then redirect
-// function requireLogin (req, res, next) {
-// 	if (!req.user) {
-// 		res.redirect('/login');
-// 	} else {
-// 		next();
-// 	}
-// };
-
-
-
-
 
 module.exports = router;

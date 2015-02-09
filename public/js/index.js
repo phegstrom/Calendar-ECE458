@@ -51,7 +51,7 @@ app.run(function($rootScope, $q, $http) {
       newEvent.title = element.name;
       newEvent.url = 'javascript:void(0)';
       if(element.canViewEvent) {
-        newEvent.type = 'info';
+        newEvent.type = 'warning';
       }
       else {
         newEvent.type = 'important';

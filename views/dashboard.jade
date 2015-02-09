@@ -117,12 +117,16 @@ block content
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
             form(name="addRuleForm")
               label Rule Type
+              br
               select(ng-model="newRule.ruleType")
                 option(value="canView") Can View
                 option(value="canViewBusy") Can View Busy
                 option(value="canNotView") Cannot View
-              label User Group ID
-              input(type="text", ng-model="userGroupId")
+              br
+              label User Group
+              br
+              select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
+              br
               button.btn(ng-click="addUserGroupIdToRule()") Add User Group ID
               ul
                 li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}

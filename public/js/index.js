@@ -9,38 +9,16 @@ app.run(function($rootScope, $q, $http) {
   var currentYear = moment().year();
   var currentMonth = moment().month();
 
-  $rootScope.events = [
-    {
-      title: 'Event 1',
-      type: 'warning',
-      starts_at: new Date(currentYear,currentMonth,25,8,30),
-      ends_at: new Date(currentYear,currentMonth,25,9,30)
-    },
-    {
-      title: 'Event 2',
-      type: 'info',
-      starts_at: new Date(currentYear,currentMonth,19,7,30),
-      ends_at: new Date(currentYear,currentMonth,25,9,30)
-    },
-    {
-      title: 'This is a really long event title',
-      type: 'important',
-      starts_at: new Date(currentYear,currentMonth,25,6,30),
-      ends_at: new Date(currentYear,currentMonth,25,6,60)
-    },
-  ];
-
+  $rootScope.events=[];
   $rootScope.calendarView = 'month';
   $rootScope.calendarDay = new Date();
 
-  $rootScope.createCalendar = function() {
-  }
   $rootScope.setViewLength = function(viewLength) {
-    $rootScope.calendar.view(viewLength);
+    $rootScope.calendarView = viewLength;
     $rootScope.updateLocalEvents();
   }
-  $rootScope.navigate = function(where) {
-    $rootScope.calendar.navigate(where);
+  $rootScope.goToToday = function() {
+    $rootScope.calendarDay = new Date();
     $rootScope.updateLocalEvents();
   }
   $rootScope.updateLocalEvents = function() {
@@ -145,7 +123,6 @@ app.run(function($rootScope, $q, $http) {
     }
 
     $rootScope.events = calendarEventList;
-    $rootScope.createCalendar();
   }
 
   $rootScope.displayEventDetails = function(event) {
@@ -284,7 +261,6 @@ app.run(function($rootScope, $q, $http) {
 
   
   //Initialization
-  $rootScope.createCalendar();
   $rootScope.getCalendarData();
   $rootScope.updateLocalEvents();
 });

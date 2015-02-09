@@ -15,27 +15,27 @@ block content
     .page-header
       .pull-right.form-inline
         .btn-group
-          button.btn.btn-primary(ng-click="navigate('prev');") << Prev
-          button.btn(ng-click="navigate('today');") Today
-          button.btn.btn-primary(ng-click="navigate('next');") Next >>
+          button.btn.btn-primary(ng-click="calendarControl.prev()") << Prev
+          button.btn(ng-click="goToToday()") Today
+          button.btn.btn-primary(ng-click="calendarControl.next()") Next >>
         .btn-group#viewLengthButtons
-          button.btn.btn-warning(calendarView="year", ng-click="setViewLength('year');") Year
-          button.btn.btn-warning.active(calendarView="month", ng-click="setViewLength('month');") Month
-          button.btn.btn-warning(calendarView="week", ng-click="setViewLength('week');") Week
-          button.btn.btn-warning(calendarView="day", ng-click="setViewLength('day');") Day
+          button.btn.btn-warning(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
+          button.btn.btn-warning(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
+          button.btn.btn-warning(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
+          button.btn.btn-warning(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
       h3
+        {{ calendarControl.getTitle() }}
       br
     .row
-      .col-9
+      .col-md-9
         mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='eventClicked($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
-      .col-3
+      .col-md-3
         #sideBar(ng-controller="sideBarController")
           .btn-group
             button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
             button.btn.btn-primary(ng-click="displayCalendars()") Calendars
             button.btn.btn-primary(ng-click="displayEvents()") Events
-          //h3 {{ title }}
-          h3 {{ calendarControl.getTitle() }}
+          h3 {{ title }}
           #userGroupWindow(ng-show="selector == 0")
             ul
               li(ng-repeat="group in userGroups")

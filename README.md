@@ -14,7 +14,9 @@ A calendar web app created for ECE 458 - Software Maintainability
 
  `$ npm install`  
 
-#### Running the app
+#### View production version
+1. The app is being hosted at [https://socal.nodejitsu.com/login](https://socal.nodejitsu.com/login)
+#### Running the app locally
  1. Navigate to the project directory
  
  2. Spin up a mongoDB instance by typing

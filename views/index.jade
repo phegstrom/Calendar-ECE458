@@ -26,9 +26,9 @@ block content
       h3
       br
     .row
-      .span9
+      .col-9
         mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='eventClicked($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
-      .span3
+      .col-3
         #sideBar(ng-controller="sideBarController")
           .btn-group
             button.btn.btn-primary(ng-click="displayUserGroups()") User Groups

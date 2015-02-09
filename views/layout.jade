@@ -8,11 +8,12 @@ html
       script(src='/js/jquery.min.js')
       script(src='/js/bootstrap.min.js')
   body
-    .navbar.navbar-inverse.navbar-fixed-top
-      .navbar-inner
-        .container
-          a.brand(href="/") Example
-          ul.nav
+    nav.navbar.navbar-inverse.navbar-fixed-top
+      .container-fluid
+        .navbar-header
+          a.navbar-brand(href='/') Example
+        div
+          ul.nav.navbar-nav
             if (typeof(user) == 'undefined')
               li
                 a(href="/register") Register

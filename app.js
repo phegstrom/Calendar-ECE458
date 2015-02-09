@@ -32,7 +32,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -101,10 +101,10 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', loginRoutes);
-app.use('/calendar', calendarRoutes);
-app.use('/event', eventRoutes);
-app.use('/rule', ruleRoutes);
-app.use('/user', userRoutes);
+app.use('/calendar', requireLogin, calendarRoutes);
+app.use('/event', requireLogin, eventRoutes);
+app.use('/rule', requireLogin, ruleRoutes);
+app.use('/user', requireLogin, userRoutes);
 app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
 

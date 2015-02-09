@@ -55,10 +55,11 @@ block content
 
           #calendarInfo(ng-show="selector == 2")
             ul
-            h5 Owner
-              li(ng-repeat="calendar in myCalendars")
-                a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
-                a(href, ng-click="deleteCalendar(calendar._id)") [X]
+            h4 My Calendars
+            li(ng-repeat="calendar in myCalendars")
+              a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
+              a(href, ng-click="deleteCalendar(calendar._id)") [X]
+            h4 Shared Calendars
             h5 Modify
             ul
               li(ng-repeat="calendar in modCalendars")

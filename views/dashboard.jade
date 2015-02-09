@@ -148,33 +148,36 @@ block content
     .span9
       #bottomBar(ng-controller="bottomAreaController")
         #displayEvent(ng-show="bottomSelector == 0")
-          h2 {{ selectedEvent.name }}
-          h4 Description
-          p(ng-show="selectedEvent.description") {{ selectedEvent.description }}
-          p(ng-hide="selectedEvent.description") No description provided.
-          h4 At
-          p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
-          p(ng-hide="selectedEvent.location") No location provided.
+          h2(ng-hide="selectedEvent.canViewEvent") Event
+          div(ng-show="selectedEvent.canViewEvent")
+            h2 {{ selectedEvent.name }}
+            h4 Description
+            p(ng-show="selectedEvent.details") {{ selectedEvent.details }}
+            p(ng-hide="selectedEvent.details") No description.
+            h4 At
+            p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
+            p(ng-hide="selectedEvent.location") No location.
           h4 From
           p {{ selectedEvent.start.toLocaleString() }}
           h4 To
           p {{ selectedEvent.end.toLocaleString() }}
-          div(ng-hide="selectedEvent.alerts.length == 0")
-            h4 Alerts
-            ul
-              li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
-          div(ng-hide="selectedEvent.willRepeat == null")
-            h4 Repeats?
-            p {{ selectedEvent.willRepeat }}
-              div(ng-show="selectedEvent.willRepeat")
-                p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
-                p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
+          div(ng-show="selectedEvent.canViewEvent")
+            div(ng-hide="selectedEvent.alerts == null")
+              h4 Alerts
+              ul
+                li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
+            div(ng-hide="selectedEvent.willRepeat == null")
+              h4 Repeats?
+              p {{ selectedEvent.willRepeat }}
+                div(ng-show="selectedEvent.willRepeat")
+                  p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
+                  p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
           h4 Calendar
           p {{ selectedEvent.calendarName }}
-          h2(ng-show="selectedEvent.repeats") Part of a series of events.
+          h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
           .btn-group
-            button.btn.btn-primary(ng-click="editSelectedEvent()") Edit Event
-            button.btn.btn-warning(ng-click="deleteSelectedEvent()") Delete Event
+            button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
+            button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
 
         #createEvent(ng-show="bottomSelector == 1")
           form(name="eventForm")

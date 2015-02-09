@@ -65,12 +65,20 @@ app.run(function($rootScope, $q, $http) {
           element.calendarName = calendar.name;
         }
       });
+      element.canEditEvent = $rootScope.canEditEvent(element);
+      element.canViewEvent = $rootScope.canViewEvent(element);
 
       var newEvent = {};
       newEvent.id = element._id;
       newEvent.title = element.name;
       newEvent.url = 'javascript:void(0)';
-      newEvent.class = 'event-important';
+      if(element.canViewEvent) {
+        newEvent.class = 'event-info';
+      }
+      else {
+        newEvent.class = 'event-important';
+        newEvent.title = 'Event';
+      }
       newEvent.start = element.start.getTime();
       newEvent.end = element.end.getTime();
       newEvent.calendarId = element.calendar;
@@ -249,6 +257,29 @@ app.run(function($rootScope, $q, $http) {
     error(function(data, status, headers, config) {
       console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
     });
+  }
+
+  $rootScope.canEditEvent = function(event) {
+    for(var i=0;i<$rootScope.myCalendars.length;i++) {
+      if(event.calendar === $rootScope.myCalendars[i]._id) {
+        return true;
+      }
+    }
+    for(var i=0;i<$rootScope.modCalendars.length;i++) {
+      if(event.calendar === $rootScope.modCalendars[i]._id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  $rootScope.canViewEvent = function(event) {
+    for(var i=0;i<$rootScope.viewBusyCalendars.length;i++) {
+      if(event.calendar === $rootScope.viewBusyCalendars[i]._id) {
+        return false;
+      }
+    }
+    return true;
   }
 
   

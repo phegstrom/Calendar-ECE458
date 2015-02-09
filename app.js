@@ -32,7 +32,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -46,8 +46,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   cookieName: 'session',
   secret: 'eg[isfd-8yF9-7w2315df{}+Ijsli;;to8',
-  duration: 5 * 60 * 1000, // how long the session will stay valid in ms
-  activeDuration: 5 * 60 * 1000,
+  duration: 10 * 60 * 1000, // how long the session will stay valid in ms
+  activeDuration: 10 * 60 * 1000,
   // cookie: {
   //   path: '/', // cookie will only be sent to requests under '/api'
   //   ephemeral: true, // when true, cookie expires when the browser closes
@@ -71,8 +71,21 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-// Added
-mongoose.connect('mongodb://localhost/Calendar', function(err) {
+var dbString = 'mongodb://nodejitsu:28d2f50724f0f90b91e33914338b14c3@troup.mongohq.com:10063/nodejitsudb4576003544';
+// developm112ent error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
+    });
+    dbString = 'mongodb://localhost/Calendar';
+}
+
+mongoose.connect(dbString, function(err) {
     if(err) {
         console.log('connection error', err);
     } else {
@@ -101,11 +114,11 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', loginRoutes);
-app.use('/calendar', calendarRoutes);
-app.use('/event', eventRoutes);
-app.use('/rule', ruleRoutes);
-app.use('/user', userRoutes);
-app.use('/usergroup', usergroupRoutes);
+app.use('/calendar', requireLogin, calendarRoutes);
+app.use('/event', requireLogin, eventRoutes);
+app.use('/rule', requireLogin, ruleRoutes);
+app.use('/user', requireLogin, userRoutes);
+app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
 
 function requireLogin (req, res, next) {
@@ -139,17 +152,7 @@ app.use(function(req, res, next) {
 
 // error handlers
 
-// developm112ent error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
+
 
 // production error handler
 // no stacktraces leaked to user

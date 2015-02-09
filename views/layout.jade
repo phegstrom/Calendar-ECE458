@@ -16,8 +16,6 @@ html
           ul.nav.navbar-nav
             if (typeof(user) == 'undefined')
               li
-                a(href="/register") Register
-              li
                 a(href="/login") Log In
               li
                 a(href="/query") Query Users
@@ -29,7 +27,9 @@ html
               li
                 a(href="/usergroup/createGroup") create group      
               li
-                a(href="/query") Query Users  
+                a(href="/query") Query Users
+              li
+                a(href="/user/populate/cal") Populate Calendar
 
     .container
       block content

@@ -80,38 +80,14 @@ router.get('/id/:calendarId', function (req, res, next) {
 
 // get Calendars based on user's calType
 router.get('/:calType', function (req, res, next) {
-	console.log('\n\n');
-
 	var uId = req.session.user._id;
-	// var uId = "54d071f70226f73624abff24";
 
-	User.findOne({_id: uId})
-		.populate(req.params.calType)
-		.exec(function (err, user) {
-			if (err) {
-				next(err);
-			}
+	var popType = req.params.calType+".events.alerts";
 
-			var cType = req.params.calType;
-
-			Calendar.find({_id: {$in: user[cType]}})
-					.exec(function (err, calendar) {
-						if(err) next(err);
-
-						for(var i = 0; i < calendar.length; i++) {
-							Event.find({_id: {$in: calendar[i].events}})
-								 .populate('name')
-								 .exec(function(err, ev) {
-								 	if(err) next(err);
-
-								 	user[cType].push(calendar);
-								 	// res.send(user[cType]);
-								 });
-						}
-
-						res.send(user[cType]);
-					});
-		});
+	User.findOne({_id: uId}).deepPopulate(popType).exec(function (err, user) {
+		// console.log(user);
+		res.send(user[req.params.calType]);
+	});
 });
 
 router.get('/rules/:ruleId', function (req, res, next) {
@@ -141,7 +117,7 @@ router.delete('/:calId', function (req, res, next) {
 		// rules
 		for(var r = 0; r < calendar.rules.length; r++) {
 			// deleteRuleForUsers(ruleId, calId)
-			RuleRoutes.deleteRuleForUsers(rules[r], req.params.calId);
+			RuleRoutes.deleteRuleForUsers(calendar.rules[r], req.params.calId);
 		}
 
 		// Rule.find({_id: {$in: calendar.rules}}, function(err, rules) {

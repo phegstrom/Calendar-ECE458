@@ -46,8 +46,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   cookieName: 'session',
   secret: 'eg[isfd-8yF9-7w2315df{}+Ijsli;;to8',
-  duration: 5 * 60 * 1000, // how long the session will stay valid in ms
-  activeDuration: 5 * 60 * 1000,
+  duration: 10 * 60 * 1000, // how long the session will stay valid in ms
+  activeDuration: 10 * 60 * 1000,
   // cookie: {
   //   path: '/', // cookie will only be sent to requests under '/api'
   //   ephemeral: true, // when true, cookie expires when the browser closes
@@ -105,7 +105,7 @@ app.use('/calendar', calendarRoutes);
 app.use('/event', eventRoutes);
 app.use('/rule', ruleRoutes);
 app.use('/user', userRoutes);
-app.use('/usergroup', usergroupRoutes);
+app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
 
 function requireLogin (req, res, next) {

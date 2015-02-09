@@ -98,7 +98,6 @@ router.delete('/:ruleId/:calId', function (req, res, next) {
 			});
 		});
 
-		console.log(rules.length);
 		for(var i = 0; i < rules.length-1; i++) {
 			Rule.findOne({_id: rules[i]}, function(err, rule) {
 				rule.getAllUsersInRule(function (users) {

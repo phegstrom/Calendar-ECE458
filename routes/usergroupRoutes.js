@@ -40,24 +40,30 @@ router.get('/', function(req, res, next) {
 		var myUser = null;
 
 		if (req.session.user) {
-		User.findOne({_id: req.session.user._id})
-			.populate('userGroups')
-			.exec(function (err, user) {
-				if (err) {
-					next(err);
-				}
-				myUser = user;
-				UserGroup.find({_id: {$in: req.session.user.userGroups }})
-						 .populate('users', 'name email')
-						 .exec(function(err, userGroup) {
-						 	if(err) {
-						 		next(err);
-						 	}
 
-						 	myUser.userGroups = userGroup;
-						 	res.send(myUser);
-						 });
-			});
+			//deep populate
+			// UserGroup.find({_id: {$in: req.session.user.userGroups}}).deepPopulate('users').exec(function (err, uGroups) {
+			// 	res.send(uGroups);
+			// });
+
+			User.findOne({_id: req.session.user._id})
+				.populate('userGroups')
+				.exec(function (err, user) {
+					if (err) {
+						next(err);
+					}
+					myUser = user;
+					UserGroup.find({_id: {$in: req.session.user.userGroups }})
+							 .populate('users', 'name email')
+							 .exec(function(err, userGroup) {
+							 	if(err) {
+							 		next(err);
+							 	}
+
+							 	myUser.userGroups = userGroup;
+							 	res.send(myUser);
+							 });
+				});
 		} else {
 			res.send('No user information');
 		}

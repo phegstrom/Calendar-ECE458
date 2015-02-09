@@ -51,14 +51,14 @@ app.run(function($rootScope, $q, $http) {
       newEvent.title = element.name;
       newEvent.url = 'javascript:void(0)';
       if(element.canViewEvent) {
-        newEvent.class = 'event-info';
+        newEvent.type = 'info';
       }
       else {
-        newEvent.class = 'event-important';
+        newEvent.type = 'important';
         newEvent.title = 'Event';
       }
-      newEvent.start = element.start.getTime();
-      newEvent.end = element.end.getTime();
+      newEvent.starts_at = element.start.getTime();
+      newEvent.ends_at = element.end.getTime();
       newEvent.calendarId = element.calendar;
       newEvent.calendarName = element.calendarName;
 

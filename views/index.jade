@@ -28,7 +28,7 @@ block content
       br
     .row
       .col-md-9
-        mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='eventClicked($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
+        mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='displayEventDetails($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
       .col-md-3
         #sideBar(ng-controller="sideBarController")
           .btn-group

@@ -36,86 +36,11 @@ app.run(function($rootScope, $q, $http) {
 
     for(var evNum=0;evNum<eventList.length;evNum++) {
       var element = eventList[evNum];
-      element.start = new Date(element.start);
-      element.end = new Date(element.end);
-      $rootScope.calendars.forEach(function(calendar, cIndex, cArray) {
-        if(calendar._id === element.calendar) {
-          element.calendarName = calendar.name;
-        }
-      });
-      element.canEditEvent = $rootScope.canEditEvent(element);
-      element.canViewEvent = $rootScope.canViewEvent(element);
-
-      var newEvent = {};
-      newEvent.title = element.name;
-      if(element.canViewEvent) {
-        newEvent.type = 'warning';
-      }
-      else {
-        newEvent.type = 'important';
-        newEvent.title = 'Event';
-      }
-      newEvent.starts_at = element.start.getTime();
-      newEvent.ends_at = element.end.getTime();
-
-      newEvent.parentData = element;
+      var newEvent = $rootScope.convertDBEventToCalEvent(element);
 
       calendarEventList.push(newEvent);
 
-      for(var rep=0;rep<element.repeats.length;rep++) {
-        var repetition = element.repeats[rep];
-        var weekdays = [];
-
-        for(var weekdayNum=0; weekdayNum<repetition.days.length; weekdayNum++) {
-          day = new Date(repetition.days[weekdayNum]);
-          day = day.getDay() - element.start.getDay();
-          if(day <= 0) {
-            day += 7;
-          }
-
-          weekdays[weekdayNum] = day;
-        }
-
-        weekdays.sort();
-
-        var weekdayIndex = 0;
-        if(repetition.frequency) {
-          var eventIterations = [];
-          for(var i=0; i<repetition.frequency;i++) {
-            eventIterations.push(angular.copy(newEvent));
-            eventIterations[i].start +=  DAY * weekdays[weekdayIndex];
-            eventIterations[i].end += DAY * weekdays[weekdayIndex];
-
-            weekdays[weekdayIndex] += 7;
-            weekdayIndex++;
-            if(weekdayIndex >= weekdays.length) {
-              weekdayIndex = 0;
-            }
-          }
-          calendarEventList = calendarEventList.concat(eventIterations);
-        }
-        else if(repetition.endDate) {
-          var endDate = new Date(repetition.endDate);
-          var currentTime = new Date(newEvent.start);
-          var eventIterations = [];
-          var i = 0;
-          while(currentTime < endDate) {
-            eventIterations.push(angular.copy(newEvent));
-            eventIterations[i].start +=  DAY * weekdays[weekdayIndex];
-            eventIterations[i].end += DAY * weekdays[weekdayIndex];
-
-            weekdays[weekdayIndex] += 7;
-            weekdayIndex++;
-            if(weekdayIndex >= weekdays.length) {
-              weekdayIndex = 0;
-            }
-
-            currentTime = eventIterations[i].start;
-            i++;
-          }
-          calendarEventList = calendarEventList.concat(eventIterations);
-        }
-      }
+      calendarEventList.concat(getRepeatedEventsInScope(element, newEvent));
     }
 
     $rootScope.events = calendarEventList;
@@ -186,21 +111,7 @@ app.run(function($rootScope, $q, $http) {
     $q.all([ownGet, modGet, viewGet, busyGet]).then(function() {
       $rootScope.calendars = [];
       $rootScope.calendars = $rootScope.calendars.concat($rootScope.myCalendars, $rootScope.modCalendars, $rootScope.viewCalendars, $rootScope.viewBusyCalendars);
-
-      
-      var calendarEventPopulation = [];
-      $rootScope.calendars.forEach(function(element, index, array) {
-        calendarEventPopulation.push(
-          $http.get('/calendar/id/'+element._id).
-          success(function(data, status, headers, config) {
-            element.events = angular.fromJson(data).events;
-          })
-        );
-      });
-      $q.all(calendarEventPopulation).then(function() {
-        $rootScope.parseDatabaseEvents();
-        $rootScope.updateLocalEvents();
-      });
+      $rootScope.parseDatabaseEvents();
     });
   }
 
@@ -225,35 +136,130 @@ app.run(function($rootScope, $q, $http) {
     $http.delete('/event/'+$rootScope.selectedEvent._id).
     success(function(data, status, headers, config) {
       console.log('Event deleted: ' + $rootScope.selectedEvent._id);
-      $rootScope.getCalendarData();
+      for(var i=0;i<$rootScope.events;i++) {
+        if($rootScope.events[i].parentData._id == $rootScope.selectedEvent._id) {
+          array.splice(i, 1);
+        }
+      }
     }).
     error(function(data, status, headers, config) {
       console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
     });
   }
 
-  $rootScope.canEditEvent = function(event) {
+  var canEditEvent = function(dBEvent) {
     for(var i=0;i<$rootScope.myCalendars.length;i++) {
-      if(event.calendar === $rootScope.myCalendars[i]._id) {
+      if(dBEvent.calendar === $rootScope.myCalendars[i]._id) {
         return true;
       }
     }
     for(var i=0;i<$rootScope.modCalendars.length;i++) {
-      if(event.calendar === $rootScope.modCalendars[i]._id) {
+      if(dBEvent.calendar === $rootScope.modCalendars[i]._id) {
         return true;
       }
     }
     return false;
   }
 
-  $rootScope.canViewEvent = function(event) {
+  var canViewEvent = function(dBEvent) {
     for(var i=0;i<$rootScope.viewBusyCalendars.length;i++) {
-      if(event.calendar === $rootScope.viewBusyCalendars[i]._id) {
+      if(dBEvent.calendar === $rootScope.viewBusyCalendars[i]._id) {
         return false;
       }
     }
     return true;
   }
+
+  $rootScope.convertDBEventToCalEvent = function(dBEvent) {
+    dBEvent.start = new Date(dBEvent.start);
+    dBEvent.end = new Date(dBEvent.end);
+    $rootScope.calendars.forEach(function(calendar, cIndex, cArray) {
+      if(calendar._id === dBEvent.calendar) {
+        dBEvent.calendarName = calendar.name;
+      }
+    });
+    dBEvent.canEditEvent = canEditEvent(dBEvent);
+    dBEvent.canViewEvent = canViewEvent(dBEvent);
+
+    var newEvent = {};
+    newEvent.title = dBEvent.name;
+    if(dBEvent.canViewEvent) {
+      newEvent.type = 'warning';
+    }
+    else {
+      newEvent.type = 'important';
+      newEvent.title = 'Event';
+    }
+    newEvent.starts_at = dBEvent.start.getTime();
+    newEvent.ends_at = dBEvent.end.getTime();
+
+    newEvent.parentData = dBEvent;
+
+    return newEvent;
+  }
+
+  var getRepeatedEventsInScope = function(dBEvent, calEvent) {
+    var eventList = [];
+
+    for(var rep=0;rep<dBEvent.repeats.length;rep++) {
+      var repetition = dBEvent.repeats[rep];
+      var weekdays = [];
+
+      for(var weekdayNum=0; weekdayNum<repetition.days.length; weekdayNum++) {
+        day = new Date(repetition.days[weekdayNum]);
+        day = day.getDay() - element.start.getDay();
+        if(day <= 0) {
+          day += 7;
+        }
+
+        weekdays[weekdayNum] = day;
+      }
+
+      weekdays.sort();
+
+      var weekdayIndex = 0;
+      if(repetition.frequency) {
+        var eventIterations = [];
+        for(var i=0; i<repetition.frequency;i++) {
+          eventIterations.push(angular.copy(calEvent));
+          eventIterations[i].starts_at +=  DAY * weekdays[weekdayIndex];
+          eventIterations[i].ends_at += DAY * weekdays[weekdayIndex];
+
+          weekdays[weekdayIndex] += 7;
+          weekdayIndex++;
+          if(weekdayIndex >= weekdays.length) {
+            weekdayIndex = 0;
+          }
+        }
+        eventList = eventList.concat(eventIterations);
+      }
+      else if(repetition.endDate) {
+        var endDate = new Date(repetition.endDate);
+        var currentTime = new Date(calEvent.starts_at);
+        var eventIterations = [];
+        var i = 0;
+        while(currentTime < endDate) {
+          eventIterations.push(angular.copy(newEvent));
+          eventIterations[i].starts_at +=  DAY * weekdays[weekdayIndex];
+          eventIterations[i].ends_at += DAY * weekdays[weekdayIndex];
+
+          weekdays[weekdayIndex] += 7;
+          weekdayIndex++;
+          if(weekdayIndex >= weekdays.length) {
+            weekdayIndex = 0;
+          }
+
+          currentTime = eventIterations[i].start;
+          i++;
+        }
+        eventList = eventList.concat(eventIterations);
+      }
+    }
+
+    return eventList;
+  }
+
+
 
   
   //Initialization

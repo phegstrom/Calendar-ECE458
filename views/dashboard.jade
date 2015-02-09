@@ -39,6 +39,7 @@ block content
               input(type="text", ng-model="inputUserGroup", required)
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
           #userListWindow(ng-show="selector == 1")
+           h3 {{ selectedUserGroup.name }}
             ul
               li(ng-repeat="user in selectedUserGroup.users")
                 {{ user.name + " " }}
@@ -73,6 +74,7 @@ block content
 
 
           #calendarDetailsWindow(ng-show="selector == 3")
+            h3 {{ selectedCalendar.name }}
             b Owner: 
             |{{ selectedCalendar.owner.name }}
             br
@@ -82,6 +84,7 @@ block content
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
 
           #calendarOwnerDetailsWindow(ng-show="selector == 5")
+            h3 {{ selectedCalendar.name }}
             b Owner: 
             |{{ selectedCalendar.owner.name }}
             br

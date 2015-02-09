@@ -83,7 +83,7 @@ router.put('/:eventId', function(req, res, next) {
  		if(req.body.alerts == undefined)
  			ev.alerts = new Alert();
  		else
-		 	ev.alerts = createAlertSchemas(req.body.alerts, req);
+		 	ev.alerts = createAlertSchemas(req.body.alerts, ev, req);
 	 	ev.repeats = req.body.repeats;
 
 	 	ev.creator = req.session.user._id;

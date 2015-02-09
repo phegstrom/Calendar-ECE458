@@ -32,10 +32,9 @@ block content
       .col-md-3
         #sideBar(ng-controller="sideBarController")
           .btn-group
-            button.btn.btn-primary(ng-click="displayUserGroups()") User Groups
-            button.btn.btn-primary(ng-click="displayCalendars()") Calendars
-            button.btn.btn-primary(ng-click="displayEvents()") Events
-          h3 {{ title }}
+            button.btn.btn-primary(ng-class="{active: selector == 0 || selector == 1}", ng-click="displayUserGroups()") User Groups
+            button.btn.btn-primary(ng-class="{active: selector == 2 || selector == 3 || selector == 5}", ng-click="displayCalendars()") Calendars
+            button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayEvents()") Events
           #userGroupWindow(ng-show="selector == 0")
             ul
               li(ng-repeat="group in userGroups")
@@ -149,6 +148,7 @@ block content
               h4 {{ value[0].calendarName }}
               li(ng-repeat="event in value")
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
+            br
             button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
     br
     .span9

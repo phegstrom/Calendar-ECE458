@@ -156,8 +156,8 @@ block content
           div(ng-show="selectedEvent.canViewEvent")
             h2 {{ selectedEvent.name }}
             h4 Description
-            p(ng-show="selectedEvent.details") {{ selectedEvent.details }}
-            p(ng-hide="selectedEvent.details") No description.
+            p(ng-show="selectedEvent.description") {{ selectedEvent.description }}
+            p(ng-hide="selectedEvent.description") No description.
             h4 At
             p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
             p(ng-hide="selectedEvent.location") No location.

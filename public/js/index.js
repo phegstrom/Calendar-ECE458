@@ -44,6 +44,7 @@ app.run(function($rootScope, $q, $http) {
     }
 
     $rootScope.events = calendarEventList;
+    console.log(calendarEventList);
   }
 
   $rootScope.displayEventDetails = function(event) {
@@ -207,7 +208,7 @@ app.run(function($rootScope, $q, $http) {
 
       for(var weekdayNum=0; weekdayNum<repetition.days.length; weekdayNum++) {
         day = new Date(repetition.days[weekdayNum]);
-        day = day.getDay() - element.start.getDay();
+        day = day.getDay() - dBEvent.start.getDay();
         if(day <= 0) {
           day += 7;
         }
@@ -239,7 +240,7 @@ app.run(function($rootScope, $q, $http) {
         var eventIterations = [];
         var i = 0;
         while(currentTime < endDate) {
-          eventIterations.push(angular.copy(newEvent));
+          eventIterations.push(angular.copy(calEvent));
           eventIterations[i].starts_at +=  DAY * weekdays[weekdayIndex];
           eventIterations[i].ends_at += DAY * weekdays[weekdayIndex];
 

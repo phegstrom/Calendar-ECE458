@@ -38,7 +38,7 @@ router.post('/', function(req, res, next) {
 			if(err) next(err);
 		});
 
-		res.send(ev._id);
+		res.send(ev);
 	});
 });
 
@@ -91,7 +91,7 @@ router.put('/:eventId', function(req, res, next) {
 
 	 	ev.save();
 
-	 	res.send(ev._id);
+	 	res.send(ev);
 	});
 });
 

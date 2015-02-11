@@ -30,7 +30,7 @@ router.post('/', function (req, res, next) {
 						});
 
 				res.status(200);
-				res.send(uGroup._id);
+				res.send(uGroup);
 			});
 	});
 });

@@ -33,13 +33,11 @@ app.controller('sideBarController', function($scope, $http) {
     $scope.selectedCalendar = calendar;
   }
 
-  // pulls all calendars into $scope variable, getCalendarData() in index.js
   $scope.displayCalendars = function() {
     $scope.text = '';
     $scope.selector = 2;
-    
-    $scope.$parent.getCalendarData();
   }
+
   // POST to create calendar
   $scope.createCalendar = function(calendarNameInput) {
     $http.post('/calendar', {name: calendarNameInput}).
@@ -47,7 +45,7 @@ app.controller('sideBarController', function($scope, $http) {
       var calendarData = angular.fromJson(data);
       $scope.inputCalendarName = '';
       $scope.displayCalendars();
-      //$scope.$parent.addCalendar(calendarData.id);
+      $scope.$parent.addCalendar(calendarData);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to create calendar.';
@@ -58,6 +56,7 @@ app.controller('sideBarController', function($scope, $http) {
     $http.delete('/calendar/'+calendarIdInput).
     success(function(data, status, headers, config) {
       $scope.displayCalendars();
+      $scope.$parent.deleteCalendar(calendarIdInput);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to delete group.';

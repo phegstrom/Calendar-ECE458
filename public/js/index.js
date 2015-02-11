@@ -20,6 +20,8 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.nav = function(direction) {
     //There is a race condition here that makes the update apply
     // before the calendar navigation.
+    var oldDayFocus = angular.copy($rootScope.calendarDay);
+
     if(direction == 'back') {
       $rootScope.calendarControl.prev();
     }
@@ -71,7 +73,6 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.displayEventDetails = function(event) {
     $rootScope.bottomSelector=0;
     $rootScope.selectedEvent = event.parentData;
-    console.log($rootScope.selectedEvent);
   }
 
   $rootScope.getCalendarData = function() {
@@ -81,7 +82,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.myCalendars.forEach(function(element, index, array) {
         element.grouping = 'Owned Calendar';
-        setEventData(element, "info", true, true);
+        $rootScope.setEventData(element, "info", true, true);
       });
 
     }).
@@ -95,7 +96,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.modCalendars.forEach(function(element, index, array) {
         element.grouping = 'Modifiable Calendar';
-        setEventData(element, "info", true, true);
+        $rootScope.setEventData(element, "info", true, true);
       });
 
     }).
@@ -110,7 +111,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.viewCalendars.forEach(function(element, index, array) {
         element.grouping = 'Viewable Calendar';
-        setEventData(element, "warning", true, false);
+        $rootScope.setEventData(element, "warning", true, false);
       });
 
     }).
@@ -125,7 +126,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.viewBusyCalendars.forEach(function(element, index, array) {
         element.grouping = 'Busy Calendar';
-        setEventData(element, "important", false, false);
+        $rootScope.setEventData(element, "important", false, false);
       });
 
     }).
@@ -158,18 +159,32 @@ app.run(function($rootScope, $q, $http) {
 
   $rootScope.deleteSelectedEvent = function() {
     $rootScope.bottomSelector = -1;
+    var selectedEventId = $rootScope.selectedEvent._id;
 
     $http.delete('/event/'+$rootScope.selectedEvent._id).
     success(function(data, status, headers, config) {
-      console.log('Event deleted: ' + $rootScope.selectedEvent._id);
-      for(var i=0;i<$rootScope.events;i++) {
-        if($rootScope.events[i].parentData._id == $rootScope.selectedEvent._id) {
-          array.splice(i, 1);
+      console.log('Event deleted: ' + selectedEventId);
+
+      var calendarEventList = [];
+      for(var i=0; i < $rootScope.events.length; i++) {
+        if($rootScope.events[i].parentData._id == selectedEventId) {
+          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendar).events;
+          $rootScope.events.splice(i, 1);
+          i--;
+        }
+      }
+
+      for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
+        if(calendarEventList[i]._id == selectedEventId) {
+          calendarEventList.splice(calEventIndex, 1);
+          break;
         }
       }
     }).
     error(function(data, status, headers, config) {
       console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
+    }).then(function(){
+      $rootScope.updateLocalEvents();
     });
   }
 
@@ -249,7 +264,7 @@ app.run(function($rootScope, $q, $http) {
     return eventList;
   }
 
-  var setEventData = function(calendar, eventType, canView, canEdit) {
+  $rootScope.setEventData = function(calendar, eventType, canView, canEdit) {
     calendar.events.forEach(function(dBEvent, index, array) {
       dBEvent.type = eventType;
       dBEvent.canViewEvent = canView;
@@ -268,6 +283,45 @@ app.run(function($rootScope, $q, $http) {
     return isNaN(timestamp) == false;
   }
 
+  $rootScope.getCalendar = function(calendarId) {
+    var matchedCalendar;
+    $rootScope.calendars.forEach(function(calendar, index, array) {
+      if(calendar._id == calendarId) {
+        matchedCalendar = calendar;
+      }
+    });
+
+    return matchedCalendar;
+  }
+
+  $rootScope.addCalendar = function(calendar) {
+    calendar.grouping = 'Owned Calendar';
+    $rootScope.myCalendars.push(calendar);
+    $rootScope.calendars.push(calendar);
+  }
+
+  $rootScope.deleteCalendar = function(calendarId) {
+    for(var i=0; i < $rootScope.events.length; i++) {
+      if($rootScope.events[i].parentData.calendar == calendarId) {
+        $rootScope.events.splice(i, 1);
+        i--;
+      }
+    }
+
+    for(var i=0; i < $rootScope.myCalendars.length; i++) {
+      if($rootScope.myCalendars[i]._id == calendarId) {
+        $rootScope.myCalendars.splice(i, 1);
+        break;
+      }
+    }
+
+    for(var i=0; i < $rootScope.calendars.length; i++) {
+      if($rootScope.calendars[i]._id == calendarId) {
+        $rootScope.calendars.splice(i, 1);
+        break;
+      }
+    }
+  }
 
 
   

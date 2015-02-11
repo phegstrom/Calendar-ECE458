@@ -67,8 +67,6 @@ app.controller('bottomAreaController', function($scope, $http) {
       eventDetails.repeats = [repeats];
     }
 
-    console.log(eventDetails);
-
     var request = {};
 
     if(eventDetails._id) {
@@ -84,7 +82,19 @@ app.controller('bottomAreaController', function($scope, $http) {
     else {
       request = $http.post('/event', eventDetails).
       success(function(data, status, headers, config) {
-        //Parse the object into a set of groups filled with users
+        var dBEvent = angular.fromJson(data);
+        var owningCalendar = $scope.$parent.getCalendar(dBEvent.calendar);
+
+        var tempCalendar = {
+          events: [dBEvent],
+          name: owningCalendar.name,
+          _id: owningCalendar._id
+        };
+        $scope.$parent.setEventData(tempCalendar, 'info', true, true);
+
+        var calEvent = $scope.$parent.convertDBEventToCalEvent(dBEvent);
+        owningCalendar.events.push(calEvent);
+        $scope.$parent.events.push(calEvent);
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -97,7 +107,7 @@ app.controller('bottomAreaController', function($scope, $http) {
       eventDetails = defaultForm;
 
       $scope.$parent.bottomSelector = -1;
-      $scope.$parent.getCalendarData();
+      $scope.$parent.updateLocalEvents();
     });
   }
 

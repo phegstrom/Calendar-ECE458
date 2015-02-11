@@ -20,7 +20,6 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.nav = function(direction) {
     //There is a race condition here that makes the update apply
     // before the calendar navigation.
-    var oldDayFocus = angular.copy($rootScope.calendarDay);
 
     if(direction == 'back') {
       $rootScope.calendarControl.prev();
@@ -29,8 +28,25 @@ app.run(function($rootScope, $q, $http) {
       $rootScope.calendarControl.next();
     }
 
+    updateOnDateChange();
+  }
+
+  var updateOnDateChange = function() {
+    var originalValue = angular.copy($rootScope.calendarDay);
+    console.log($rootScope.calendarDay);
+
+    if(originalValue == $rootScope.calendarDay) {
+      console.log(originalValue);
+      console.log($rootScope.calendarDay);
+      setTimeout(waitOnDateChange, 10);
+      return;
+    }
+    console.log(originalValue);
+    console.log($rootScope.calendarDay);
+    originalValue = angular.copy($rootScope.calendarDay);
     $rootScope.updateLocalEvents();
   }
+
   $rootScope.goToToday = function() {
     $rootScope.calendarDay = new Date();
     $rootScope.updateLocalEvents();
@@ -302,6 +318,7 @@ app.run(function($rootScope, $q, $http) {
 
   $rootScope.deleteCalendar = function(calendarId) {
     for(var i=0; i < $rootScope.events.length; i++) {
+      console.log($rootScope.events[i].parentData.calendar);
       if($rootScope.events[i].parentData.calendar == calendarId) {
         $rootScope.events.splice(i, 1);
         i--;
@@ -321,6 +338,8 @@ app.run(function($rootScope, $q, $http) {
         break;
       }
     }
+
+    $rootScope.updateLocalEvents();
   }
 
 

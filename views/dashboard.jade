@@ -40,14 +40,16 @@ block content
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
             {{ text }}
           #userListWindow(ng-show="selector == 1")
-           h3 {{ selectedUserGroup.name }}
+            h3 {{ selectedUserGroup.name }}
             ul
               li(ng-repeat="user in selectedUserGroup.users")
                 {{ user.name + " " }}
                 a(href, ng-click="deleteUserFromGroup(user.email)") [X]
-            form(name="addUserForm")
+             form(name="addUserForm")
               input(type="text", ng-model="inputUserEmail", required)
+              br
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
+              br
               {{ text }}
 
           #calendarInfo(ng-show="selector == 2")

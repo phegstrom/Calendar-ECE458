@@ -74,7 +74,7 @@ app.controller('bottomAreaController', function($scope, $http) {
     if(eventDetails._id) {
       request = $http.put('/event/'+eventDetails._id, eventDetails).
       success(function(data, status, headers, config) {
-        //Parse the object into a set of groups filled with users
+        //update the event in eventlist
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs

@@ -118,7 +118,7 @@ app.controller('sideBarController', function($scope, $http) {
         var returnedData = angular.fromJson(data);
         var newUserGroup = {
           name: inputUserGroup.name,
-          id: returnedData._id,
+          _id: returnedData._id,
           users: []
         };
 
@@ -135,6 +135,14 @@ app.controller('sideBarController', function($scope, $http) {
     $http.delete('/usergroup/'+groupIdInput).
     success(function(data, status, headers, config) {
       $scope.displayUserGroups();
+
+      for(var userGroupIndex=0; userGroupIndex < $scope.userGroups.length; userGroupIndex++) {
+        if(groupIdInput == $scope.userGroups[userGroupIndex]._id) {
+          $scope.userGroups.splice(userGroupIndex, 1);
+          break;
+        }
+      }
+      
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to delete group.';

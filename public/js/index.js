@@ -147,7 +147,7 @@ app.run(function($rootScope, $q, $http) {
   }
 
   $rootScope.editSelectedEvent = function() {
-    $rootScope.eventDetails = $rootScope.selectedEvent;
+    $rootScope.eventDetails = angular.copy($rootScope.selectedEvent);
     $rootScope.calendars.forEach(function(element, index, array) {
       if(element._id === $rootScope.selectedEvent.calendar) {
         $rootScope.eventDetails.calendar = element;
@@ -171,29 +171,6 @@ app.run(function($rootScope, $q, $http) {
     error(function(data, status, headers, config) {
       console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
     });
-  }
-
-  var canEditEvent = function(dBEvent) {
-    for(var i=0;i<$rootScope.myCalendars.length;i++) {
-      if(dBEvent.calendar === $rootScope.myCalendars[i]._id) {
-        return true;
-      }
-    }
-    for(var i=0;i<$rootScope.modCalendars.length;i++) {
-      if(dBEvent.calendar === $rootScope.modCalendars[i]._id) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  var canViewEvent = function(dBEvent) {
-    for(var i=0;i<$rootScope.viewBusyCalendars.length;i++) {
-      if(dBEvent.calendar === $rootScope.viewBusyCalendars[i]._id) {
-        return false;
-      }
-    }
-    return true;
   }
 
   $rootScope.convertDBEventToCalEvent = function(dBEvent) {

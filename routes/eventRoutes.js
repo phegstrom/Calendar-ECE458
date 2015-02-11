@@ -31,14 +31,14 @@ router.post('/', function(req, res, next) {
 	//for use with POSTman
 	//newEvent.creator = req.body.creator;
 
-	newEvent.save(function(err) {
+	newEvent.save(function(err, ev) {
 		if(err) next(err);
 		// add event to calendar
 		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
 			if(err) next(err);
 		});
 
-		res.send("Event Created");
+		res.send(ev._id);
 	});
 });
 

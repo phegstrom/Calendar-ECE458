@@ -101,13 +101,33 @@ app.controller('sideBarController', function($scope, $http) {
 
   //User Group Manipulation
   $scope.createGroup = function() {
-    $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
-    success(function(data, status, headers, config) {
-      $scope.displayUserGroups();
-    }).
-    error(function(data, status, headers, config) {
-      $scope.text = 'Failed to create group.';
+    var isConflicting = false;
+    $scope.userGroups.forEach(function(group,index,array) {
+      console.log(group);
+      if($scope.inputUserGroup == group.name) {
+        $scope.text = 'Failed to create group, a group with that name already exists.';
+        isConflicting = true;
+      }
     });
+
+    if(!isConflicting) {
+      $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
+      success(function(data, status, headers, config) {
+        $scope.displayUserGroups();
+        /*
+        var returnedData = angular.fromJson(data);
+        var newUserGroup = {
+          name: inputUserGroup.name,
+          id: returnedData._id,
+          users: []
+        };
+
+        $scope.userGroups.push(newUserGroup);*/
+      }).
+      error(function(data, status, headers, config) {
+        $scope.text = 'Failed to create group.';
+      });
+    }
 
     $scope.inputUserGroup = '';
   }

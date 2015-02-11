@@ -17,6 +17,18 @@ app.run(function($rootScope, $q, $http) {
     $rootScope.calendarView = viewLength;
     $rootScope.updateLocalEvents();
   }
+  $rootScope.nav = function(direction) {
+    //There is a race condition here that makes the update apply
+    // before the calendar navigation.
+    if(direction == 'back') {
+      $rootScope.calendarControl.prev();
+    }
+    else if(direction == 'forward') {
+      $rootScope.calendarControl.next();
+    }
+
+    $rootScope.updateLocalEvents();
+  }
   $rootScope.goToToday = function() {
     $rootScope.calendarDay = new Date();
     $rootScope.updateLocalEvents();
@@ -28,14 +40,10 @@ app.run(function($rootScope, $q, $http) {
 
     for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
       var calEvent = $rootScope.events[eventIndex];
-      console.log(calEvent);
       if(calEvent.starts_at > startPeriod && calEvent.starts_at < endPeriod) {
         $rootScope.localEvents.push(calEvent);
-        console.log(calEvent);
       }
     }
-
-    console.log($rootScope.localEvents);
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -272,6 +280,15 @@ app.run(function($rootScope, $q, $http) {
       dBEvent.calendarName = calendar.name;
       dBEvent.calendarId = calendar._id;
     });
+  }
+
+  $rootScope.isValidTime = function(date) {
+    if(date == undefined) {
+      return false;
+    }
+
+    var timestamp=Date.parse(date);
+    return isNaN(timestamp) == false;
   }
 
 

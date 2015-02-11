@@ -10,9 +10,9 @@ block content
     .page-header
       .pull-right.form-inline
         .btn-group
-          button.btn.btn-primary(ng-click="calendarControl.prev()") << Prev
+          button.btn.btn-primary(ng-click="nav('back')") << Prev
           button.btn(ng-click="goToToday()") Today
-          button.btn.btn-primary(ng-click="calendarControl.next()") Next >>
+          button.btn.btn-primary(ng-click="nav('forward')") Next >>
         .btn-group#viewLengthButtons
           button.btn.btn-warning(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
           button.btn.btn-warning(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
@@ -38,6 +38,7 @@ block content
             form(name="createGroupForm")
               input(type="text", ng-model="inputUserGroup", required)
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
+            {{ text }}
           #userListWindow(ng-show="selector == 1")
            h3 {{ selectedUserGroup.name }}
             ul
@@ -216,9 +217,9 @@ block content
             //Currently this naively assumes the date in alertTime is valid
             label Add Alert
             br
-            input(type="datetime-local", ng-model="alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+            input(type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
             br
-            button.btn(type="button", ng-click="addAlert()") Add Alert
+            button.btn(type="button", ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
             br
             ul
              li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}

@@ -103,7 +103,6 @@ app.controller('sideBarController', function($scope, $http) {
   $scope.createGroup = function() {
     var isConflicting = false;
     $scope.userGroups.forEach(function(group,index,array) {
-      console.log(group);
       if($scope.inputUserGroup == group.name) {
         $scope.text = 'Failed to create group, a group with that name already exists.';
         isConflicting = true;
@@ -111,18 +110,18 @@ app.controller('sideBarController', function($scope, $http) {
     });
 
     if(!isConflicting) {
+      var inputUserGroup = angular.copy($scope.inputUserGroup);
       $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
       success(function(data, status, headers, config) {
         $scope.displayUserGroups();
-        /*
-        var returnedData = angular.fromJson(data);
+
         var newUserGroup = {
-          name: inputUserGroup.name,
-          _id: returnedData._id,
+          name: inputUserGroup,
+          _id: data,
           users: []
         };
 
-        $scope.userGroups.push(newUserGroup);*/
+        $scope.userGroups.push(newUserGroup);
       }).
       error(function(data, status, headers, config) {
         $scope.text = 'Failed to create group.';
@@ -142,7 +141,7 @@ app.controller('sideBarController', function($scope, $http) {
           break;
         }
       }
-      
+
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to delete group.';

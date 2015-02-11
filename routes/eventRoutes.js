@@ -91,7 +91,7 @@ router.put('/:eventId', function(req, res, next) {
 
 	 	ev.save();
 
-	 	res.send("Event Updated");
+	 	res.send(ev._id);
 	});
 });
 

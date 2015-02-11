@@ -142,14 +142,14 @@ block content
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
 
           #calendarEvents(ng-show="selector == 4")
-            ul(ng-repeat="(key, value) in localEvents | groupBy: 'calendarId'")
-              h4 {{ value[0].calendarName }}
+            ul(ng-repeat="(key, value) in localEvents | groupBy: 'parentData.calendarId'")
+              h4 {{ value[0].parentData.calendarName }}
               li(ng-repeat="event in value")
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
             br
             button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
     br
-    .span9
+    .col-md-9
       #bottomBar(ng-controller="bottomAreaController")
         #displayEvent(ng-show="bottomSelector == 0")
           h2(ng-hide="selectedEvent.canViewEvent") Event

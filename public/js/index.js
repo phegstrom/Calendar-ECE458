@@ -22,7 +22,20 @@ app.run(function($rootScope, $q, $http) {
     $rootScope.updateLocalEvents();
   }
   $rootScope.updateLocalEvents = function() {
-    //$rootScope.localEvents = $rootScope.calendar.getEventsBetween($rootScope.calendar.getStartDate(),$rootScope.calendar.getEndDate());
+    var startPeriod = moment($rootScope.calendarDay).startOf($rootScope.calendarView).toDate();
+    var endPeriod = moment($rootScope.calendarDay).endOf($rootScope.calendarView).toDate();
+    $rootScope.localEvents = [];
+
+    for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
+      var calEvent = $rootScope.events[eventIndex];
+      console.log(calEvent);
+      if(calEvent.starts_at > startPeriod && calEvent.starts_at < endPeriod) {
+        $rootScope.localEvents.push(calEvent);
+        console.log(calEvent);
+      }
+    }
+
+    console.log($rootScope.localEvents);
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -44,7 +57,7 @@ app.run(function($rootScope, $q, $http) {
     }
 
     $rootScope.events = calendarEventList;
-    console.log(calendarEventList);
+    $rootScope.updateLocalEvents();
   }
 
   $rootScope.displayEventDetails = function(event) {
@@ -60,6 +73,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.myCalendars.forEach(function(element, index, array) {
         element.grouping = 'Owned Calendar';
+        setEventData(element, "info", true, true);
       });
 
     }).
@@ -73,6 +87,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.modCalendars.forEach(function(element, index, array) {
         element.grouping = 'Modifiable Calendar';
+        setEventData(element, "info", true, true);
       });
 
     }).
@@ -87,6 +102,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.viewCalendars.forEach(function(element, index, array) {
         element.grouping = 'Viewable Calendar';
+        setEventData(element, "warning", true, false);
       });
 
     }).
@@ -101,6 +117,7 @@ app.run(function($rootScope, $q, $http) {
 
       $rootScope.viewBusyCalendars.forEach(function(element, index, array) {
         element.grouping = 'Busy Calendar';
+        setEventData(element, "important", false, false);
       });
 
     }).
@@ -174,23 +191,10 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.convertDBEventToCalEvent = function(dBEvent) {
     dBEvent.start = new Date(dBEvent.start);
     dBEvent.end = new Date(dBEvent.end);
-    $rootScope.calendars.forEach(function(calendar, cIndex, cArray) {
-      if(calendar._id === dBEvent.calendar) {
-        dBEvent.calendarName = calendar.name;
-      }
-    });
-    dBEvent.canEditEvent = canEditEvent(dBEvent);
-    dBEvent.canViewEvent = canViewEvent(dBEvent);
 
     var newEvent = {};
     newEvent.title = dBEvent.name;
-    if(dBEvent.canViewEvent) {
-      newEvent.type = 'warning';
-    }
-    else {
-      newEvent.type = 'important';
-      newEvent.title = 'Event';
-    }
+    newEvent.type = dBEvent.type;
     newEvent.starts_at = dBEvent.start.getTime();
     newEvent.ends_at = dBEvent.end.getTime();
 
@@ -260,10 +264,19 @@ app.run(function($rootScope, $q, $http) {
     return eventList;
   }
 
+  var setEventData = function(calendar, eventType, canView, canEdit) {
+    calendar.events.forEach(function(dBEvent, index, array) {
+      dBEvent.type = eventType;
+      dBEvent.canViewEvent = canView;
+      dBEvent.canEditEvent = canEdit;
+      dBEvent.calendarName = calendar.name;
+      dBEvent.calendarId = calendar._id;
+    });
+  }
+
 
 
   
   //Initialization
   $rootScope.getCalendarData();
-  $rootScope.updateLocalEvents();
 });

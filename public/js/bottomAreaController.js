@@ -1,4 +1,4 @@
-app.controller('bottomAreaController', function($scope, $http) {
+app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
   $scope.title = '';
   $scope.text = '';
   $scope.$parent.eventDetails = {};
@@ -18,6 +18,10 @@ app.controller('bottomAreaController', function($scope, $http) {
     {name: 'Saturday',
       number: 6},
   ];
+
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  };
 
   var defaultForm = {
     name: '',
@@ -99,6 +103,8 @@ app.controller('bottomAreaController', function($scope, $http) {
       $scope.$parent.bottomSelector = -1;
       $scope.$parent.getCalendarData();
     });
+
+    $scope.cancel();
   }
 
   $scope.addAlert = function() {

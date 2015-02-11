@@ -1,6 +1,6 @@
 //Angular code
-var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar']);
-app.run(function($rootScope, $q, $http) {
+var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar', 'ui.bootstrap']);
+app.run(function($rootScope, $q, $http, $modal) {
 
   //Store a week in milliseconds
   var DAY = 1000*60*60*24;
@@ -31,7 +31,6 @@ app.run(function($rootScope, $q, $http) {
       console.log(calEvent);
       if(calEvent.starts_at > startPeriod && calEvent.starts_at < endPeriod) {
         $rootScope.localEvents.push(calEvent);
-        console.log(calEvent);
       }
     }
 
@@ -61,10 +60,21 @@ app.run(function($rootScope, $q, $http) {
   }
 
   $rootScope.displayEventDetails = function(event) {
-    $rootScope.bottomSelector=0;
     $rootScope.selectedEvent = event.parentData;
+
+    $modal.open({
+        templateUrl: 'eventDetailsModal.html',
+        controller: 'bottomAreaController'
+      });
     console.log($rootScope.selectedEvent);
   }
+
+  $rootScope.displayCreateEventModal = function() {
+    $modal.open({
+        templateUrl: 'createEventModal.html',
+        controller: 'bottomAreaController'
+      });
+    }
 
   $rootScope.getCalendarData = function() {
     var ownGet = $http.get('/calendar/myCalId').
@@ -145,6 +155,7 @@ app.run(function($rootScope, $q, $http) {
         $rootScope.eventDetails.calendar = element;
       }
     });
+    $rootScope.displayCreateEventModal();
     $rootScope.bottomSelector = 1;
   }
 

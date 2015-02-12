@@ -4,6 +4,7 @@ var Event 		= require('../models/Event');
 var Calendar	= require('../models/Calendar');
 var Alert		= require('../models/Alert');
 var Repeat		= require('../models/Repeat');
+var Request		= require('../models/Request');
 var router 		= express.Router();
 
 // post new Event
@@ -19,7 +20,7 @@ router.post('/', function(req, res, next) {
 	newEvent.start = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
-	// console.log("!!!!! "+newEvent.alerts);
+
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
 	newEvent.repeats = req.body.repeats;
@@ -31,12 +32,19 @@ router.post('/', function(req, res, next) {
 	//for use with POSTman
 	//newEvent.creator = req.body.creator;
 
+	var newRequest = new Request();
+	newRequest.info = newEvent.description;
+	newRequest.eventID = newEvent._id;
+	newEvent.requestID = newRequest._id;
+
 	newEvent.save(function(err, ev) {
 		if(err) next(err);
 		// add event to calendar
 		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
 			if(err) next(err);
 		});
+
+		newRequest.save();
 
 		res.send(ev);
 	});
@@ -97,30 +105,16 @@ router.put('/:eventId', function(req, res, next) {
 
 // delete the event, the event from the calendar, and the alerts and repeats
 router.delete('/:eventId', function(req, res, next) {
-	console.log("DELETE TIME");
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
 
 		Calendar.update({_id: ev.calendar}, {$pull: {events: req.params.eventId}}, function(err, num, raw) {
 
 		});
 
-		// Calendar.findOne({_id: ev.calendar}, function(err, cal) {
-		// 	console.log(cal);
-
-		// 	var index = cal.events.indexOf(req.params.eventId);
-		// 	cal.events.splice(index, 1);
-
-		// 	cal.save();
-		// });
-
-		// Alert.findByIdAndRemove{_id: {$in: ev.alerts}}, function (err, num, raw) {
-		// 	if (err) next(err);
-		// })
-
-	for (var i = 0; i < ev.alerts.length; i++) {
-		Alert.findByIdAndRemove({_id: ev.alerts[i]}, function(err) {
-		});
-	}
+		for (var i = 0; i < ev.alerts.length; i++) {
+			Alert.findByIdAndRemove({_id: ev.alerts[i]}, function(err) {
+			});
+		}
 
 		Event.findByIdAndRemove({_id: mongoose.Types.ObjectId(req.params.eventId)}, function(err) {
 			if(err)

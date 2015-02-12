@@ -113,14 +113,7 @@ app.controller('sideBarController', function($scope, $http) {
       $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
       success(function(data, status, headers, config) {
         $scope.displayUserGroups();
-
-        var newUserGroup = {
-          name: inputUserGroup,
-          _id: data,
-          users: []
-        };
-
-        $scope.userGroups.push(newUserGroup);
+        $scope.userGroups.push(angular.fromJson(data));
       }).
       error(function(data, status, headers, config) {
         $scope.text = 'Failed to create group.';
@@ -148,21 +141,32 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.addUserToGroup = function() {
+    console.log($scope.selectedUserGroup);
     $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [$scope.inputUserEmail]}).
     success(function(data, status, headers, config) {
       $scope.displayUserGroup($scope.selectedUserGroup);
+      $scope.selectedUserGroup.users = $scope.selectedUserGroup.users.concat(angular.fromJson(data));
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to add user.';
+    }).then(function(){
+      $scope.inputUserEmail = '';
     });
-
-    $scope.inputUserEmail = '';
   }
   $scope.deleteUserFromGroup = function(userEmailInput) {
     $http.post('/usergroup/delete/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
     success(function(data, status, headers, config) {
       console.log(data);
       $scope.displayUserGroup($scope.selectedUserGroup);
+      var deletedUserIds = angular.fromJson(data);
+
+      deletedUserIds.forEach(function(id, index, array) {
+        var userIndex = $scope.selectedUserGroup.users.indexOf(id);
+
+        if(userIndex >=0) {
+          $scope.selectedUserGroup.users.splice(userIndex, 1);
+        }
+      });
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to delete user.\n' + data;

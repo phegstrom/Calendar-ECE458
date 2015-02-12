@@ -145,7 +145,7 @@ router.post('/delete/user/:groupId', function(req, res, next) {
 
 			}
 
-			res.send('USERS DELETED');
+			res.send(userIds);
 	});	
 });
 

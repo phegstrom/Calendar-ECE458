@@ -33,7 +33,8 @@ router.post('/', function(req, res, next) {
 	//newEvent.creator = req.body.creator;
 
 	var newRequest = new Request();
-	newRequest.info = newEvent.description;
+	// newRequest.info = newEvent.description;
+	newRequest.usersStatus = {};
 	newRequest.eventID = newEvent._id;
 	newEvent.requestID = newRequest._id;
 
@@ -74,7 +75,7 @@ function createAlertSchemas(objArray, ev, req) {
 		});
 	}
 
-		 	return toRet;
+ 	return toRet;
 }
 
 // edit Event

@@ -40,6 +40,12 @@ router.get('/query', function(req, res) {
   });
 });
 
+router.get('/users', function (req, res, next) {
+  User.find({}, '_id email', function (err, users) {
+    res.send(users);
+  })
+});
+
 
 function requireLogin (req, res, next) {
   if (!req.user) {

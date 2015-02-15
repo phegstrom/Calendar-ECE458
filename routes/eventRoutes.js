@@ -108,7 +108,7 @@ router.put('/:eventId', function(req, res, next) {
 router.delete('/:eventId', function(req, res, next) {
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
 
-		Calendar.update({_id: ev.calendar}, {$pull: {events: req.params.eventId}}, function(err, num, raw) {
+		Calendar.update({_id: ev.calendar}, {$pull: {events: ev._id}}, function(err, num, raw) {
 
 		});
 
@@ -121,6 +121,8 @@ router.delete('/:eventId', function(req, res, next) {
 			if(err)
 				next(err);
 		});
+
+		Request.findByIdAndRemove({_id: mongoose.Type.ObjectId(ev.requestId)});
 
 	});
 

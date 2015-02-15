@@ -16,6 +16,8 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 	evPromise.addBack(function (err, myEv) {
 		Request.findOne({_id: myEv.requestID}, function (err, request) {
 			var tempStatus = request.usersStatus;
+			if(request.usersStatus == undefined)
+				tempStatus = {};
 			request.usersStatus = null;
 
 			req.body.users.forEach(function (user) {
@@ -46,8 +48,7 @@ router.put('/accept/:eventId', function (req, res, next) {
 
 	evPromise.addBack(function (err, myEv) {
 
-	})
-
+	});
 
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
 
@@ -67,8 +68,22 @@ router.put('/deny/:requestId', function (req, res, next) {
 });
 
 // route for when user removes
-
 router.put('/', function (req, res, next) {
+
+});
+
+router.get('/create/it', function (req, res, next) {
+	var newRequest = new Request();
+
+	newRequest.usersStatus = {};
+
+	newRequest.save();
+
+	newRequest.usersStatus = {status: "pending"};
+
+	newRequest.save();
+
+	res.send(newRequest);
 
 });
 
@@ -98,7 +113,7 @@ router.get('/create', function (req, res, next) {
 	// 	// res.send(testObj);
 	// });
 
-	Request.findOne({_id: "54de9f9944840012ca6c7833"}, function (err, request) {
+	Request.findOne({_id: "54df08c307da6d6718927886"}, function (err, request) {
 		var obj = request.usersStatus;
 		// obj['t1']['status'] = "PLEASE WORK";
 		// request.usersStatus['t1']['status'] = "WORK PLEASE";

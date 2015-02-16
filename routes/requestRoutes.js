@@ -56,19 +56,27 @@ router.put('/accept/:eventId', function (req, res, next) {
 		user.userGroups.splice(index, 1);
 
 		// find user and create new copy of event
-		// for each (var userId in request.userIDs) {
 
-		// }
+		// add this new copy of event to calendar
+		// need calendarId of where event should go in req.body
+
+		// go into request object and edit usersStatus
+		// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
+
 	});
 });
 
 // route for when user denies
 router.put('/deny/:requestId', function (req, res, next) {
 
+	// change usersStatus to 'deny'
+
 });
 
 // route for when user removes
-router.put('/', function (req, res, next) {
+router.put('/remove/:requestId', function (req, res, next) {
+
+	// change usersStatus to 'remove'
 
 });
 

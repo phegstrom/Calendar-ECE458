@@ -49,15 +49,12 @@ app.use(session({
   secret: 'eg[isfd-8yF9-7w2315df{}+Ijsli;;to8',
   duration: 10 * 60 * 1000, // how long the session will stay valid in ms
   activeDuration: 10 * 60 * 1000,
-  // cookie: {
-  //   path: '/', // cookie will only be sent to requests under '/api'
-  //   ephemeral: true, // when true, cookie expires when the browser closes
-  //   httpOnly: true, // when true, cookie is not accessible from javascript
-  //   secure: true // when true, cookie will only be sent over SSL. use key 'secureProxy' instead if you handle SSL not in your node process
-  // }
-  httpOnly: true,
-  secure: true,
-  ephemeral: true
+  cookie: {
+    path: '/', // cookie will only be sent to requests under '/api'
+    ephemeral: true, // when true, cookie expires when the browser closes
+    httpOnly: true, // when true, cookie is not accessible from javascript
+    secure: false // when true, cookie will only be sent over SSL. use key 'secureProxy' instead if you handle SSL not in your node process
+  }
 }));
 
 app.use(passport.initialize());

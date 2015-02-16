@@ -30,7 +30,7 @@ router.post('/', function (req, res, next) {
 						});
 
 				res.status(200);
-				res.send();
+				res.send(uGroup);
 			});
 	});
 });
@@ -123,7 +123,7 @@ router.put('/:groupId', function(req, res, next) {
 			    	console.log(raw);
 	    		});
 
-			res.send('USERS ADDED');
+			res.send(userIds);
 	});	
 });
 
@@ -145,7 +145,7 @@ router.post('/delete/user/:groupId', function(req, res, next) {
 
 			}
 
-			res.send('USER DELETED');
+			res.send(userIds);
 	});	
 });
 

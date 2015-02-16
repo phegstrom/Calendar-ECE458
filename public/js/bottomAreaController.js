@@ -1,7 +1,6 @@
-app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
+app.controller('bottomAreaController', function($scope, $http, $modalInstance, $rootScope) {
   $scope.title = '';
   $scope.text = '';
-  $scope.$parent.eventDetails = {};
   $scope.daysOfTheWeek = [
     {name: 'Sunday',
       number: 0},
@@ -35,8 +34,40 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
     weekdayRepeats: [false, false, false, false, false, false, false]
   }
 
+  $scope.deleteSelectedEvent = function() {
+    var selectedEventId = $rootScope.selectedEvent._id;
+
+    $http.delete('/event/'+$rootScope.selectedEvent._id).
+    success(function(data, status, headers, config) {
+      console.log('Event deleted: ' + selectedEventId);
+
+      var calendarEventList = [];
+      for(var i=0; i < $rootScope.events.length; i++) {
+        if($rootScope.events[i].parentData._id == selectedEventId) {
+          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendar).events;
+          $rootScope.events.splice(i, 1);
+          i--;
+        }
+      }
+
+      for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
+        if(calendarEventList[i]._id == selectedEventId) {
+          calendarEventList.splice(calEventIndex, 1);
+          break;
+        }
+      }
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
+    }).then(function(){
+      $rootScope.updateLocalEvents();
+    });
+
+    $scope.cancel();
+  }
+
   $scope.sendEventData = function() {
-    var eventDetails = $scope.$parent.eventDetails;
+    var eventDetails = $scope.eventDetails;
     eventDetails.calendar = eventDetails.calendar._id;
     if(eventDetails.alerts) {
       var newAlerts = [];
@@ -71,14 +102,12 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
       eventDetails.repeats = [repeats];
     }
 
-    console.log(eventDetails);
-
     var request = {};
 
     if(eventDetails._id) {
       request = $http.put('/event/'+eventDetails._id, eventDetails).
       success(function(data, status, headers, config) {
-        //Parse the object into a set of groups filled with users
+        //update the event in eventlist
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -88,7 +117,19 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
     else {
       request = $http.post('/event', eventDetails).
       success(function(data, status, headers, config) {
-        //Parse the object into a set of groups filled with users
+        var dBEvent = angular.fromJson(data);
+        var owningCalendar = $rootScope.getCalendar(dBEvent.calendar);
+
+        var tempCalendar = {
+          events: [dBEvent],
+          name: owningCalendar.name,
+          _id: owningCalendar._id
+        };
+        $rootScope.setEventData(tempCalendar, 'info', true, true);
+
+        var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
+        owningCalendar.events.push(calEvent);
+        $rootScope.events.push(calEvent);
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -100,8 +141,7 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
       $scope.eventForm.$setPristine();
       eventDetails = defaultForm;
 
-      $scope.$parent.bottomSelector = -1;
-      $scope.$parent.getCalendarData();
+      $rootScope.updateLocalEvents();
     });
 
     $scope.cancel();
@@ -109,16 +149,16 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance) {
 
   $scope.addAlert = function() {
     var newAlert = new Date($scope.alertTime);
-    if($scope.$parent.eventDetails.alerts) {
-      $scope.$parent.eventDetails.alerts.push(newAlert);
+    if($rootScope.eventDetails.alerts) {
+      $rootScope.eventDetails.alerts.push(newAlert);
     }
     else {
-      $scope.$parent.eventDetails.alerts = [newAlert];
+      $rootScope.eventDetails.alerts = [newAlert];
     }
   }
 
   $scope.removeAlert = function(time) {
-    $scope.$parent.eventDetails.alerts = $scope.$parent.eventDetails.alerts.filter(function(alert){
+    $rootScope.eventDetails.alerts = $rootScope.eventDetails.alerts.filter(function(alert){
       return alert != time;
     });
   }

@@ -12,30 +12,38 @@ var router 		= express.Router();
 router.put('/addUsers/:eventId', function (req, res, next) {
 
 	var evPromise = Event.findOne({_id: req.params.eventId}).exec();
-
+	var count;
 	evPromise.addBack(function (err, myEv) {
 		Request.findOne({_id: myEv.requestID}, function (err, request) {
 			var tempStatus = request.usersStatus;
 			if(request.usersStatus == undefined)
 				tempStatus = {};
-			request.usersStatus = null;
 
-			req.body.users.forEach(function (user) {
-				request.userIDs.push(user);
+			request.usersStatus = null; // must do this 
 
-				// email is null temporarily
-				tempStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
-				// request.usersStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
+			var p2 = User.find({email: {$in: req.body.users}}, '_id email').exec();
 
-				User.update({_id: user}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
+			//var p2 = User.convertToIds(req.body.users);
+			p2.addBack(function (err, users) {
 
+				users.forEach(function (user) {
+
+					request.userIDs.push(user._id);
+
+					// email is null temporarily
+					tempStatus[user._id] = {status: 'pending', calId: null, email: user.email, copyEventId: null};
+					// request.usersStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
+
+					User.update({_id: user._id}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
+
+					});
 				});
-			});
 
-			request.usersStatus = tempStatus;
+				request.usersStatus = tempStatus;
 
-			request.save(function (err, saved) {				
-				res.send(saved);
+				request.save(function (err, saved) {				
+					res.send(saved);
+				});				
 			});
 		});
 	});
@@ -149,6 +157,16 @@ router.get('/create', function (req, res, next) {
 	// 	console.log("hello");
 	// 	res.send(myReq);
 	// });
+
+});
+
+router.get('/testMethod', function (req, res, next) {
+
+		var p = User.convertToIds(['aaa', 'bbb']);
+
+		p.addBack(function (err, args) {
+			res.send(args);
+		});
 
 });
 

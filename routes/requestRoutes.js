@@ -12,30 +12,33 @@ var router 		= express.Router();
 router.put('/addUsers/:eventId', function (req, res, next) {
 
 	var evPromise = Event.findOne({_id: req.params.eventId}).exec();
-
+	var count;
 	evPromise.addBack(function (err, myEv) {
 		Request.findOne({_id: myEv.requestID}, function (err, request) {
 			var tempStatus = request.usersStatus;
 			if(request.usersStatus == undefined)
 				tempStatus = {};
-			request.usersStatus = null;
 
-			req.body.users.forEach(function (user) {
-				request.userIDs.push(user);
+			request.usersStatus = null; // must do this 
 
-				// email is null temporarily
-				tempStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
-				// request.usersStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
+			var p2 = User.find({email: {$in: req.body.users}}, '_id email').exec();
 
-				User.update({_id: user}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
+			p2.addBack(function (err, users) {
+				users.forEach(function (user) {
 
+					request.userIDs.push(user._id);
+					tempStatus[user._id] = {status: 'pending', calId: null, email: user.email, copyEventId: null};
+
+					User.update({_id: user._id}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
+
+					});
 				});
-			});
 
-			request.usersStatus = tempStatus;
+				request.usersStatus = tempStatus;
 
-			request.save(function (err, saved) {				
-				res.send(saved);
+				request.save(function (err, saved) {				
+					res.send(saved);
+				});				
 			});
 		});
 	});
@@ -108,6 +111,23 @@ router.put('/remove/:requestId', function (req, res, next) {
 	});
 });
 
+// route for when a shared-to user submits an edit to be approved
+router.put('/edit/:eventId', function (req, res, next) {
+	var prom = Event.findOne({_id: req.params.eventId}).exec();
+	// for POSTman
+	// req.body['editor'] = 'parker.hegstrom@gmail.com';
+	req.body['editor'] = req.session.user.email; // adds editor email to edit body
+	prom.addBack(function (err, event) {
+		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
+			if (err) next(err);
+			res.send('Edit sent');
+		});
+	});
+
+});
+
+
+
 router.get('/create/it', function (req, res, next) {
 	var newRequest = new Request();
 
@@ -177,6 +197,16 @@ router.get('/create', function (req, res, next) {
 	// 	console.log("hello");
 	// 	res.send(myReq);
 	// });
+
+});
+
+router.get('/testMethod', function (req, res, next) {
+
+		var p = User.convertToIds(['aaa', 'bbb']);
+
+		p.addBack(function (err, args) {
+			res.send(args);
+		});
 
 });
 

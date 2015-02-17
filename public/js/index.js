@@ -1,6 +1,6 @@
 //Angular code
-var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar']);
-app.run(function($rootScope, $q, $http) {
+var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar', 'ui.bootstrap']);
+app.run(function($rootScope, $q, $http, $modal) {
 
   //Store a week in milliseconds
   var DAY = 1000*60*60*24;
@@ -87,9 +87,20 @@ app.run(function($rootScope, $q, $http) {
   }
 
   $rootScope.displayEventDetails = function(event) {
-    $rootScope.bottomSelector=0;
     $rootScope.selectedEvent = event.parentData;
+    $modal.open({
+        templateUrl: 'eventDetailsModal.html',
+        controller: 'bottomAreaController'
+      });
+    console.log($rootScope.selectedEvent);
   }
+
+  $rootScope.displayCreateEventModal = function() {
+    $modal.open({
+        templateUrl: 'createEventModal.html',
+        controller: 'bottomAreaController'
+      });
+    }
 
   $rootScope.getCalendarData = function() {
     var ownGet = $http.get('/calendar/myCalId').
@@ -170,39 +181,11 @@ app.run(function($rootScope, $q, $http) {
         $rootScope.eventDetails.calendar = element;
       }
     });
+    $rootScope.displayCreateEventModal();
     $rootScope.bottomSelector = 1;
   }
 
-  $rootScope.deleteSelectedEvent = function() {
-    $rootScope.bottomSelector = -1;
-    var selectedEventId = $rootScope.selectedEvent._id;
-
-    $http.delete('/event/'+$rootScope.selectedEvent._id).
-    success(function(data, status, headers, config) {
-      console.log('Event deleted: ' + selectedEventId);
-
-      var calendarEventList = [];
-      for(var i=0; i < $rootScope.events.length; i++) {
-        if($rootScope.events[i].parentData._id == selectedEventId) {
-          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendar).events;
-          $rootScope.events.splice(i, 1);
-          i--;
-        }
-      }
-
-      for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
-        if(calendarEventList[i]._id == selectedEventId) {
-          calendarEventList.splice(calEventIndex, 1);
-          break;
-        }
-      }
-    }).
-    error(function(data, status, headers, config) {
-      console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
-    }).then(function(){
-      $rootScope.updateLocalEvents();
-    });
-  }
+  
 
   $rootScope.convertDBEventToCalEvent = function(dBEvent) {
     dBEvent.start = new Date(dBEvent.start);

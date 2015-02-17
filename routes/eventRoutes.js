@@ -81,6 +81,7 @@ function createAlertSchemas(objArray, ev, req) {
 // edit Event
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
+	console.log(req.body);
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
 	 	ev.name = req.body.name;
 	 	ev.description = req.body.description;
@@ -107,7 +108,6 @@ router.put('/:eventId', function(req, res, next) {
 // delete the event, the event from the calendar, and the alerts and repeats
 router.delete('/:eventId', function(req, res, next) {
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
-
 		Calendar.update({_id: ev.calendar}, {$pull: {events: ev._id}}, function(err, num, raw) {
 
 		});
@@ -122,7 +122,9 @@ router.delete('/:eventId', function(req, res, next) {
 				next(err);
 		});
 
-		Request.findByIdAndRemove({_id: mongoose.Type.ObjectId(ev.requestId)});
+		Request.findByIdAndRemove({_id: mongoose.Types.ObjectId(ev.requestID)}, function (err) {
+			if (err) next(err);
+		});
 
 	});
 

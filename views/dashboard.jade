@@ -148,119 +148,121 @@ block content
             ul(ng-repeat="(key, value) in localEvents | groupBy: 'parentData.calendarId'")
               h4 {{ value[0].parentData.calendarName }}
               li(ng-repeat="event in value")
-                a(href ng-click="displayEventDetails(event)") {{ event.title }}
+                a(href, ng-click="displayEventDetails(event)") {{ event.title }}
             br
-            button.btn.btn-primary(ng-click="displayEventCreator()") Create Event
-    br
-    .col-md-9
-      #bottomBar(ng-controller="bottomAreaController")
-        #displayEvent(ng-show="bottomSelector == 0")
-          h2(ng-hide="selectedEvent.canViewEvent") Event
-          div(ng-show="selectedEvent.canViewEvent")
-            h2 {{ selectedEvent.name }}
-            h4 Description
-            p(ng-show="selectedEvent.description") {{ selectedEvent.description }}
-            p(ng-hide="selectedEvent.description") No description.
-            h4 At
-            p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
-            p(ng-hide="selectedEvent.location") No location.
-          h4 From
-          p {{ selectedEvent.start.toLocaleString() }}
-          h4 To
-          p {{ selectedEvent.end.toLocaleString() }}
-          div(ng-show="selectedEvent.canViewEvent")
-            div(ng-hide="selectedEvent.alerts == null")
-              h4 Alerts
-              ul
-                li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
-            div(ng-hide="selectedEvent.willRepeat == null")
-              h4 Repeats?
-              p {{ selectedEvent.willRepeat }}
-                div(ng-show="selectedEvent.willRepeat")
-                  p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
-                  p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
-          h4 Calendar
-          p {{ selectedEvent.calendarName }}
-          h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
-          .btn-group
-            button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
-            button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
-
-        #createEvent(ng-show="bottomSelector == 1")
-          form(name="eventForm")
-            label Event Name
-            br
-            input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
-            br
-
-            label Description
-            br
-            textarea(rows="10", cols="50", ng-model="eventDetails.description", placeholder="Description")
-            br
-
-            label Location
-            br
-            input(type="text", ng-model="eventDetails.location", placeholder="Location")
-            br
-            //
-              label All Day?
-              input(type="checkbox", ng-model="eventDetails.isAllDay")
-
-            label Start Time
-            br
-            input(type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
-            br
-            
-            label End Time
-            br
-            input(type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
-            br
-
-            //Currently this naively assumes the date in alertTime is valid
-            label Add Alert
-            br
-            input(type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
-            br
-            button.btn(type="button", ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
-            br
-            ul
-             li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
-               a(href ng-click="removeAlert(time)") [X]
-            
-            label Repeat?
-            br
-            input(type="checkbox", ng-model="eventDetails.willRepeat")
-            br
-            div(ng-hide="!eventDetails.willRepeat")
-              label Repeat Mode
-              br
-              select(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
-                option Number
-                option End Date
-              br
-              div(ng-hide="eventDetails.repeatMode != 'Number'")
-                label Repeat Count
-                br
-                input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
-                br
-              div(ng-hide="eventDetails.repeatMode != 'End Date'")
-                label End Date
-                br
-                input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
-                br
-              div(ng-repeat="day in daysOfTheWeek")
-                label {{ day.name }}
-                input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
-            label Containing Calendar
-            br
-            select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
-            br
-            input(type="text", ng-model="selectedEvent._id", ng-hide="true")
-            br
-            btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()") Save
-            br
+            a.btn.btn-primary(href, ng-click="displayCreateEventModal()") Create Event
+ 
+    script(type="text/ng-template" id="createEventModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title Create Event
+      .modal-body
+        form(name="eventForm")
+          label Event Name
           br
-          |{{ text }}
+          input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
+          br
+
+          label Description
+          br
+          textarea(rows="8", cols="50", ng-model="eventDetails.description", placeholder="Description")
+          br
+
+          label Location
+          br
+          input(type="text", ng-model="eventDetails.location", placeholder="Location")
+          br
+          //
+            label All Day?
+            input(type="checkbox", ng-model="eventDetails.isAllDay")
+
+          label Start Time
+          br
+          input(type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+          br
+          
+          label End Time
+          br
+          input(type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+          br
+
+          //Currently this naively assumes the date in alertTime is valid
+          label Add Alert
+          br
+          input(type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+          br
+          button.btn(type="button", ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
+          br
+          ul
+           li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
+             a(href ng-click="removeAlert(time)") [X]
+          
+          label Repeat?
+          br
+          input(type="checkbox", ng-model="eventDetails.willRepeat")
+          br
+          div(ng-hide="!eventDetails.willRepeat")
+            label Repeat Mode
+            br
+            select(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
+              option Number
+              option End Date
+            br
+            div(ng-hide="eventDetails.repeatMode != 'Number'")
+              label Repeat Count
+              br
+              input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
+              br
+            div(ng-hide="eventDetails.repeatMode != 'End Date'")
+              label End Date
+              br
+              input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+              br
+            div(ng-repeat="day in daysOfTheWeek")
+              label {{ day.name }}
+              input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
+          label Containing Calendar
+          br
+          select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
+          br
+          input(type="text", ng-model="selectedEvent._id", ng-hide="true")
+          br
+          btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
+    script(type="text/ng-template" id="eventDetailsModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title(ng-hide="selectedEvent.canViewEvent") Event
+        h4#myModalLabel.modal-title(ng-show="selectedEvent.canViewEvent") {{ selectedEvent.name }}
+      .modal-body
+        div(ng-show="selectedEvent.canViewEvent")
+          h4 Description
+          p(ng-show="selectedEvent.description") {{ selectedEvent.description }}
+          p(ng-hide="selectedEvent.description") No description.
+          h4 At
+          p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
+          p(ng-hide="selectedEvent.location") No location.
+        h4 From
+        p {{ selectedEvent.start.toLocaleString() }}
+        h4 To
+        p {{ selectedEvent.end.toLocaleString() }}
+        div(ng-show="selectedEvent.canViewEvent")
+          div(ng-hide="selectedEvent.alerts == null")
+            h4 Alerts
+            ul
+              li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
+          div(ng-hide="selectedEvent.willRepeat == null")
+            h4 Repeats?
+            p {{ selectedEvent.willRepeat }}
+              div(ng-show="selectedEvent.willRepeat")
+                p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
+                p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
+        h4 Calendar
+        p {{ selectedEvent.calendarName }}
+        h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
+        .btn-group
+          button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
+          button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/angular.js')
     script(type='text/javascript', src='/js/moment.js')

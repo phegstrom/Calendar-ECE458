@@ -42,28 +42,45 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 });
 
 // route for when user accepts
-router.put('/accept/:eventId', function (req, res, next) {
-
-	var evPromise = Event.findOne({_id: req.params.eventId}).exec();
-
-	evPromise.addBack(function (err, myEv) {
-
-	});
+router.put('/accept/:requestId', function (req, res, next) {
 
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
-
-		// request.usersStatus[req.session.user._id]
-		// user.userGroups.splice(index, 1);
 
 		// find calendar and create new copy of event
 		// need calendarId of where event should go in req.body
 		Calendar.findOne({_id: req.body.calendarId}, function (err, cal) {
-			var copyEvent = new Event();
+			Event.findOne({_id: request.eventID}, function (err, currEvent) {
+				var copyEvent = new Event();
+
+				copyEvent.name = currEvent.name;
+				copyEvent.description = currEvent.description;
+				copyEvent.location = currEvent.location;
+				copyEvent.start = currEvent.start;
+				copyEvent.end = currEvent.end;
+				copyEvent.ownerID = currEvent.ownerID;
+				copyEvent.parentID = currEvent._id;
+
+				// do we need to copy alerts?
+				copyEvent.alerts = currEvent.alerts;
+				copyEvent.repeats = currEvent.repeats;
+				copyEvent.creator = currEvent.creator;
+
+				console.log("copyEvent:    " + copyEvent);
+				copyEvent.save(function (err) {
+					// go into request object and edit usersStatus
+					// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
+
+					var tempStatus = request.usersStatus;
+					request.usersStatus = null;
+					tempStatus[req.session.user._id] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
+
+					request.usersStatus = tempStatus;
+					request.save();
+
+					res.send("SUCCESS");
+				});
+			});		
 		});
-
-		// go into request object and edit usersStatus
-		// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
-
 	});
 });
 
@@ -71,8 +88,10 @@ router.put('/accept/:eventId', function (req, res, next) {
 router.put('/deny/:requestId', function (req, res, next) {
 	// change usersStatus to 'deny'
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
+		var tempStatus = request.usersStatus;
 		request.usersStatus = null;
-		request.usersStatus[req.session.user._id] = {status: "denied"};
+		tempStatus[req.session.user._id] = {status: "denied"};
+		request.usersStatus = tempStatus;
 		request.save();
 	});
 });
@@ -81,8 +100,10 @@ router.put('/deny/:requestId', function (req, res, next) {
 router.put('/remove/:requestId', function (req, res, next) {
 	// change usersStatus to 'remove'
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
+		var tempStatus = request.usersStatus;
 		request.usersStatus = null;
-		request.usersStatus[req.session.user._id] = {status: "removed"};
+		tempStatus[req.session.user._id] = {status: "removed"};
+		request.usersStatus = tempStatus;
 		request.save();
 	});
 });

@@ -55,13 +55,14 @@ router.put('/accept/:eventId', function (req, res, next) {
 
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
 
-		request.usersStatus[req.session.user._id]
-		user.userGroups.splice(index, 1);
+		// request.usersStatus[req.session.user._id]
+		// user.userGroups.splice(index, 1);
 
-		// find user and create new copy of event
-
-		// add this new copy of event to calendar
+		// find calendar and create new copy of event
 		// need calendarId of where event should go in req.body
+		Calendar.findOne({_id: req.body.calendarId}, function (err, cal) {
+			var copyEvent = new Event();
+		});
 
 		// go into request object and edit usersStatus
 		// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
@@ -71,16 +72,22 @@ router.put('/accept/:eventId', function (req, res, next) {
 
 // route for when user denies
 router.put('/deny/:requestId', function (req, res, next) {
-
 	// change usersStatus to 'deny'
-
+	Request.findOne({_id: req.params.requestId}, function (err, request) {
+		request.usersStatus = null;
+		request.usersStatus[req.session.user._id] = {status: "denied"};
+		request.save();
+	});
 });
 
 // route for when user removes
 router.put('/remove/:requestId', function (req, res, next) {
-
 	// change usersStatus to 'remove'
-
+	Request.findOne({_id: req.params.requestId}, function (err, request) {
+		request.usersStatus = null;
+		request.usersStatus[req.session.user._id] = {status: "removed"};
+		request.save();
+	});
 });
 
 router.get('/create/it', function (req, res, next) {

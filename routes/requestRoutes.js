@@ -23,16 +23,11 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 
 			var p2 = User.find({email: {$in: req.body.users}}, '_id email').exec();
 
-			//var p2 = User.convertToIds(req.body.users);
 			p2.addBack(function (err, users) {
-
 				users.forEach(function (user) {
 
 					request.userIDs.push(user._id);
-
-					// email is null temporarily
 					tempStatus[user._id] = {status: 'pending', calId: null, email: user.email, copyEventId: null};
-					// request.usersStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
 
 					User.update({_id: user._id}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
 

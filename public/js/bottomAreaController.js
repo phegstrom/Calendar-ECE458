@@ -110,7 +110,14 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
         var modifiedEvent = angular.fromJson(data);
         for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
           if($rootScope.events[eventIndex].parentData._id == modifiedEvent._id) {
-            $rootScope.events[eventIndex] = $rootScope.convertDBEventToCalEvent(modifiedEvent);
+            modifiedEvent.type = eventDetails.type;
+            modifiedEvent.canViewEvent = eventDetails.canViewEvent;
+            modifiedEvent.canEditEvent = eventDetails.canEditEvent;
+            modifiedEvent.calendarName = eventDetails.calendarName;
+            modifiedEvent.calendarId = eventDetails.calendarId;
+            var modifiedCalEvent = $rootScope.convertDBEventToCalEvent(modifiedEvent);
+            console.log(modifiedCalEvent);
+            $rootScope.events[eventIndex] = modifiedCalEvent;
           }
         }
 

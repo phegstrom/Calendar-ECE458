@@ -338,6 +338,16 @@ app.run(function($rootScope, $q, $http, $modal) {
     $rootScope.updateLocalEvents();
   }
 
+  $rootScope.findEvent = function(eventId) {
+    for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
+      if($rootScope.events[eventIndex]._id == eventId) {
+        return $rootScope.events[eventIndex];
+      }
+    }
+
+    return undefined;
+  }
+
 
   
   //Initialization

@@ -102,7 +102,14 @@ router.put('/:eventId', function(req, res, next) {
 		 	ev.alerts = createAlertSchemas(req.body.alerts, ev, req);
 	 	ev.repeats = req.body.repeats;
 
-	 	ev.creator = req.session.user._id;
+	 	if(ev.creator == req.session.user._id) {
+	 		Request.findOne({_id: ev.requestID}, function (err, request) {
+	 			request.changeUsersStatus('pending', function (updatedReq) {
+	 				console.log(updatedReq);
+	 			});
+	 		});
+	 	}
+	 	// ev.creator = req.session.user._id;
 	 	//ev.creator = req.body.creator;
 
 	 	ev.save();

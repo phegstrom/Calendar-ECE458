@@ -36,17 +36,17 @@ block content
                 a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
                 a(href, ng-click="deleteUserGroup(group._id)") [X]
             form(name="createGroupForm")
-              input(type="text", ng-model="inputUserGroup", required)
+              input(type="text", ng-model="inputUserGroup", placeholder="User Group Name", required)
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
             {{ text }}
           #userListWindow(ng-show="selector == 1")
             h3 {{ selectedUserGroup.name }}
             ul
               li(ng-repeat="user in selectedUserGroup.users")
-                {{ user.name + " " }}
+                {{ user.email + " " }}
                 a(href, ng-click="deleteUserFromGroup(user.email)") [X]
              form(name="addUserForm")
-              input(type="text", ng-model="inputUserEmail", required)
+              input(type="text", ng-model="inputUserEmail", placeholder="User Email", list="emails", required)
               br
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
               br
@@ -72,7 +72,7 @@ block content
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             form(name="createCalendarForm")
-              input(type="text", ng-model="inputCalendarName", required)
+              input(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
 
 
@@ -132,7 +132,7 @@ block content
               ul
                 li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
               label User Email
-              input(type="text", ng-model="userEmail")
+              input(type="text", ng-model="userEmail", list="emails")
               button.btn(ng-click="addUserEmailToRule()") Add User Email
               ul
                 li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
@@ -150,7 +150,7 @@ block content
               li(ng-repeat="event in value")
                 a(href, ng-click="displayEventDetails(event)") {{ event.title }}
             br
-            a.btn.btn-primary(href, ng-click="displayCreateEventModal()") Create Event
+            a.btn.btn-primary(href, ng-click="createNewEvent()") Create Event
  
     script(type="text/ng-template" id="createEventModal.html" )
       .modal-header
@@ -263,6 +263,8 @@ block content
           button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
           button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
 
+    datalist(id="emails")
+      option(ng-repeat="user in userList") {{ user.email }}
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/angular.js')
     script(type='text/javascript', src='/js/moment.js')

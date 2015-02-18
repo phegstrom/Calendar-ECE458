@@ -37,7 +37,8 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 
 				request.usersStatus = tempStatus;
 
-				request.save(function (err, saved) {				
+				request.save(function (err, saved) {
+					User.update({_id: req.session.user._id}, {$push: {createdRequests: request._id}}, function (err, num, raw) {});
 					res.send(saved);
 				});				
 			});
@@ -117,13 +118,72 @@ router.put('/remove/:requestId', function (req, res, next) {
 router.put('/edit/:eventId', function (req, res, next) {
 	var prom = Event.findOne({_id: req.params.eventId}).exec();
 	// for POSTman
-	// req.body['editor'] = 'parker.hegstrom@gmail.com';
-	req.body['editor'] = req.session.user.email; // adds editor email to edit body
+	req.body['editor'] = 'parker.hegstrom@gmail.com';
+	//req.body['editor'] = req.session.user.email; // adds editor email to edit body
 	prom.addBack(function (err, event) {
 		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
 			if (err) next(err);
 			res.send('Edit sent');
 		});
+	});
+
+});
+
+// route for when a shared-to user submits an edit to be approved
+router.put('/edit/:eventId', function (req, res, next) {
+	var prom = Event.findOne({_id: req.params.eventId}).exec();
+	// for POSTman
+	req.body['editor'] = 'parker.hegstrom@gmail.com';
+	//req.body['editor'] = req.session.user.email; // adds editor email to edit body
+	prom.addBack(function (err, event) {
+		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
+			if (err) next(err);
+			res.send('Edit sent');
+		});
+	});
+
+});
+
+// route for when creator user approves an edit
+router.put('/approve/:requestId', function (req, res, next) {
+	var index = req.body.editNum;
+	// var index = 1;
+
+	Request.findOne({_id: req.params.requestId}, function (err, myReq) {
+		if (err) next(err);
+
+		Event.findOne({_id: myReq.eventID}, function (err, ev) {
+			if (err) next(err);
+			console.log("EVENT IS NULL: "+(ev==undefined));
+			//console.log(ev);
+			console.log("EVENT CHANGED TO");
+			ev.name = myReq.edits[index].name;
+		 	ev.description = myReq.edits[index].description;
+		 	ev.location = myReq.edits[index].location;
+		 	//these freak out with POSTman
+		 	ev.start = myReq.edits[index].start;
+		 	ev.end = myReq.edits[index].end;
+		 	ev.repeats = myReq.edits[index].repeats;
+
+		 	ev.save(function (err, savedEv) {
+		 		if (err) next(err);
+
+		 		console.log("SAVED EVENT");
+		 		console.log(savedEv);
+
+		 		var obj = myReq.edits;
+
+		 		myReq.edits.splice(index, 1);
+
+		 		myReq.changeUsersStatus('pending', function (updatedReq) {
+		 			console.log("UPDATED REQUEST");
+		 			console.log(updatedReq);
+		 			res.send("approved the edit!");
+		 		});
+
+		 	});
+
+		});	
 	});
 
 });
@@ -134,6 +194,7 @@ router.get('/getCreated', function (req, res, next) {
 			res.send(user.createdRequests);
 		});
 });
+
 
 router.get('/getIncoming', function (req, res, next) {
 	User.findOne({_id: req.session.user._id})

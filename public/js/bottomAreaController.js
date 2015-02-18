@@ -1,6 +1,4 @@
 app.controller('bottomAreaController', function($scope, $http, $modalInstance, $rootScope) {
-  $scope.title = '';
-  $scope.text = '';
   $scope.daysOfTheWeek = [
     {name: 'Sunday',
       number: 0},
@@ -28,6 +26,8 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
     location: '',
     alerts: [],
     willRepeat: false,
+    start: Date.parse('today'),
+    end: Date.parse('tomorrow'),
     repeatMode: '',
     repeatCount: 0,
     calendar: null,
@@ -67,7 +67,7 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
   }
 
   $scope.sendEventData = function() {
-    var eventDetails = $scope.eventDetails;
+    var eventDetails = $rootScope.eventDetails;
     eventDetails.calendar = eventDetails.calendar._id;
     if(eventDetails.alerts) {
       var newAlerts = [];
@@ -107,7 +107,13 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
     if(eventDetails._id) {
       request = $http.put('/event/'+eventDetails._id, eventDetails).
       success(function(data, status, headers, config) {
-        //update the event in eventlist
+        var modifiedEvent = angular.fromJson(data);
+        for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
+          if($rootScope.events[eventIndex].parentData._id == modifiedEvent._id) {
+            $rootScope.events[eventIndex] = $rootScope.convertDBEventToCalEvent(modifiedEvent);
+          }
+        }
+
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -148,7 +154,7 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
   }
 
   $scope.addAlert = function() {
-    var newAlert = new Date($scope.alertTime);
+    var newAlert = new Date($rootScope.alertTime);
     if($rootScope.eventDetails.alerts) {
       $rootScope.eventDetails.alerts.push(newAlert);
     }

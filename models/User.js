@@ -14,6 +14,7 @@ var UserSchema = new Schema({
 	canViewBusy: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
 	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
+	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 

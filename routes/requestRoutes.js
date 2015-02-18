@@ -16,6 +16,7 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 	evPromise.addBack(function (err, myEv) {
 		Request.findOne({_id: myEv.requestID}, function (err, request) {
 			var tempStatus = request.usersStatus;
+			request.info = req.body.info;
 			if(request.usersStatus == undefined)
 				tempStatus = {};
 
@@ -76,6 +77,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 					var tempStatus = request.usersStatus;
 					request.usersStatus = null;
 					tempStatus[req.session.user._id] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
+					// tempStatus["54e2de1d9e41c46cfe113125"] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
 
 					request.usersStatus = tempStatus;
 					request.save();
@@ -126,7 +128,20 @@ router.put('/edit/:eventId', function (req, res, next) {
 
 });
 
+router.get('/getCreated', function (req, res, next) {
+	User.findOne({_id: req.session.user._id})
+		.deepPopulate("createdRequests.eventID").exec(function (err, user) {
+			res.send(user.createdRequests);
+		});
+});
 
+router.get('/getIncoming', function (req, res, next) {
+	User.findOne({_id: req.session.user._id})
+	// User.findOne({_id: "54e2de1d9e41c46cfe113125"})
+		.deepPopulate("eventRequests.eventID").exec(function (err, user) {
+			res.send(user.eventRequests);
+		});
+});
 
 router.get('/create/it', function (req, res, next) {
 	var newRequest = new Request();

@@ -11,6 +11,7 @@ var RequestSchema = new Schema({
 
 	// usersStatus: {uID: {status: String, calId: calendarID, email: String, copyEventId: eventID}}
 	usersStatus: {type: Schema.Types.Mixed},
+	creator: String,
 
 	edits: [{type: Schema.Types.Mixed}]
 }, {

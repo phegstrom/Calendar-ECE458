@@ -36,6 +36,7 @@ router.post('/', function(req, res, next) {
 	// newRequest.info = newEvent.description;
 	newRequest.usersStatus = {};
 	newRequest.eventID = newEvent._id;
+	newRequest.creator = req.session.user.email;
 	newEvent.requestID = newRequest._id;
 
 	newEvent.save(function(err, ev) {
@@ -81,6 +82,11 @@ function createAlertSchemas(objArray, ev, req) {
 // edit Event
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
+
+	// check if there's a request assc with this event
+	// check if the logged in user is the creator of the event
+	// if both true, call request schema method
+
 	console.log(req.body);
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
 	 	ev.name = req.body.name;

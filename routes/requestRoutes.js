@@ -54,21 +54,31 @@ router.put('/accept/:requestId', function (req, res, next) {
 		// find calendar and create new copy of event
 		// need calendarId of where event should go in req.body
 		Calendar.findOne({_id: req.body.calendarId}, function (err, cal) {
-			Event.findOne({_id: request.eventID}, function (err, currEvent) {
+			var copyId = request.usersStatus[req.session.user._id].copyEventId;
+			var evIdArray = [request.eventID];
+
+			if (copyId != null) // user already has a copied event
+				evIdArray.push(copyId);
+
+			Event.find({_id: {$in: evIdArray}}, function (err, currEvent) {
+				
 				var copyEvent = new Event();
 
-				copyEvent.name = currEvent.name;
-				copyEvent.description = currEvent.description;
-				copyEvent.location = currEvent.location;
-				copyEvent.start = currEvent.start;
-				copyEvent.end = currEvent.end;
-				copyEvent.ownerID = currEvent.ownerID;
-				copyEvent.parentID = currEvent._id;
+				if (currEvent.length == 2) 
+					copyEvent = currEvent[1];			
+
+				copyEvent.name = currEvent[0].name;
+				copyEvent.description = currEvent[0].description;
+				copyEvent.location = currEvent[0].location;
+				copyEvent.start = currEvent[0].start;
+				copyEvent.end = currEvent[0].end;
+				copyEvent.ownerID = currEvent[0].ownerID;
+				copyEvent.parentID = currEvent[0]._id;
 
 				// do we need to copy alerts?
-				copyEvent.alerts = currEvent.alerts;
-				copyEvent.repeats = currEvent.repeats;
-				copyEvent.creator = currEvent.creator;
+				copyEvent.alerts = currEvent[0].alerts;
+				copyEvent.repeats = currEvent[0].repeats;
+				copyEvent.creator = currEvent[0].creator;
 
 				console.log("copyEvent:    " + copyEvent);
 				copyEvent.save(function (err) {
@@ -138,6 +148,7 @@ router.put('/denyEdit/:requestId', function (req, res, next) {
 		});
 	});	
 });
+
 
 // route for when creator user approves an edit
 router.put('/approveEdit/:requestId', function (req, res, next) {

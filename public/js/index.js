@@ -13,6 +13,18 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.calendarView = 'month';
   $rootScope.calendarDay = new Date();
 
+  $rootScope.getAllUsers = function() {
+    $rootScope.userList = [];
+
+    $http.get('/users').
+    success(function(data, status, headers, config) {
+      $rootScope.userList = angular.fromJson(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve list of users.');
+    });
+  }
+
   $rootScope.setViewLength = function(viewLength) {
     $rootScope.calendarView = viewLength;
     $rootScope.updateLocalEvents();
@@ -100,7 +112,7 @@ app.run(function($rootScope, $q, $http, $modal) {
         templateUrl: 'createEventModal.html',
         controller: 'bottomAreaController'
       });
-    }
+  }
 
   $rootScope.getCalendarData = function() {
     var ownGet = $http.get('/calendar/myCalId').
@@ -169,9 +181,12 @@ app.run(function($rootScope, $q, $http, $modal) {
     });
   }
 
-  $rootScope.displayEventCreator = function() {
-    $rootScope.eventDetails = {};
-    $rootScope.bottomSelector = 1;
+  $rootScope.createNewEvent = function() {
+    $rootScope.eventDetails = {
+      start: Date.parse('today'),
+      end: Date.parse('tomorrow')
+    };
+    $rootScope.displayCreateEventModal();
   }
 
   $rootScope.editSelectedEvent = function() {
@@ -182,7 +197,6 @@ app.run(function($rootScope, $q, $http, $modal) {
       }
     });
     $rootScope.displayCreateEventModal();
-    $rootScope.bottomSelector = 1;
   }
 
   
@@ -302,9 +316,8 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.deleteCalendar = function(calendarId) {
     for(var i=0; i < $rootScope.events.length; i++) {
       console.log($rootScope.events[i].parentData.calendar);
-      if($rootScope.events[i].parentData.calendar == calendarId) {
+      while( i < $rootScope.events.length && $rootScope.events[i].parentData.calendar == calendarId) {
         $rootScope.events.splice(i, 1);
-        i--;
       }
     }
 
@@ -329,4 +342,5 @@ app.run(function($rootScope, $q, $http, $modal) {
   
   //Initialization
   $rootScope.getCalendarData();
+  $rootScope.getAllUsers();
 });

@@ -1,6 +1,6 @@
 //Angular code
-var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar']);
-app.run(function($rootScope, $q, $http) {
+var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar', 'ui.bootstrap']);
+app.run(function($rootScope, $q, $http, $modal) {
 
   //Store a week in milliseconds
   var DAY = 1000*60*60*24;
@@ -12,6 +12,18 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.events=[];
   $rootScope.calendarView = 'month';
   $rootScope.calendarDay = new Date();
+
+  $rootScope.getAllUsers = function() {
+    $rootScope.userList = [];
+
+    $http.get('/users').
+    success(function(data, status, headers, config) {
+      $rootScope.userList = angular.fromJson(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve list of users.');
+    });
+  }
 
   $rootScope.setViewLength = function(viewLength) {
     $rootScope.calendarView = viewLength;
@@ -87,8 +99,19 @@ app.run(function($rootScope, $q, $http) {
   }
 
   $rootScope.displayEventDetails = function(event) {
-    $rootScope.bottomSelector=0;
     $rootScope.selectedEvent = event.parentData;
+    $modal.open({
+        templateUrl: 'eventDetailsModal.html',
+        controller: 'bottomAreaController'
+      });
+    console.log($rootScope.selectedEvent);
+  }
+
+  $rootScope.displayCreateEventModal = function() {
+    $modal.open({
+        templateUrl: 'createEventModal.html',
+        controller: 'bottomAreaController'
+      });
   }
 
   $rootScope.getCalendarData = function() {
@@ -158,9 +181,12 @@ app.run(function($rootScope, $q, $http) {
     });
   }
 
-  $rootScope.displayEventCreator = function() {
-    $rootScope.eventDetails = {};
-    $rootScope.bottomSelector = 1;
+  $rootScope.createNewEvent = function() {
+    $rootScope.eventDetails = {
+      start: Date.parse('today'),
+      end: Date.parse('tomorrow')
+    };
+    $rootScope.displayCreateEventModal();
   }
 
   $rootScope.editSelectedEvent = function() {
@@ -170,39 +196,10 @@ app.run(function($rootScope, $q, $http) {
         $rootScope.eventDetails.calendar = element;
       }
     });
-    $rootScope.bottomSelector = 1;
+    $rootScope.displayCreateEventModal();
   }
 
-  $rootScope.deleteSelectedEvent = function() {
-    $rootScope.bottomSelector = -1;
-    var selectedEventId = $rootScope.selectedEvent._id;
-
-    $http.delete('/event/'+$rootScope.selectedEvent._id).
-    success(function(data, status, headers, config) {
-      console.log('Event deleted: ' + selectedEventId);
-
-      var calendarEventList = [];
-      for(var i=0; i < $rootScope.events.length; i++) {
-        if($rootScope.events[i].parentData._id == selectedEventId) {
-          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendar).events;
-          $rootScope.events.splice(i, 1);
-          i--;
-        }
-      }
-
-      for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
-        if(calendarEventList[i]._id == selectedEventId) {
-          calendarEventList.splice(calEventIndex, 1);
-          break;
-        }
-      }
-    }).
-    error(function(data, status, headers, config) {
-      console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
-    }).then(function(){
-      $rootScope.updateLocalEvents();
-    });
-  }
+  
 
   $rootScope.convertDBEventToCalEvent = function(dBEvent) {
     dBEvent.start = new Date(dBEvent.start);
@@ -319,9 +316,8 @@ app.run(function($rootScope, $q, $http) {
   $rootScope.deleteCalendar = function(calendarId) {
     for(var i=0; i < $rootScope.events.length; i++) {
       console.log($rootScope.events[i].parentData.calendar);
-      if($rootScope.events[i].parentData.calendar == calendarId) {
+      while( i < $rootScope.events.length && $rootScope.events[i].parentData.calendar == calendarId) {
         $rootScope.events.splice(i, 1);
-        i--;
       }
     }
 
@@ -342,8 +338,19 @@ app.run(function($rootScope, $q, $http) {
     $rootScope.updateLocalEvents();
   }
 
+  $rootScope.findEvent = function(eventId) {
+    for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
+      if($rootScope.events[eventIndex]._id == eventId) {
+        return $rootScope.events[eventIndex];
+      }
+    }
+
+    return undefined;
+  }
+
 
   
   //Initialization
   $rootScope.getCalendarData();
+  $rootScope.getAllUsers();
 });

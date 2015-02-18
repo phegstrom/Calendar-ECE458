@@ -13,6 +13,8 @@ var UserSchema = new Schema({
 	canView: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	canViewBusy: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
+	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
+	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 
@@ -21,5 +23,10 @@ var options = {usernameField: 'email'};
 UserSchema.plugin(passportLocalMongoose, options);
 
 UserSchema.plugin(deepPopulate);
+
+// returns a promise that will give access to array of ids
+UserSchema.statics.convertToIds = function (emails) {
+	return this.find({email: {$in: emails}}, '_id').exec();
+};
 
 module.exports = mongoose.model('User', UserSchema);

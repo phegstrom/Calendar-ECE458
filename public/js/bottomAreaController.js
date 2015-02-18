@@ -1,7 +1,4 @@
-app.controller('bottomAreaController', function($scope, $http) {
-  $scope.title = '';
-  $scope.text = '';
-  $scope.$parent.eventDetails = {};
+app.controller('bottomAreaController', function($scope, $http, $modalInstance, $rootScope) {
   $scope.daysOfTheWeek = [
     {name: 'Sunday',
       number: 0},
@@ -19,20 +16,58 @@ app.controller('bottomAreaController', function($scope, $http) {
       number: 6},
   ];
 
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  };
+
   var defaultForm = {
     name: '',
     description: '',
     location: '',
     alerts: [],
     willRepeat: false,
+    start: Date.parse('today'),
+    end: Date.parse('tomorrow'),
     repeatMode: '',
     repeatCount: 0,
     calendar: null,
     weekdayRepeats: [false, false, false, false, false, false, false]
   }
 
+  $scope.deleteSelectedEvent = function() {
+    var selectedEventId = $rootScope.selectedEvent._id;
+
+    $http.delete('/event/'+$rootScope.selectedEvent._id).
+    success(function(data, status, headers, config) {
+      console.log('Event deleted: ' + selectedEventId);
+
+      var calendarEventList = [];
+      for(var i=0; i < $rootScope.events.length; i++) {
+        if($rootScope.events[i].parentData._id == selectedEventId) {
+          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendar).events;
+          $rootScope.events.splice(i, 1);
+          i--;
+        }
+      }
+
+      for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
+        if(calendarEventList[i]._id == selectedEventId) {
+          calendarEventList.splice(calEventIndex, 1);
+          break;
+        }
+      }
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
+    }).then(function(){
+      $rootScope.updateLocalEvents();
+    });
+
+    $scope.cancel();
+  }
+
   $scope.sendEventData = function() {
-    var eventDetails = $scope.$parent.eventDetails;
+    var eventDetails = $rootScope.eventDetails;
     eventDetails.calendar = eventDetails.calendar._id;
     if(eventDetails.alerts) {
       var newAlerts = [];
@@ -72,7 +107,20 @@ app.controller('bottomAreaController', function($scope, $http) {
     if(eventDetails._id) {
       request = $http.put('/event/'+eventDetails._id, eventDetails).
       success(function(data, status, headers, config) {
-        //update the event in eventlist
+        var modifiedEvent = angular.fromJson(data);
+        for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
+          if($rootScope.events[eventIndex].parentData._id == modifiedEvent._id) {
+            modifiedEvent.type = eventDetails.type;
+            modifiedEvent.canViewEvent = eventDetails.canViewEvent;
+            modifiedEvent.canEditEvent = eventDetails.canEditEvent;
+            modifiedEvent.calendarName = eventDetails.calendarName;
+            modifiedEvent.calendarId = eventDetails.calendarId;
+            var modifiedCalEvent = $rootScope.convertDBEventToCalEvent(modifiedEvent);
+            console.log(modifiedCalEvent);
+            $rootScope.events[eventIndex] = modifiedCalEvent;
+          }
+        }
+
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -83,18 +131,18 @@ app.controller('bottomAreaController', function($scope, $http) {
       request = $http.post('/event', eventDetails).
       success(function(data, status, headers, config) {
         var dBEvent = angular.fromJson(data);
-        var owningCalendar = $scope.$parent.getCalendar(dBEvent.calendar);
+        var owningCalendar = $rootScope.getCalendar(dBEvent.calendar);
 
         var tempCalendar = {
           events: [dBEvent],
           name: owningCalendar.name,
           _id: owningCalendar._id
         };
-        $scope.$parent.setEventData(tempCalendar, 'info', true, true);
+        $rootScope.setEventData(tempCalendar, 'info', true, true);
 
-        var calEvent = $scope.$parent.convertDBEventToCalEvent(dBEvent);
+        var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
         owningCalendar.events.push(calEvent);
-        $scope.$parent.events.push(calEvent);
+        $rootScope.events.push(calEvent);
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -106,23 +154,24 @@ app.controller('bottomAreaController', function($scope, $http) {
       $scope.eventForm.$setPristine();
       eventDetails = defaultForm;
 
-      $scope.$parent.bottomSelector = -1;
-      $scope.$parent.updateLocalEvents();
+      $rootScope.updateLocalEvents();
     });
+
+    $scope.cancel();
   }
 
   $scope.addAlert = function() {
-    var newAlert = new Date($scope.alertTime);
-    if($scope.$parent.eventDetails.alerts) {
-      $scope.$parent.eventDetails.alerts.push(newAlert);
+    var newAlert = new Date($rootScope.alertTime);
+    if($rootScope.eventDetails.alerts) {
+      $rootScope.eventDetails.alerts.push(newAlert);
     }
     else {
-      $scope.$parent.eventDetails.alerts = [newAlert];
+      $rootScope.eventDetails.alerts = [newAlert];
     }
   }
 
   $scope.removeAlert = function(time) {
-    $scope.$parent.eventDetails.alerts = $scope.$parent.eventDetails.alerts.filter(function(alert){
+    $rootScope.eventDetails.alerts = $rootScope.eventDetails.alerts.filter(function(alert){
       return alert != time;
     });
   }

@@ -13,134 +13,185 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 
 	var evPromise = Event.findOne({_id: req.params.eventId}).exec();
 
+	var count;
 	evPromise.addBack(function (err, myEv) {
 		Request.findOne({_id: myEv.requestID}, function (err, request) {
 			var tempStatus = request.usersStatus;
+			request.info = req.body.info;
 			if(request.usersStatus == undefined)
 				tempStatus = {};
-			request.usersStatus = null;
 
-			req.body.users.forEach(function (user) {
-				request.userIDs.push(user);
+			request.usersStatus = null; // must do this 
 
-				// email is null temporarily
-				tempStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
-				// request.usersStatus[user] = {status: 'pending', calId: null, email: null, copyEventId: null};
+			var p2 = User.find({email: {$in: req.body.users}}, '_id email').exec();
 
-				User.update({_id: user}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
+			p2.addBack(function (err, users) {
+				users.forEach(function (user) {
 
+					request.userIDs.push(user._id);
+					tempStatus[user._id] = {status: 'pending', calId: null, email: user.email, copyEventId: null};
+
+					User.update({_id: user._id}, {$push: {eventRequests: request._id}}, function (err, num, raw) {
+
+					});
 				});
-			});
 
-			request.usersStatus = tempStatus;
+				request.usersStatus = tempStatus;
 
-			request.save(function (err, saved) {				
-				res.send(saved);
+				request.save(function (err, saved) {
+					User.update({_id: req.session.user._id}, {$push: {createdRequests: request._id}}, function (err, num, raw) {});
+					res.send(saved);
+				});				
 			});
 		});
 	});
 });
 
 // route for when user accepts
-router.put('/accept/:eventId', function (req, res, next) {
-
-	var evPromise = Event.findOne({_id: req.params.eventId}).exec();
-
-	evPromise.addBack(function (err, myEv) {
-
-	});
+router.put('/accept/:requestId', function (req, res, next) {
 
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
 
-		request.usersStatus[req.session.user._id]
-		user.userGroups.splice(index, 1);
+		// find calendar and create new copy of event
+		// need calendarId of where event should go in req.body
+		Calendar.findOne({_id: req.body.calendarId}, function (err, cal) {
+			var copyId = request.usersStatus[req.session.user._id].copyEventId;
+			var evIdArray = [request.eventID];
 
-		// find user and create new copy of event
-		// for each (var userId in request.userIDs) {
+			if (copyId != null) // user already has a copied event
+				evIdArray.push(copyId);
 
-		// }
+			Event.find({_id: {$in: evIdArray}}, function (err, currEvent) {
+				
+				var copyEvent = new Event();
+
+				if (currEvent.length == 2) 
+					copyEvent = currEvent[1];			
+
+				copyEvent.name = currEvent[0].name;
+				copyEvent.description = currEvent[0].description;
+				copyEvent.location = currEvent[0].location;
+				copyEvent.start = currEvent[0].start;
+				copyEvent.end = currEvent[0].end;
+				copyEvent.ownerID = currEvent[0].ownerID;
+				copyEvent.parentID = currEvent[0]._id;
+
+				// do we need to copy alerts?
+				copyEvent.alerts = currEvent[0].alerts;
+				copyEvent.repeats = currEvent[0].repeats;
+				copyEvent.creator = currEvent[0].creator;
+
+				console.log("copyEvent:    " + copyEvent);
+				copyEvent.save(function (err) {
+					// go into request object and edit usersStatus
+					// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
+
+					var tempStatus = request.usersStatus;
+					request.usersStatus = null;
+					tempStatus[req.session.user._id] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
+
+					request.usersStatus = tempStatus;
+					request.save();
+
+					res.send("SUCCESS");
+				});
+			});		
+		});
 	});
 });
 
-// route for when user denies
+// route for when user denies event invite
 router.put('/deny/:requestId', function (req, res, next) {
-
+	// change usersStatus to 'deny'
+	Request.findOne({_id: req.params.requestId}, function (err, request) {
+		var tempStatus = request.usersStatus;
+		request.usersStatus = null;
+		tempStatus[req.session.user._id] = {status: "denied"};
+		request.usersStatus = tempStatus;
+		request.save();
+	});
 });
 
 // route for when user removes
-router.put('/', function (req, res, next) {
-
-});
-
-router.get('/create/it', function (req, res, next) {
-	var newRequest = new Request();
-
-	newRequest.usersStatus = {};
-
-	newRequest.save();
-
-	newRequest.usersStatus = {status: "pending"};
-
-	newRequest.save();
-
-	res.send(newRequest);
-
-});
-
-router.get('/create', function (req, res, next) {
-	// var newReq = new Request();
-
-	// var myRequest = Request.findOne({_id: "54de9f9944840012ca6c7833"})
-	// 					   .exec();
-
-	// myRequest.addBack(function (err, requestIThink) {
-
-	// 	// var testObj = {};
-	// 	// testObj['prop1'] = {propName: "name1"};
-	// 	// testObj['prop2'] = {propName: "name2", addition: 5};
-	// 	//requestIThink.usersStatus = {};
-	// 	// var obj = requestIThink.usersStatus;
-	// 	requestIThink.usersStatus['t1']['status'] = "WHAT";
-	// 	// obj['t2'] = {status: "pending"};
-	// 	// requestIThink.info = "changed text";
-	// 	//requestIThink.usersStatus['testOrp'] = {status: 'pending'};
-	// 	// requestIThink.usersStatus['t2'] = {status: "pending"};
-	// 	// requestIThink.usersStatus = obj;
-	// 	requestIThink.save(function (err, saved) {
-	// 		if (err) next(err);
-	// 		res.send(saved);
-	// 	});
-	// 	// res.send(testObj);
-	// });
-
-	Request.findOne({_id: "54df08c307da6d6718927886"}, function (err, request) {
-		var obj = request.usersStatus;
-		// obj['t1']['status'] = "PLEASE WORK";
-		// request.usersStatus['t1']['status'] = "WORK PLEASE";
+router.put('/remove/:requestId', function (req, res, next) {
+	// change usersStatus to 'remove'
+	Request.findOne({_id: req.params.requestId}, function (err, request) {
+		var tempStatus = request.usersStatus;
 		request.usersStatus = null;
-		// request.usersStatus = {};
-		// request.usersStatus['t1'] = {status: 'pending'};
-		// request.usersStatus['t2'] = {status: 'pending'};
+		tempStatus[req.session.user._id] = {status: "removed"};
+		request.usersStatus = tempStatus;
+		request.save();
+	});
+});
 
-		obj['t3'] = {status: 'did this work?'};
-
-		request.usersStatus = obj;
-
-		request.save(function (err, saved) {
+// route for when a shared-to user submits an edit to be approved
+router.put('/edit/:eventId', function (req, res, next) {
+	var prom = Event.findOne({_id: req.params.eventId}).exec();
+	// for POSTman
+	req.body['editor'] = 'parker.hegstrom@gmail.com';
+	//req.body['editor'] = req.session.user.email; // adds editor email to edit body
+	prom.addBack(function (err, event) {
+		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
 			if (err) next(err);
-			res.send(saved);
-		})
+			res.send('Edit sent');
+		});
 	});
 
-	// res.send(myRequest);
+});
 
-	// newReq.save(function (err, myReq) {
-	// 	if(err)
-	// 		next(err);
+// route for when user denies a suggested edit
+router.put('/denyEdit/:requestId', function (req, res, next) {
+	var index = req.body.editNum;
+	Request.findOne({_id: req.params.requestId}, function (err, myReq) {
+		myReq.edits.splice(index, 1);
+		myReq.save(function (err, saved) {
+			res.send('Edit denied');
+		});
+	});	
+});
 
-	// 	console.log("hello");
-	// 	res.send(myReq);
-	// });
+
+// route for when creator user approves an edit
+router.put('/approveEdit/:requestId', function (req, res, next) {
+	var index = req.body.editNum;
+	// var index = 1;
+
+	Request.findOne({_id: req.params.requestId}, function (err, myReq) {
+		if (err) next(err);
+
+		Event.findOne({_id: myReq.eventID}, function (err, ev) {
+			if (err) next(err);
+			console.log("EVENT IS NULL: "+(ev==undefined));
+			//console.log(ev);
+			console.log("EVENT CHANGED TO");
+			ev.name = myReq.edits[index].name;
+		 	ev.description = myReq.edits[index].description;
+		 	ev.location = myReq.edits[index].location;
+		 	//these freak out with POSTman
+		 	ev.start = myReq.edits[index].start;
+		 	ev.end = myReq.edits[index].end;
+		 	ev.repeats = myReq.edits[index].repeats;
+
+		 	ev.save(function (err, savedEv) {
+		 		if (err) next(err);
+
+		 		console.log("SAVED EVENT");
+		 		console.log(savedEv);
+
+		 		var obj = myReq.edits;
+
+		 		myReq.edits.splice(index, 1);
+
+		 		myReq.changeUsersStatus('pending', function (updatedReq) {
+		 			console.log("UPDATED REQUEST");
+		 			console.log(updatedReq);
+		 			res.send("approved the edit!");
+		 		});
+
+		 	});
+
+		});	
+	});
 
 });
 

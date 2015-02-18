@@ -141,17 +141,38 @@ app.controller('sideBarController', function($scope, $http) {
   }
 
   $scope.addUserToGroup = function() {
-    console.log($scope.selectedUserGroup);
-    $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [$scope.inputUserEmail]}).
-    success(function(data, status, headers, config) {
-      $scope.displayUserGroup($scope.selectedUserGroup);
-      $scope.selectedUserGroup.users = $scope.selectedUserGroup.users.concat(angular.fromJson(data));
-    }).
-    error(function(data, status, headers, config) {
-      $scope.text = 'Failed to add user.';
-    }).then(function(){
+    var nonUniqueUser = false;
+    for(var userIndex=0; userIndex<$scope.selectedUserGroup.users.length; userIndex++) {
+      if($scope.selectedUserGroup.users[userIndex].email == $scope.inputUserEmail) {
+        nonUniqueUser = true;
+      }
+    }
+
+    if(!nonUniqueUser) {
+      $http.put('/usergroup/'+$scope.selectedUserGroup._id, {userEmails: [$scope.inputUserEmail]}).
+      success(function(data, status, headers, config) {
+        $scope.displayUserGroup($scope.selectedUserGroup);
+        var userIds = angular.fromJson(data);
+        var users = [];
+        for(var idIndex=0; idIndex<userIds.length; idIndex++) {
+          for(var userIndex=0; userIndex<$scope.$parent.userList.length; userIndex++) {
+            if($scope.$parent.userList[userIndex]._id == userIds[idIndex]) {
+              users.push($scope.$parent.userList[userIndex]);
+            }
+          }
+        }
+        $scope.selectedUserGroup.users = $scope.selectedUserGroup.users.concat(users);
+      }).
+      error(function(data, status, headers, config) {
+        $scope.text = 'Failed to add user.';
+      }).then(function(){
+        $scope.inputUserEmail = '';
+      });
+    }
+    else {
       $scope.inputUserEmail = '';
-    });
+      $scope.text = 'Can\'t add user, user already in group.';
+    }
   }
   $scope.deleteUserFromGroup = function(userEmailInput) {
     $http.post('/usergroup/delete/user/'+$scope.selectedUserGroup._id, {userEmails: [userEmailInput]}).
@@ -161,10 +182,10 @@ app.controller('sideBarController', function($scope, $http) {
       var deletedUserIds = angular.fromJson(data);
 
       deletedUserIds.forEach(function(id, index, array) {
-        var userIndex = $scope.selectedUserGroup.users.indexOf(id);
-
-        if(userIndex >=0) {
-          $scope.selectedUserGroup.users.splice(userIndex, 1);
+        for(var userIndex=0; userIndex<$scope.selectedUserGroup.users.length; userIndex++) {
+          while(userIndex < $scope.selectedUserGroup.users.length && $scope.selectedUserGroup.users[userIndex]._id == id) {
+            $scope.selectedUserGroup.users.splice(userIndex, 1);
+          }
         }
       });
     }).
@@ -226,7 +247,6 @@ app.controller('sideBarController', function($scope, $http) {
 
   //Event display
   $scope.displayEvents = function() {
-    $scope.title = 'Events';
     $scope.selector = 4;
   }
 
@@ -239,6 +259,11 @@ app.controller('sideBarController', function($scope, $http) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
     });
+  }
+
+  //Request display
+  $scope.displayInvites = function() {
+    $scope.selector = 6;
   }
 
   //Initialization

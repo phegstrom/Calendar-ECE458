@@ -23,6 +23,7 @@ var ruleRoutes = require('./routes/ruleRoutes');
 var userRoutes = require('./routes/userRoutes');
 var usergroupRoutes = require('./routes/usergroupRoutes');
 var alertRoutes = require('./routes/alertRoutes');
+var requestRoutes = require('./routes/requestRoutes');
 
 var app = express();
 
@@ -117,6 +118,7 @@ app.use('/rule', requireLogin, ruleRoutes);
 app.use('/user', requireLogin, userRoutes);
 app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
+app.use('/request', requestRoutes);
 
 function requireLogin (req, res, next) {
   if (!req.user) {

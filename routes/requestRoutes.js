@@ -89,7 +89,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 	});
 });
 
-// route for when user denies
+// route for when user denies event invite
 router.put('/deny/:requestId', function (req, res, next) {
 	// change usersStatus to 'deny'
 	Request.findOne({_id: req.params.requestId}, function (err, request) {
@@ -128,23 +128,19 @@ router.put('/edit/:eventId', function (req, res, next) {
 
 });
 
-// route for when a shared-to user submits an edit to be approved
-router.put('/edit/:eventId', function (req, res, next) {
-	var prom = Event.findOne({_id: req.params.eventId}).exec();
-	// for POSTman
-	req.body['editor'] = 'parker.hegstrom@gmail.com';
-	//req.body['editor'] = req.session.user.email; // adds editor email to edit body
-	prom.addBack(function (err, event) {
-		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
-			if (err) next(err);
-			res.send('Edit sent');
+// route for when user denies a suggested edit
+router.put('/denyEdit/:requestId', function (req, res, next) {
+	var index = req.body.editNum;
+	Request.findOne({_id: req.params.requestId}, function (err, myReq) {
+		myReq.edits.splice(index, 1);
+		myReq.save(function (err, saved) {
+			res.send('Edit denied');
 		});
-	});
-
+	});	
 });
 
 // route for when creator user approves an edit
-router.put('/approve/:requestId', function (req, res, next) {
+router.put('/approveEdit/:requestId', function (req, res, next) {
 	var index = req.body.editNum;
 	// var index = 1;
 

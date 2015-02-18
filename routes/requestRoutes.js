@@ -37,7 +37,8 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 
 				request.usersStatus = tempStatus;
 
-				request.save(function (err, saved) {				
+				request.save(function (err, saved) {
+					User.update({_id: req.session.user._id}, {$push: {createdRequests: request._id}}, function (err, num, raw) {});
 					res.send(saved);
 				});				
 			});

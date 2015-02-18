@@ -17,4 +17,23 @@ var RequestSchema = new Schema({
 	collection: collectionName
 });
 
+RequestSchema.methods.changeUsersStatus = function (status, cb) {
+	var obj = this.usersStatus;
+
+	this.usersStatus = null;
+
+	for (var i = 0; i < this.userIDs.length; i++) {
+		var currId = this.userIDs[i];
+		if (obj[currId].status != 'removed') {
+			console.log("changed "+currId + " to "+ status);
+			obj[currId].status = status;
+		}
+	}
+	this.usersStatus = obj;
+
+	this.save(function (err, saved) {
+		cb(saved);
+	});
+};
+
 module.exports = mongoose.model('Request', RequestSchema);

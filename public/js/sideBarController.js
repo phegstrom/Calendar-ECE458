@@ -247,7 +247,6 @@ app.controller('sideBarController', function($scope, $http) {
 
   //Event display
   $scope.displayEvents = function() {
-    $scope.title = 'Events';
     $scope.selector = 4;
   }
 
@@ -260,6 +259,11 @@ app.controller('sideBarController', function($scope, $http) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
     });
+  }
+
+  //Request display
+  $scope.displayInvites = function() {
+    $scope.selector = 6;
   }
 
   //Initialization

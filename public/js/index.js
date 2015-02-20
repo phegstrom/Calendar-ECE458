@@ -127,7 +127,16 @@ app.run(function($rootScope, $q, $http, $modal) {
   }
 
   $rootScope.displayEventDetails = function(event) {
-    $rootScope.selectedEvent = event.parentData;
+    if(event.parentData) {
+      //CalEvent
+      $rootScope.selectedEvent = event.parentData;
+    }
+    else if(event) {
+      //DBEvent
+      $rootScope.selectedEvent = event;
+      $rootScope.selectedEvent.canEditEvent = false;
+      $rootScope.selectedEvent.canViewEvent = true;
+    }
     $modal.open({
         templateUrl: 'eventDetailsModal.html',
         controller: 'modalController'

@@ -263,6 +263,7 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
 
   //Request display
   $scope.displayInvites = function() {
+    console.log($rootScope.ownRequests)
     $scope.selector = 6;
   }
   $scope.acceptRequest = function(request) {
@@ -294,12 +295,38 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
         }
       }
       $rootScope.updateLocalEvents();
-
-      $rootScope.otherRequests.indexOf(request);
+      removeRequest(request);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to accept invite.';
     });
+  }
+
+  $scope.declineRequest = function(request) {
+    $http.put('/request/deny/'+ request._id).
+    success(function(data, status, headers, config) {
+      removeRequest(request);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to decline invite.';
+    });
+  }
+
+  $scope.ignoreRequest = function(request) {
+    $http.put('/request/remove/'+ request._id).
+    success(function(data, status, headers, config) {
+      removeRequest(request);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to ignore invite.';
+    });
+  }
+
+  var removeRequest = function(request) {
+    var matchingRequestIndex = $rootScope.otherRequests.indexOf(request);
+    if(matchingRequestIndex != -1) {
+      $rootScope.otherRequests.splice(matchingRequestIndex, 1);
+    }
   }
 
   //Initialization

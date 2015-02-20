@@ -205,6 +205,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         invitedUsers.push(requestDetails.userList[userIndex]);
       }
     }
+
     if (typeof requestDetails.userGroups != 'undefined') {
       for(var groupIndex=0; groupIndex < requestDetails.userGroups.length; groupIndex++) {
         for(var userIndex=0; userIndex < requestDetails.userGroups[groupIndex].users.length; userIndex++) {

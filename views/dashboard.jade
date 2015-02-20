@@ -6,20 +6,24 @@ block content
     link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
     link(rel='stylesheet', href='/css/angular-csp.css')
 
-    br
     .page-header
-      .pull-right.form-inline
-        .btn-group
-          button.btn.btn-primary(ng-click="nav('back')") << Prev
-          button.btn(ng-click="goToToday()") Today
-          button.btn.btn-primary(ng-click="nav('forward')") Next >>
-        .btn-group#viewLengthButtons
-          button.btn.btn-warning(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
-          button.btn.btn-warning(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
-          button.btn.btn-warning(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
-          button.btn.btn-warning(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
-      h3
-        {{ calendarControl.getTitle() }}
+      .row
+        .col-md-8
+          h1.text-center
+            {{ calendarControl.getTitle() }}
+      .row
+        .col-md-8
+          .pull-left.form-inline
+           .btn-group
+              button.btn.btn-primary(ng-click="nav('back')") << Prev
+              button.btn(ng-click="goToToday()") Today
+              button.btn.btn-primary(ng-click="nav('forward')") Next >>
+          .pull-right.form-inline
+            .btn-group#viewLengthButtons
+              button.btn.btn-primary(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
+              button.btn.btn-primary(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
+              button.btn.btn-primary(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
+              button.btn.btn-primary(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
       br
     .row
       .col-md-8
@@ -161,11 +165,21 @@ block content
               h4 Sent Invitations
               li(ng-repeat="request in ownedRequests")
                 //reqest.eventID is an event object, not an ID, naming is due to database storage
-                a(href, ng-click="displayRequestDetails(request)") {{ request.eventID.name }}
+                a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
             ul
               h4 Recieved Invitations
               li(ng-repeat="request in otherRequests")
-                a(href, ng-click="displayRequestDetails(request)") {{ request.eventID.name }}
+                a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
+                a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id") [v]
+                br
+                form(id="{{request._id + form}}", ng-show="selectedRequest == request._id")
+                  select(ng-model="requestCalendar", ng-options="calendar.name for calendar in calendars | filter:{grouping: 'Owned Calendar'}", required)
+                  br
+                  .btn-group
+                    button.btn.btn-primary(ng-disabled="{{ request._id + form + '.$invalid' }}", ng-click="acceptRequest(request)") Accept
+                    button.btn.btn-warning(ng-click="declineRequest(request)") Decline
+                    button.btn.btn-danger(ng-click="removeRequest(request)") Ignore
+
 
     script(type="text/ng-template" id="createEventModal.html" )
       .modal-header

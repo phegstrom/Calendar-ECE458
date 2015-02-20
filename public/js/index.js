@@ -25,6 +25,34 @@ app.run(function($rootScope, $q, $http, $modal) {
     });
   }
 
+  $rootScope.getRequests = function() {
+    $rootScope.ownRequests = [];
+    $rootScope.otherRequests = [];
+
+    $http.get('/request/getCreated').
+    success(function(data, status, headers, config) {
+      $rootScope.ownRequests = angular.fromJson(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve list of created event requests.');
+    });
+
+    $http.get('/request/getIncoming').
+    success(function(data, status, headers, config) {
+      $rootScope.otherRequests = angular.fromJson(data);
+      /*var incomingRequests = angular.fromJson(data);
+
+      for(var requestIndex=0; requestIndex < incomingRequests.length; requestIndex++) {
+        if(incomingRequests[requestIndex].) {
+          dsf
+        }
+      }*/
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve list of incoming event requests.');
+    });
+  }
+
   $rootScope.setViewLength = function(viewLength) {
     $rootScope.calendarView = viewLength;
     $rootScope.updateLocalEvents();
@@ -121,7 +149,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
       $rootScope.myCalendars.forEach(function(element, index, array) {
         element.grouping = 'Owned Calendar';
-        $rootScope.setEventData(element, "info", true, true);
+        $rootScope.setEventData(element, "success", true, true);
       });
 
     }).
@@ -277,14 +305,26 @@ app.run(function($rootScope, $q, $http, $modal) {
     return eventList;
   }
 
-  $rootScope.setEventData = function(calendar, eventType, canView, canEdit) {
-    calendar.events.forEach(function(dBEvent, index, array) {
-      dBEvent.type = eventType;
-      dBEvent.canViewEvent = canView;
-      dBEvent.canEditEvent = canEdit;
-      dBEvent.calendarName = calendar.name;
-      dBEvent.calendarId = calendar._id;
-    });
+  $rootScope.setEventData = function(calendar, eventType, canView, canEdit, singleEvent) {
+    if(calendar != undefined && singleEvent != undefined) {
+      singleEvent.type = eventType;
+      singleEvent.canViewEvent = canView;
+      singleEvent.canEditEvent = canEdit;
+      singleEvent.calendarName = calendar.name;
+      singleEvent.calendarId = calendar._id;
+    }
+    else if(calendar != undefined) {
+      calendar.events.forEach(function(dBEvent, index, array) {
+        dBEvent.type = eventType;
+        dBEvent.canViewEvent = canView;
+        dBEvent.canEditEvent = canEdit;
+        dBEvent.calendarName = calendar.name;
+        dBEvent.calendarId = calendar._id;
+      });
+    }
+    else {
+      console.log('Could not set event data for ' + calendar + ' ' + singleEvent);
+    }
   }
 
   $rootScope.isValidTime = function(date) {
@@ -353,4 +393,5 @@ app.run(function($rootScope, $q, $http, $modal) {
   //Initialization
   $rootScope.getCalendarData();
   $rootScope.getAllUsers();
+  $rootScope.getRequests();
 });

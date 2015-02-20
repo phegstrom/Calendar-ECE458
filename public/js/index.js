@@ -102,7 +102,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     $rootScope.selectedEvent = event.parentData;
     $modal.open({
         templateUrl: 'eventDetailsModal.html',
-        controller: 'bottomAreaController'
+        controller: 'modalController'
       });
     console.log($rootScope.selectedEvent);
   }
@@ -110,7 +110,14 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreateEventModal = function() {
     $modal.open({
         templateUrl: 'createEventModal.html',
-        controller: 'bottomAreaController'
+        controller: 'modalController'
+      });
+  }
+
+  $rootScope.displayInviteUserModal = function() {
+    $modal.open({
+        templateUrl: 'inviteUserModal.html',
+        controller: 'modalController'
       });
   }
 
@@ -188,18 +195,6 @@ app.run(function($rootScope, $q, $http, $modal) {
     };
     $rootScope.displayCreateEventModal();
   }
-
-  $rootScope.editSelectedEvent = function() {
-    $rootScope.eventDetails = angular.copy($rootScope.selectedEvent);
-    $rootScope.calendars.forEach(function(element, index, array) {
-      if(element._id === $rootScope.selectedEvent.calendar) {
-        $rootScope.eventDetails.calendar = element;
-      }
-    });
-    $rootScope.displayCreateEventModal();
-  }
-
-  
 
   $rootScope.convertDBEventToCalEvent = function(dBEvent) {
     dBEvent.start = new Date(dBEvent.start);

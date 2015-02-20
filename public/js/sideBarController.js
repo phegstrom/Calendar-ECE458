@@ -101,7 +101,7 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
   //User Group Manipulation
   $scope.createGroup = function() {
     var isConflicting = false;
-    $scope.userGroups.forEach(function(group,index,array) {
+    $rootScope.userGroups.forEach(function(group,index,array) {
       if($scope.inputUserGroup == group.name) {
         $scope.text = 'Failed to create group, a group with that name already exists.';
         isConflicting = true;
@@ -113,7 +113,7 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
       $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
       success(function(data, status, headers, config) {
         $scope.displayUserGroups();
-        $scope.userGroups.push(angular.fromJson(data));
+        $rootScope.userGroups.push(angular.fromJson(data));
       }).
       error(function(data, status, headers, config) {
         $scope.text = 'Failed to create group.';
@@ -127,9 +127,9 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
     success(function(data, status, headers, config) {
       $scope.displayUserGroups();
 
-      for(var userGroupIndex=0; userGroupIndex < $scope.userGroups.length; userGroupIndex++) {
-        if(groupIdInput == $scope.userGroups[userGroupIndex]._id) {
-          $scope.userGroups.splice(userGroupIndex, 1);
+      for(var userGroupIndex=0; userGroupIndex < $rootScope.userGroups.length; userGroupIndex++) {
+        if(groupIdInput == $rootScope.userGroups[userGroupIndex]._id) {
+          $rootScope.userGroups.splice(userGroupIndex, 1);
           break;
         }
       }
@@ -206,7 +206,7 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
     $scope.userEmail = '';
   }
 
-  $scope.addUserGroupIdToRule = function() {
+  $scope.addUserGroupToRule = function() {
     var newGroupId = angular.copy($scope.userGroupId._id);
     if($scope.newRule.userGroupIds) {
       $scope.newRule.userGroupIds.push(newGroupId);
@@ -253,7 +253,7 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
   var populateUserGroups = function() {
     $http.get('/usergroup').
     success(function(data, status, headers, config) {
-      $scope.userGroups = angular.fromJson(data);
+      $rootScope.userGroups = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs

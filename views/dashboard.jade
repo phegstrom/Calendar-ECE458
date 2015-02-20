@@ -141,7 +141,7 @@ block content
                 li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
             form(name="addModUserForm")
-              input(type="text", ng-model="inputModUserId")
+              input(type="text", ng-model="inputModUserId", list="emails")
               button.btn(ng-click="addModUsertoList()") Add User with Modify
               ul
                 li(ng-repeat="modUserId in modUserList") {{ modUserId }}

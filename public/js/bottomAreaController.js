@@ -191,4 +191,73 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
       return alert != time;
     });
   }
+
+  $scope.inviteUsers = function() {
+    var requestDetails = $scope.requestDetails;
+
+    var invitedUsers = [];
+
+    for(var userIndex=0; userIndex < requestDetails.userList.length; userIndex++) {
+      invitedUsers.push(requestDetails.userList[userIndex]);
+    }
+
+    for(var groupIndex=0; groupIndex < requestDetails.userGroups.length; groupIndex++) {
+      for(var userIndex=0; userIndex < requestDetails.userGroups[groupIndex].users.length; userIndex++) {
+        if(invitedUsers.indexOf(requestDetails.userGroups[groupIndex].users[userIndex].email == -1) {
+          invitedUsers.push(requestDetails.userGroups[groupIndex].users[userIndex].email);
+        }
+      }
+    }
+
+    var addUsersRequest = {
+      info: requestDetails.description,
+      users: invitedUsers
+    };
+
+    $http.put('/request/addUsers/'+requestDetails.eventId, addUsersRequest).
+    success(function(data, status, headers, config) {
+      var changedRequest = angular.fromJson(data);
+      //Find the request
+      //foundRequest=changedRequest
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not invite users to event.');
+    });
+  }
+
+  $scope.addUserGroupToRequest = function() {
+    var selectedGroup = $scope.selectedGroup;
+    if($scope.requestDetails.userGroups) {
+      if($scope.requestDetails.userGroups.indexOf(selectedGroup) == -1) {
+        $scope.requestDetails.userGroups.push(selectedGroup);
+      }
+    }
+    else {
+      $scope.requestDetails.userGroups = [selectedGroup];
+    }
+  }
+  $scope.removeUserGroupFromRequest = function(userGroup) {
+    var groupIndex = $scope.requestDetails.userGroups.indexOf(userGroup);
+    if(groupIndex != -1) {
+      $scope.requestDetails.userGroups.splice(groupIndex, 1);
+    }
+  }
+
+  $scope.addUserToRequest = function() {
+    var newUser = $scope.userEmail;
+    if($scope.requestDetails.userList) {
+      if($scope.requestDetails.userList.indexOf(newUser) == -1) {
+        $scope.requestDetails.userList.push(newUser);
+      }
+    }
+    else {
+      $scope.requestDetails.userList = [newUser];
+    }
+  }
+  $scope.removeUserFromRequest  = function(userEmail) {
+    var userIndex = $scope.requestDetails.userList.indexOf(userEmail);
+    if(userIndex != -1) {
+      $scope.requestDetails.userList.splice(userIndex, 1);
+    }
+  }
 });

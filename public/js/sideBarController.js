@@ -263,11 +263,13 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
 
   //Request display
   $scope.displayInvites = function() {
-    console.log($rootScope.ownRequests)
+    console.log($rootScope.otherRequests)
     $scope.selector = 6;
   }
-  $scope.acceptRequest = function(request) {
-    var calendarSelection = $scope.requestCalendar;
+  $scope.acceptRequest = function(request, requestCalendar) {
+    var calendarSelection = requestCalendar;
+
+    console.log(calendarSelection._id);
 
     $http.put('/request/accept/'+ request._id, calendarSelection._id).
     success(function(data, status, headers, config) {
@@ -323,9 +325,14 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
   }
 
   var removeRequest = function(request) {
-    var matchingRequestIndex = $rootScope.otherRequests.indexOf(request);
-    if(matchingRequestIndex != -1) {
-      $rootScope.otherRequests.splice(matchingRequestIndex, 1);
+    console.log($rootScope.otherRequests);
+    console.log(request);
+    for(requestIndex=0; requestIndex < $rootScope.otherRequests.length; requestIndex++) {
+      if(request._id == $rootScope.otherRequests[requestIndex]._id) {
+        console.log(requestIndex);
+        $rootScope.otherRequests.splice(requestIndex, 1);
+        break;
+      }
     }
   }
 

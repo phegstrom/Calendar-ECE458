@@ -172,13 +172,13 @@ block content
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
                 a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id") [v]
                 br
-                form(id="{{request._id + form}}", ng-show="selectedRequest == request._id")
-                  select(ng-model="requestCalendar", ng-options="calendar.name for calendar in calendars | filter:{grouping: 'Owned Calendar'}", required)
+                form(ng-show="selectedRequest == request._id")
+                  select(ng-model="requestCalendar", ng-options="calendar.name for calendar in myCalendars", required)
                   br
                   .btn-group
-                    button.btn.btn-primary(ng-disabled="{{ request._id + form + '.$invalid' }}", ng-click="acceptRequest(request)") Accept
+                    button.btn.btn-primary(ng-disabled="requestCalendar == undefined", ng-click="acceptRequest(request, requestCalendar)") Accept
                     button.btn.btn-warning(ng-click="declineRequest(request)") Decline
-                    button.btn.btn-danger(ng-click="removeRequest(request)") Ignore
+                    button.btn.btn-danger(ng-click="ignoreRequest(request)") Ignore
 
 
     script(type="text/ng-template" id="createEventModal.html" )

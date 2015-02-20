@@ -187,7 +187,7 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
 
     for(var groupIndex=0; groupIndex < requestDetails.userGroups.length; groupIndex++) {
       for(var userIndex=0; userIndex < requestDetails.userGroups[groupIndex].users.length; userIndex++) {
-        if(invitedUsers.indexOf(requestDetails.userGroups[groupIndex].users[userIndex].email == -1) {
+        if(invitedUsers.indexOf(requestDetails.userGroups[groupIndex].users[userIndex].email) == -1) {
           invitedUsers.push(requestDetails.userGroups[groupIndex].users[userIndex].email);
         }
       }

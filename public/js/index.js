@@ -102,7 +102,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     $rootScope.selectedEvent = event.parentData;
     $modal.open({
         templateUrl: 'eventDetailsModal.html',
-        controller: 'bottomAreaController'
+        controller: 'modalController'
       });
     console.log($rootScope.selectedEvent);
   }
@@ -110,14 +110,14 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreateEventModal = function() {
     $modal.open({
         templateUrl: 'createEventModal.html',
-        controller: 'bottomAreaController'
+        controller: 'modalController'
       });
   }
 
   $rootScope.displayInviteUserModal = function() {
     $modal.open({
         templateUrl: 'inviteUserModal.html',
-        controller: 'bottomAreaController'
+        controller: 'modalController'
       });
   }
 

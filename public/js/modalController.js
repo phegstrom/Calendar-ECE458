@@ -15,6 +15,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     {name: 'Saturday',
       number: 6},
   ];
+  $scope.requestDetails = {};
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
@@ -44,7 +45,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       var calendarEventList = [];
       for(var i=0; i < $rootScope.events.length; i++) {
         if($rootScope.events[i].parentData._id == selectedEventId) {
-          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendar).events;
+          calendarEventList = $rootScope.getCalendar($rootScope.events[i].parentData.calendarId).events;
           $rootScope.events.splice(i, 1);
           i--;
         }
@@ -136,7 +137,10 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       request = $http.post('/event', eventDetails).
       success(function(data, status, headers, config) {
         var dBEvent = angular.fromJson(data);
-        var owningCalendar = $rootScope.getCalendar(dBEvent.calendar);
+        console.log(dBEvent);
+        console.log(eventDetails);
+        var owningCalendar = $rootScope.getCalendar(eventDetails.calendar);
+
 
         var tempCalendar = {
           events: [dBEvent],
@@ -192,19 +196,21 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     });
   }
 
-  $scope.saveInviteUsers = function() {
+  $scope.sendUserInvites = function() {
     var requestDetails = $scope.requestDetails;
 
     var invitedUsers = [];
-
-    for(var userIndex=0; userIndex < requestDetails.userList.length; userIndex++) {
-      invitedUsers.push(requestDetails.userList[userIndex]);
+    if (typeof requestDetails.userList != 'undefined') {
+      for(var userIndex=0; userIndex < requestDetails.userList.length; userIndex++) {
+        invitedUsers.push(requestDetails.userList[userIndex]);
+      }
     }
-
-    for(var groupIndex=0; groupIndex < requestDetails.userGroups.length; groupIndex++) {
-      for(var userIndex=0; userIndex < requestDetails.userGroups[groupIndex].users.length; userIndex++) {
-        if(invitedUsers.indexOf(requestDetails.userGroups[groupIndex].users[userIndex].email) == -1) {
-          invitedUsers.push(requestDetails.userGroups[groupIndex].users[userIndex].email);
+    if (typeof requestDetails.userGroups != 'undefined') {
+      for(var groupIndex=0; groupIndex < requestDetails.userGroups.length; groupIndex++) {
+        for(var userIndex=0; userIndex < requestDetails.userGroups[groupIndex].users.length; userIndex++) {
+          if(invitedUsers.indexOf(requestDetails.userGroups[groupIndex].users[userIndex].email) == -1) {
+            invitedUsers.push(requestDetails.userGroups[groupIndex].users[userIndex].email);
+          }
         }
       }
     }
@@ -214,7 +220,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       users: invitedUsers
     };
 
-    $http.put('/request/addUsers/'+requestDetails.eventId, addUsersRequest).
+    $http.put('/request/addUsers/'+$rootScope.selectedEvent._id, addUsersRequest).
     success(function(data, status, headers, config) {
       var changedRequest = angular.fromJson(data);
       //Find the request
@@ -223,6 +229,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     error(function(data, status, headers, config) {
       console.log('Could not invite users to event.');
     });
+    $scope.cancel();
   }
 
   $scope.addUserGroupToRequest = function() {
@@ -236,6 +243,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       $scope.requestDetails.userGroups = [selectedGroup];
     }
   }
+
   $scope.removeUserGroupFromRequest = function(userGroup) {
     var groupIndex = $scope.requestDetails.userGroups.indexOf(userGroup);
     if(groupIndex != -1) {

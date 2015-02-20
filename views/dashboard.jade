@@ -163,7 +163,7 @@ block content
           #eventInvites(ng-show="selector == 6")
             ul
               h4 Sent Invitations
-              li(ng-repeat="request in ownedRequests")
+              li(ng-repeat="request in ownRequests")
                 //reqest.eventID is an event object, not an ID, naming is due to database storage
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
             ul

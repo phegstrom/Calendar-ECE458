@@ -15,7 +15,6 @@ router.put('/addUsers/:eventId', function (req, res, next) {
 
 	var count;
 	evPromise.addBack(function (err, myEv) {
-		console.log("!!!!!"+myEv);
 		Request.findOne({_id: myEv.requestID}, function (err, request) {
 			var tempStatus = request.usersStatus;
 			request.info = req.body.info;

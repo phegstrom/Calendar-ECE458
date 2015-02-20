@@ -37,9 +37,8 @@ block content
                 a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
                 a(href, ng-click="deleteUserGroup(group._id)") [X]
             form(name="createGroupForm")
-              input(type="text", ng-model="inputUserGroup", placeholder="User Group Name", required)
-              br
-              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
+              input(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
+              button.btn.btn-default.btn-sm(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
             {{ text }}
           #userListWindow(ng-show="selector == 1")
             h3 {{ selectedUserGroup.name }}

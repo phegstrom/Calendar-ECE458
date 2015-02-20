@@ -276,7 +276,9 @@ block content
         h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
         .btn-group
           button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
-          button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+          button.btn.btn-danger(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+          button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users
+
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

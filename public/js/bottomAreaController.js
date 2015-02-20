@@ -66,6 +66,11 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
     $scope.cancel();
   }
 
+  $scope.inviteUsers = function() {
+    $scope.cancel();
+    $rootScope.displayInviteUserModal();
+  }
+
   $scope.sendEventData = function() {
     var eventDetails = $rootScope.eventDetails;
     eventDetails.calendar = eventDetails.calendar._id;
@@ -157,6 +162,17 @@ app.controller('bottomAreaController', function($scope, $http, $modalInstance, $
       $rootScope.updateLocalEvents();
     });
 
+    $scope.cancel();
+  }
+
+  $scope.editSelectedEvent = function() {
+    $rootScope.eventDetails = angular.copy($rootScope.selectedEvent);
+    $rootScope.calendars.forEach(function(element, index, array) {
+      if(element._id === $rootScope.selectedEvent.calendar) {
+        $rootScope.eventDetails.calendar = element;
+      }
+    });
+    $rootScope.displayCreateEventModal();
     $scope.cancel();
   }
 

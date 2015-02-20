@@ -114,6 +114,13 @@ app.run(function($rootScope, $q, $http, $modal) {
       });
   }
 
+  $rootScope.displayInviteUserModal = function() {
+    $modal.open({
+        templateUrl: 'inviteUserModal.html',
+        controller: 'bottomAreaController'
+      });
+  }
+
   $rootScope.getCalendarData = function() {
     var ownGet = $http.get('/calendar/myCalId').
     success(function(data, status, headers, config) {
@@ -188,18 +195,6 @@ app.run(function($rootScope, $q, $http, $modal) {
     };
     $rootScope.displayCreateEventModal();
   }
-
-  $rootScope.editSelectedEvent = function() {
-    $rootScope.eventDetails = angular.copy($rootScope.selectedEvent);
-    $rootScope.calendars.forEach(function(element, index, array) {
-      if(element._id === $rootScope.selectedEvent.calendar) {
-        $rootScope.eventDetails.calendar = element;
-      }
-    });
-    $rootScope.displayCreateEventModal();
-  }
-
-  
 
   $rootScope.convertDBEventToCalEvent = function(dBEvent) {
     dBEvent.start = new Date(dBEvent.start);

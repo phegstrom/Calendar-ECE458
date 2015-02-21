@@ -5,8 +5,17 @@ var collectionName = 'PUDC';
 
 var PUDSchema = new Schema({
 	description: String,
-	time: Date
+	// length of time in milliseconds
+	time: {type: Number, get: toHours, set: toMilli}
 }, {collection: collectionName});
+
+function toHours(n) {
+	return n*3600000;
+}
+
+function toMilli(n) {
+	return n/3600000;
+}
 
 PUDSchema.plugin(deepPopulate);
 

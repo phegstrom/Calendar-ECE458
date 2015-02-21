@@ -5,6 +5,7 @@ var Calendar	= require('../models/Calendar');
 var Alert		= require('../models/Alert');
 var Repeat		= require('../models/Repeat');
 var Request		= require('../models/Request');
+var PUD			= require('../models/PUD');
 var router 		= express.Router();
 
 // post new Event
@@ -118,8 +119,6 @@ router.put('/:eventId', function(req, res, next) {
 	 			});
 	 		});
 	 	}
-	 	// ev.creator = req.session.user._id;
-	 	//ev.creator = req.body.creator;
 
 	 	ev.save();
 
@@ -149,8 +148,6 @@ router.delete('/:eventId', function(req, res, next) {
 		});
 
 	});
-
-	// Event.findByIdAndRemove({_id: req.params.eventId});
 
 	res.send("HELLO");
 });

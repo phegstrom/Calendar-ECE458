@@ -85,6 +85,7 @@ router.get('/:calType', function (req, res, next) {
 	var popType = req.params.calType+".events.alerts " + req.params.calType+".events.requestID";
 
 	User.findOne({_id: uId}).deepPopulate(popType).exec(function (err, user) {
+		
 		// console.log(user);
 		res.send(user[req.params.calType]);
 	});

@@ -15,6 +15,7 @@ var UserSchema = new Schema({
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
 	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
 	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
+	PUDs: [{type: Schema.Types.ObjectId, ref: 'PUD'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 

@@ -36,92 +36,96 @@ block content
             button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayEvents()") Events
             button.btn.btn-primary(ng-class="{active: selector == 6}", ng-click="displayInvites()") Invites
           #userGroupWindow(ng-show="selector == 0")
-            ul
+            br
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="group in userGroups")
                 a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
-                a(href, ng-click="deleteUserGroup(group._id)") [X]
+                a(href, ng-click="deleteUserGroup(group._id)")
+                  span(class="glyphicon glyphicon-remove")
             form(name="createGroupForm")
               input(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
-              button.btn.btn-default.btn-sm(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
-            {{ text }}
+              &nbsp;
+              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
           #userListWindow(ng-show="selector == 1")
-            h3 {{ selectedUserGroup.name }}
-            ul
+            h4 {{ selectedUserGroup.name }}
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in selectedUserGroup.users")
                 {{ user.email + " " }}
-                a(href, ng-click="deleteUserFromGroup(user.email)") [X]
+                a(href, ng-click="deleteUserFromGroup(user.email)")
+                  span(class="glyphicon glyphicon-remove")
              form(name="addUserForm")
               input(type="text", ng-model="inputUserEmail", placeholder="User Email", list="emails", required)
-              br
+              &nbsp;
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
               br
               {{ text }}
 
           #calendarInfo(ng-show="selector == 2")
-            ul
             h4 My Calendars
-            li(ng-repeat="calendar in myCalendars")
-              a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
-              a(href, ng-click="deleteCalendar(calendar._id)") [X]
+            ul(style='list-style-type: none; padding-left: 10px;')
+              li(ng-repeat="calendar in myCalendars")
+                a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
+                a(href, ng-click="deleteCalendar(calendar._id)")
+                  span(class="glyphicon glyphicon-remove")
             h4 Shared Calendars
             h5 Modify
-            ul
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="calendar in modCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             h5 See All
-            ul
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="calendar in viewCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             h5 Busy Only
-            ul
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             form(name="createCalendarForm")
               input(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
-              br
+              &nbsp;
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
 
 
           #calendarDetailsWindow(ng-show="selector == 3")
             h3 {{ selectedCalendar.name }}
             b Owner: 
-            |{{ selectedCalendar.owner.name }}
+            | {{ selectedCalendar.owner.name }}
             br
             b Events: 
-            ul
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
 
           #calendarOwnerDetailsWindow(ng-show="selector == 5")
             h3 {{ selectedCalendar.name }}
-            b Owner: 
-            |{{ selectedCalendar.owner.name }}
+            b Owner 
+            | {{ selectedCalendar.owner.name }}
             br
-            b Rules: 
-            ul
-              li(ng-repeat="rule in selectedCalendar.rules")
-                {{ rule.ruleType + " " }}
-                a(href, ng-click="deleteRule(rule._id)") [X]
-                br
-                | Groups: 
-                ul
-                  li(ng-repeat="groupId in rule.assocUserGroups")
-                    {{ groupId }}
-                | Users: 
-                ul
-                  li(ng-repeat="userId in rule.assocUsers")
-                    {{ userId }}
-            br
-            b Users with Modify: 
-            ul
-              li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ modUser.name + " " }}
-                a(href, ng-click="removeModUser(modUser._id)") [X]
-            br
-            b Events: 
-            ul
+            b Events 
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="event in localEvents | filter: selectedCalendar._id")
                 a(href ng-click="displayEventDetails(event)") {{ event.title }}
+            b Rules 
+            ul(style='list-style-type: none; padding-left: 10px;')
+              li(ng-repeat="rule in selectedCalendar.rules")
+                {{ rule.ruleType + " " }}
+                a(href, ng-click="deleteRule(rule._id)")
+                  span(class="glyphicon glyphicon-remove")
+                | Groups 
+                ul(style='list-style-type: none; padding-left: 10px;')
+                  li(ng-repeat="groupId in rule.assocUserGroups")
+                    {{ groupId }}
+                | Users 
+                ul(style='list-style-type: none; padding-left: 10px;')
+                  li(ng-repeat="userId in rule.assocUsers")
+                    {{ userId }}
+            b Users with Modify 
+            ul(style='list-style-type: none; padding-left: 10px;')
+              li(ng-repeat="modUser in selectedCalendar.modList")
+                {{ modUser.name + " " }}
+                a(href, ng-click="removeModUser(modUser._id)")
+                  span(class="glyphicon glyphicon-remove")
+            br
             form(name="addRuleForm")
               label Rule Type
               br
@@ -132,41 +136,43 @@ block content
               br
               label User Group
               br
-              select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
-              br
+              select(ng-model="userGroup", ng-options="group.name for group in userGroups")
+              &nbsp;
               button.btn(ng-click="addUserGroupToRule()") Add User Group
-              ul
-                li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
+              ul(style='list-style-type: none; padding-left: 10px;')
+                li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
               label User Email
+              br
               input(type="text", ng-model="userEmail", list="emails")
+              &nbsp;
               button.btn(ng-click="addUserEmailToRule()") Add User Email
-              ul
-                li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
+              ul(style='list-style-type: none; padding-left: 10px;')
+                li(ng-repeat="userEmail in newRule.userEmails") {{ userEmail }}
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
+              br
             form(name="addModUserForm")
               input(type="text", ng-model="inputModUserId", list="emails")
+              &nbsp;
               button.btn(ng-click="addModUsertoList()") Add User with Modify
               ul
                 li(ng-repeat="modUserId in modUserList") {{ modUserId }}
-              br
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
 
           #calendarEvents(ng-show="selector == 4")
-            ul(ng-repeat="(key, value) in localEvents | groupBy: 'parentData.calendarId'")
+            ul(style="padding-left: 0", ng-repeat="(key, value) in localEvents | groupBy: 'parentData.calendarId'")
               h4 {{ value[0].parentData.calendarName }}
-              li(ng-repeat="event in value")
+              li(style="list-style-type: none; padding-left: 10px", ng-repeat="event in value")
                 a(href, ng-click="displayEventDetails(event)") {{ event.title }}
-            br
             a.btn.btn-primary(href, ng-click="createNewEvent()") Create Event
           
           #eventInvites(ng-show="selector == 6")
-            ul
-              h4 Sent Invitations
+            h4 Sent Invitations
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="request in ownRequests")
                 //reqest.eventID is an event object, not an ID, naming is due to database storage
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
-            ul
-              h4 Recieved Invitations
+            h4 Recieved Invitations
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="request in otherRequests")
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
                 a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id") [v]
@@ -223,10 +229,10 @@ block content
           br
           ul
            li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
-             a(href ng-click="removeAlert(time)") [X]
+             a(href ng-click="removeAlert(time)")
+              span(class="glyphicon glyphicon-remove")
           
-          label Repeat?
-          br
+          label Repeat? &nbsp;
           input(type="checkbox", ng-model="eventDetails.willRepeat")
           br
           div(ng-hide="!eventDetails.willRepeat")
@@ -247,7 +253,7 @@ block content
               input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
               br
             div(ng-repeat="day in daysOfTheWeek")
-              label {{ day.name }}
+              label {{ day.name }} &nbsp;
               input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
           label Containing Calendar
           br
@@ -264,19 +270,21 @@ block content
         h4#myModalLabel.modal-title(ng-show="selectedEvent.canViewEvent") {{ selectedEvent.name }}
       .modal-body
         div(ng-show="selectedEvent.canViewEvent")
-          h4 Description
-          p(ng-show="selectedEvent.description") {{ selectedEvent.description }}
-          p(ng-hide="selectedEvent.description") No description.
-          h4 At
-          p(ng-show="selectedEvent.location") {{ selectedEvent.location }}
-          p(ng-hide="selectedEvent.location") No location.
-        h4 From
-        p {{ selectedEvent.start.toLocaleString() }}
-        h4 To
-        p {{ selectedEvent.end.toLocaleString() }}
+          p(ng-show="selectedEvent.description")
+            b Description 
+            | {{ selectedEvent.description }}
+          p
+            b When 
+            | {{convertDates(selectedEvent.start, selectedEvent.end)}}
+          p(ng-show="selectedEvent.location")
+            b Where 
+            | {{ selectedEvent.location }}
+        p
+          b Calendar 
+          | {{ selectedEvent.calendarName }}
         div(ng-show="selectedEvent.canViewEvent")
           div(ng-hide="selectedEvent.alerts == null")
-            h4 Alerts
+            b Alerts
             ul
               li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
           div(ng-hide="selectedEvent.willRepeat == null")
@@ -285,21 +293,20 @@ block content
               div(ng-show="selectedEvent.willRepeat")
                 p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
                 p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
-        h4 Calendar
-        p {{ selectedEvent.calendarName }}
         h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
+        hr
         .btn-group
-          button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
-          button.btn.btn-danger(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
-          button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users
+          button.btn.btn-primary.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
+          button.btn.btn-danger.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+          button.btn.btn-warning.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users
     
-    script(type="text/ng-template" id="inviteUserModal.html" )
+    script(type="text/ng-template" id="inviteUserModal.html")
       .modal-header
         button.close(type='button', ng-click="cancel()") &times;
         h4#myModalLabel.modal-title Invite Users to {{ selectedEvent.name }}
       .modal-body
         form(name="UserInvite")
-          input(type="text", ng-model="requestDetails.description", placeholder="Invite Description")
+          textarea(rows="2", cols="40", ng-model="requestDetails.description", placeholder="Invite Description")
           br
           select(ng-model="selectedGroup", ng-options="group.name for group in userGroups")
           br
@@ -312,6 +319,34 @@ block content
             li(ng-repeat="user in requestDetails.userList") {{ user }}
         .btn-group
           button.btn.btn-primary(ng-click="sendUserInvites()") Send Invites
+
+    script(type="text/ng-template" id="addRuleModal.html")
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title Add Rule to {{ selectedCalendar.name }}
+      .modal-body
+        form(name="addRuleForm")
+          label Rule Type
+          br
+          select(ng-model="newRule.ruleType")
+            option(value="canView") Can View
+            option(value="canViewBusy") Can View Busy
+            option(value="canNotView") Cannot View
+          br
+          label User Group
+          br
+          select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
+          br
+          button.btn(ng-click="addUserGroupToRule()") Add User Group
+          ul
+            li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
+          label User Email
+          br
+          input(type="text", ng-model="userEmail", list="emails")
+          button.btn(ng-click="addUserEmailToRule()") Add User Email
+          ul
+            li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
+          button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

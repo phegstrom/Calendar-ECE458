@@ -11,7 +11,12 @@ router.post('/createPUD', function (req, res, next) {
 	newPUD.time = req.body.time;
 
 	newPUD.save(function (err, saved) {
-		res.send(saved);
+
+		User.update({_id: req.session.user._id}, {$push: {PUDs: saved._id}}, 
+				function(err, numAffected) {
+					if (err) next(err);
+					res.send(saved);
+		});
 	});
 });
 

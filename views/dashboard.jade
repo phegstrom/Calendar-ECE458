@@ -147,7 +147,7 @@ block content
               &nbsp;
               button.btn(ng-click="addUserEmailToRule()") Add User Email
               ul(style='list-style-type: none; padding-left: 10px;')
-                li(ng-repeat="userEmail in newRule.userEmails") {{ userEmail }}
+                li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
               br
             form(name="addModUserForm")

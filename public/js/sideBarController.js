@@ -202,11 +202,11 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   // RULES ROUTES
   $scope.addUserEmailToRule = function() {
     var newUserEmail = angular.copy($scope.userEmail);
-    if($scope.newRule.userEmails) {
-      $scope.newRule.userEmails.push(newUserEmail);
+    if($scope.newRule.userIds) {
+      $scope.newRule.userIds.push(newUserEmail);
     }
     else {
-      $scope.newRule.userEmails = [newUserEmail];
+      $scope.newRule.userIds = [newUserEmail];
     }
     $scope.userEmail = '';
   }
@@ -228,8 +228,8 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   $scope.addRule = function() {
     if (typeof $scope.newRule.userGroupIds === "undefined") {
       $scope.newRule.userGroupIds = [];
-    } else if (typeof $scope.newRule.userEmails === "undefined") {
-      $scope.newRule.userEmails = [];
+    } else if (typeof $scope.newRule.userIds === "undefined") {
+      $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);
 

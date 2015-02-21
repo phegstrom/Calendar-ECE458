@@ -120,7 +120,7 @@ app.use('/user', requireLogin, userRoutes);
 app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
 app.use('/request', requestRoutes);
-app.use('/PUD', PUDRoutes);
+app.use('/pud', requireLogin, PUDRoutes);
 
 function requireLogin (req, res, next) {
   if (!req.user) {

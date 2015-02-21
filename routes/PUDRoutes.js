@@ -3,13 +3,16 @@ var User 		= require('../models/User');
 var PUD 		= require('../models/PUD');
 var router 		= express.Router();
 
-router.put('/createPUD', function (req, res, next) {
+
+router.post('/createPUD', function (req, res, next) {
 	var newPUD = new PUD();
 
 	newPUD.description = req.body.description;
 	newPUD.time = req.body.time;
 
-	newPUD.save();
+	newPUD.save(function (err, saved) {
+		res.send(saved);
+	});
 });
 
 router.get('/', function (req, res, next) {

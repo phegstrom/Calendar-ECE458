@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var deepPopulate = require('mongoose-deep-populate');
 var Schema = mongoose.Schema;
-var collectionName = 'PUDC';
+var collectionName = 'pudC';
 
 var PUDSchema = new Schema({
 	description: String,

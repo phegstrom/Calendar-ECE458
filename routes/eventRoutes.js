@@ -11,9 +11,6 @@ var router 		= express.Router();
 router.post('/', function(req, res, next) {
 	var newEvent = new Event();
 
-	console.log("TEST REQ BODY");
-	console.log(req.body);
-
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
 	newEvent.location = req.body.location;
@@ -23,7 +20,13 @@ router.post('/', function(req, res, next) {
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
+
 	newEvent.repeats = req.body.repeats;
+
+	if (req.body.eType == undefined) 
+		newEvent.evType = 'regular';
+	else 
+		newEvent.evType = req.body.eType;
 
 	console.log("EVENT CREATED");
 	console.log(newEvent);
@@ -89,12 +92,18 @@ router.put('/:eventId', function(req, res, next) {
 
 	console.log(req.body);
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
+
 	 	ev.name = req.body.name;
 	 	ev.description = req.body.description;
 	 	ev.location = req.body.location;
 	 	ev.start = req.body.start;
 	 	ev.end = req.body.end;
 	 	ev.calendar = req.body.calendar;
+
+	 	if (req.body.eType == undefined) 
+			newEvent.evType = 'regular';
+		else 
+			newEvent.evType = req.body.eType;
 
  		if(req.body.alerts == undefined)
  			ev.alerts = new Alert();

@@ -70,6 +70,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 					copyEvent = currEvent[1];			
 
 				copyEvent.name = currEvent[0].name;
+				copyEvent.evType = currEvent[0].evType;
 				copyEvent.description = currEvent[0].description;
 				copyEvent.location = currEvent[0].location;
 				copyEvent.start = currEvent[0].start;

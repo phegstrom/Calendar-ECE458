@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     passportLocalMongoose = require('passport-local-mongoose');
     collectionName = "usersC";
+    PUD = require('./PUD');
 
 var deepPopulate = require('mongoose-deep-populate');
 
@@ -28,6 +29,19 @@ UserSchema.plugin(deepPopulate);
 // returns a promise that will give access to array of ids
 UserSchema.statics.convertToIds = function (emails) {
 	return this.find({email: {$in: emails}}, '_id').exec();
+};
+
+UserSchema.methods.getBestPUD = function (alottedTime, cb) {
+
+	PUD.find({_id: {$in: this.PUDs}}).exec(function (err, puds) {
+		for (var i = 0; i < puds.length; i++) {
+			if (puds[i].time <= alottedTime) {
+				cb(puds[i]);
+			}
+		}
+		cb(null);
+	});
+
 };
 
 module.exports = mongoose.model('User', UserSchema);

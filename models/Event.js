@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var collectionName = 'eventsC';
 var states = 'regular pud'.split(' ');
+var User = require('./User');
 
 // Date is a javascript Date object which you can query
 // specific parts of it easily. just google javascript date object
@@ -42,6 +43,19 @@ var EventSchema = new Schema({
 });
 
 
+// return displayable information for PUD
+EventSchema.method.getPUD = function () {
+	if (this.evType == 'pud') {
+		User.findOne({_id: this.ownerID}, function (err, user) {
+			var alottedTime = this.end - this.start;
+			user.getBestPUD(alottedTime, function (pud) {
+				if (pud == null) return null;	
+				return pud;
+			});
+		});
+	} 
+	return null;
+};
 
 
 module.exports = mongoose.model('Event', EventSchema);

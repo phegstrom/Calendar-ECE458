@@ -10,11 +10,11 @@ var PUDSchema = new Schema({
 }, {collection: collectionName});
 
 function toHours(n) {
-	return n*3600000;
+	return n/3600000;
 }
 
 function toMilli(n) {
-	return n/3600000;
+	return n*3600000;
 }
 
 PUDSchema.plugin(deepPopulate);

@@ -1,4 +1,4 @@
-app.controller('sideBarController', function($scope, $http) {
+app.controller('sideBarController', function($scope, $rootScope, $http) {
   $scope.title = 'Select an Option';
   $scope.text = 'N/A';
   $scope.selector = -1;
@@ -101,7 +101,7 @@ app.controller('sideBarController', function($scope, $http) {
   //User Group Manipulation
   $scope.createGroup = function() {
     var isConflicting = false;
-    $scope.userGroups.forEach(function(group,index,array) {
+    $rootScope.userGroups.forEach(function(group,index,array) {
       if($scope.inputUserGroup == group.name) {
         $scope.text = 'Failed to create group, a group with that name already exists.';
         isConflicting = true;
@@ -113,7 +113,7 @@ app.controller('sideBarController', function($scope, $http) {
       $http.post('/usergroup', {groupName: $scope.inputUserGroup, userEmails: []}).
       success(function(data, status, headers, config) {
         $scope.displayUserGroups();
-        $scope.userGroups.push(angular.fromJson(data));
+        $rootScope.userGroups.push(angular.fromJson(data));
       }).
       error(function(data, status, headers, config) {
         $scope.text = 'Failed to create group.';
@@ -127,9 +127,9 @@ app.controller('sideBarController', function($scope, $http) {
     success(function(data, status, headers, config) {
       $scope.displayUserGroups();
 
-      for(var userGroupIndex=0; userGroupIndex < $scope.userGroups.length; userGroupIndex++) {
-        if(groupIdInput == $scope.userGroups[userGroupIndex]._id) {
-          $scope.userGroups.splice(userGroupIndex, 1);
+      for(var userGroupIndex=0; userGroupIndex < $rootScope.userGroups.length; userGroupIndex++) {
+        if(groupIdInput == $rootScope.userGroups[userGroupIndex]._id) {
+          $rootScope.userGroups.splice(userGroupIndex, 1);
           break;
         }
       }
@@ -206,7 +206,7 @@ app.controller('sideBarController', function($scope, $http) {
     $scope.userEmail = '';
   }
 
-  $scope.addUserGroupIdToRule = function() {
+  $scope.addUserGroupToRule = function() {
     var newGroupId = angular.copy($scope.userGroupId._id);
     if($scope.newRule.userGroupIds) {
       $scope.newRule.userGroupIds.push(newGroupId);
@@ -253,7 +253,7 @@ app.controller('sideBarController', function($scope, $http) {
   var populateUserGroups = function() {
     $http.get('/usergroup').
     success(function(data, status, headers, config) {
-      $scope.userGroups = angular.fromJson(data);
+      $rootScope.userGroups = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
       // called asynchronously if an error occurs
@@ -263,7 +263,77 @@ app.controller('sideBarController', function($scope, $http) {
 
   //Request display
   $scope.displayInvites = function() {
+    console.log($rootScope.otherRequests)
     $scope.selector = 6;
+  }
+  $scope.acceptRequest = function(request, requestCalendar) {
+    var calendarSelection = requestCalendar;
+
+    console.log(calendarSelection._id);
+
+    $http.put('/request/accept/'+ request._id, calendarSelection._id).
+    success(function(data, status, headers, config) {
+      var returnedRequest = angular.fromJson(data);
+      var dBEvent =returnedRequest.eventID;
+      //Currently only allows adding to Owned Calendars
+      $rootScope.setEventData(calendarSelection, "success", true, true, dBEvent);
+
+      var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
+
+      for(var eventIndex=0; eventIndex < calendarSelection.events.length; eventIndex++) {
+        if(calendarSelection.events[eventIndex]._id == dBEvent._id) {
+          calendarSelection.events[eventIndex] = dBEvent;
+        }
+        else if(eventIndex == calendarSelection.events.length - 1) {
+          calendarSelection.events.push(dBEvent);
+        }
+      }
+      for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
+        if($rootScope.events[eventIndex].parentData._id == dBEvent._id) {
+          $rootScope.events[eventIndex] = calEvent;
+        }
+        else if(eventIndex == $rootScope.events.length - 1) {
+          $rootScope.events.push(calEvent);
+        }
+      }
+      $rootScope.updateLocalEvents();
+      removeRequest(request);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to accept invite.';
+    });
+  }
+
+  $scope.declineRequest = function(request) {
+    $http.put('/request/deny/'+ request._id).
+    success(function(data, status, headers, config) {
+      removeRequest(request);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to decline invite.';
+    });
+  }
+
+  $scope.ignoreRequest = function(request) {
+    $http.put('/request/remove/'+ request._id).
+    success(function(data, status, headers, config) {
+      removeRequest(request);
+    }).
+    error(function(data, status, headers, config) {
+      $scope.text = 'Failed to ignore invite.';
+    });
+  }
+
+  var removeRequest = function(request) {
+    console.log($rootScope.otherRequests);
+    console.log(request);
+    for(requestIndex=0; requestIndex < $rootScope.otherRequests.length; requestIndex++) {
+      if(request._id == $rootScope.otherRequests[requestIndex]._id) {
+        console.log(requestIndex);
+        $rootScope.otherRequests.splice(requestIndex, 1);
+        break;
+      }
+    }
   }
 
   //Initialization

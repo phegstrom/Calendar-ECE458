@@ -6,20 +6,24 @@ block content
     link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
     link(rel='stylesheet', href='/css/angular-csp.css')
 
-    br
     .page-header
-      .pull-right.form-inline
-        .btn-group
-          button.btn.btn-primary(ng-click="nav('back')") << Prev
-          button.btn(ng-click="goToToday()") Today
-          button.btn.btn-primary(ng-click="nav('forward')") Next >>
-        .btn-group#viewLengthButtons
-          button.btn.btn-warning(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
-          button.btn.btn-warning(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
-          button.btn.btn-warning(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
-          button.btn.btn-warning(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
-      h3
-        {{ calendarControl.getTitle() }}
+      .row
+        .col-md-8
+          h1.text-center
+            {{ calendarControl.getTitle() }}
+      .row
+        .col-md-8
+          .pull-left.form-inline
+           .btn-group
+              button.btn.btn-primary(ng-click="nav('back')") << Prev
+              button.btn(ng-click="goToToday()") Today
+              button.btn.btn-primary(ng-click="nav('forward')") Next >>
+          .pull-right.form-inline
+            .btn-group#viewLengthButtons
+              button.btn.btn-primary(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
+              button.btn.btn-primary(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
+              button.btn.btn-primary(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
+              button.btn.btn-primary(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
       br
     .row
       .col-md-8
@@ -131,7 +135,7 @@ block content
               br
               select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
               br
-              button.btn(ng-click="addUserGroupIdToRule()") Add User Group ID
+              button.btn(ng-click="addUserGroupToRule()") Add User Group
               ul
                 li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
               label User Email
@@ -141,7 +145,7 @@ block content
                 li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
             form(name="addModUserForm")
-              input(type="text", ng-model="inputModUserId")
+              input(type="text", ng-model="inputModUserId", list="emails")
               button.btn(ng-click="addModUsertoList()") Add User with Modify
               ul
                 li(ng-repeat="modUserId in modUserList") {{ modUserId }}
@@ -159,13 +163,23 @@ block content
           #eventInvites(ng-show="selector == 6")
             ul
               h4 Sent Invitations
-              li(ng-repeat="request in ownedRequests")
+              li(ng-repeat="request in ownRequests")
                 //reqest.eventID is an event object, not an ID, naming is due to database storage
-                a(href, ng-click="displayRequestDetails(request)") {{ request.eventID.name }}
+                a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
             ul
               h4 Recieved Invitations
               li(ng-repeat="request in otherRequests")
-                a(href, ng-click="displayRequestDetails(request)") {{ request.eventID.name }}
+                a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
+                a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id") [v]
+                br
+                form(ng-show="selectedRequest == request._id")
+                  select(ng-model="requestCalendar", ng-options="calendar.name for calendar in myCalendars", required)
+                  br
+                  .btn-group
+                    button.btn.btn-primary(ng-disabled="requestCalendar == undefined", ng-click="acceptRequest(request, requestCalendar)") Accept
+                    button.btn.btn-warning(ng-click="declineRequest(request)") Decline
+                    button.btn.btn-danger(ng-click="ignoreRequest(request)") Ignore
+
 
     script(type="text/ng-template" id="createEventModal.html" )
       .modal-header
@@ -243,6 +257,7 @@ block content
           input(type="text", ng-model="selectedEvent._id", ng-hide="true")
           br
           btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
+    
     script(type="text/ng-template" id="eventDetailsModal.html" )
       .modal-header
         button.close(type='button', ng-click="cancel()") &times;
@@ -276,7 +291,28 @@ block content
         h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
         .btn-group
           button.btn.btn-primary(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
-          button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+          button.btn.btn-danger(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+          button.btn.btn-warning(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users
+    
+    script(type="text/ng-template" id="inviteUserModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title Invite Users to {{ selectedEvent.name }}
+      .modal-body
+        form(name="UserInvite")
+          input(type="text", ng-model="requestDetails.description", placeholder="Invite Description")
+          br
+          select(ng-model="selectedGroup", ng-options="group.name for group in userGroups")
+          br
+          button.btn(ng-click="addUserGroupToRequest()") Add User Group
+          ul
+            li(ng-repeat="userGroup in requestDetails.userGroups") {{ userGroup.name }}
+          input(type="text", ng-model="userEmail", list="emails")
+          button.btn(ng-click="addUserToRequest()") Add User
+          ul
+            li(ng-repeat="user in requestDetails.userList") {{ user }}
+        .btn-group
+          button.btn.btn-primary(ng-click="sendUserInvites()") Send Invites
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}
@@ -288,5 +324,5 @@ block content
     script(type='text/javascript', src='/js/ui-bootstrap-tpls.min.js')
     script(type='text/javascript', src='/js/date.js')
     script(type='text/javascript', src='/js/index.js')
-    script(type='text/javascript', src='/js/bottomAreaController.js')
+    script(type='text/javascript', src='/js/modalController.js')
     script(type='text/javascript', src='/js/sideBarController.js')

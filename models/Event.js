@@ -1,11 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var collectionName = 'eventsC';
+var states = 'regular pud'.split(' ');
 
 // Date is a javascript Date object which you can query
 // specific parts of it easily. just google javascript date object
 var EventSchema = new Schema({
 	name: String,
+	evType: {type: String, enum: states, default: states[0]}, 
 	description: String,
 	location: String,
 	start: {type: Date},
@@ -38,5 +40,8 @@ var EventSchema = new Schema({
 }, {
 	collection: collectionName
 });
+
+
+
 
 module.exports = mongoose.model('Event', EventSchema);

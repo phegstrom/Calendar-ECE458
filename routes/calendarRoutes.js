@@ -85,7 +85,15 @@ router.get('/:calType', function (req, res, next) {
 	var popType = req.params.calType+".events.alerts " + req.params.calType+".events.requestID " + req.params.calType+".rules.assocUserGroups";
 
 	User.findOne({_id: uId}).deepPopulate(popType).exec(function (err, user) {
-		
+		var eventIdArray = [];
+
+		// for (var i = 0; i < user.calType.length; i++) {
+		// 	for (var j = 0; j < user.calType[i].events.length; j++) {
+		// 		var currEv = user.calType[i].events[j];
+		// 		// currEv
+		// 	}
+		// }
+
 		// console.log(user);
 		res.send(user[req.params.calType]);
 	});

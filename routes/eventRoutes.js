@@ -83,6 +83,34 @@ function createAlertSchemas(objArray, ev, req) {
  	return toRet;
 }
 
+// for testing only
+router.get('/pud/:eventId', function (req, res, next) {
+
+	var pid = req.params.eventId;
+	Event.findOne({_id: pid}).exec(function (err, ev) {
+		ev.getPUD(function (pud) {
+
+
+			var nullString = "Not sufficient amount of time to complete any of your PUD's";
+			//console.log(pud.description);
+			console.log("PRINT");
+
+
+			if (pud != null) {
+				var time = pud.time;
+				var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
+				res.send(pudString);
+			} 
+			else {
+				res.send(nullString);
+			}
+
+		});
+
+	});
+
+});
+
 // edit Event
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body

@@ -83,7 +83,6 @@ function createAlertSchemas(objArray, ev, req) {
  	return toRet;
 }
 
-// for testing only
 router.get('/pud/:eventId', function (req, res, next) {
 
 	var pid = req.params.eventId;
@@ -102,7 +101,7 @@ router.get('/pud/:eventId', function (req, res, next) {
 				res.send(pudString);
 			} 
 			else {
-				res.send(nullString);
+				//res.send(nullString);
 			}
 
 		});

@@ -151,6 +151,13 @@ app.run(function($rootScope, $q, $http, $modal) {
       });
   }
 
+  $rootScope.displayAddRuleModal = function() {
+    $modal.open({
+        templateUrl: 'addRuleModal.html',
+        controller: 'sideBarController'
+      });
+  }
+
   $rootScope.displayInviteUserModal = function() {
     $modal.open({
         templateUrl: 'inviteUserModal.html',
@@ -391,8 +398,6 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     return undefined;
   }
-
-
   
   //Initialization
   $rootScope.getCalendarData();

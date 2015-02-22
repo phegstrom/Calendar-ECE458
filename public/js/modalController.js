@@ -28,7 +28,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     alerts: [],
     willRepeat: false,
     start: Date.parse('today'),
-    end: Date.parse('tomorrow'),
+    end: Date.parse('today'),
     repeatMode: '',
     repeatCount: 0,
     calendar: null,
@@ -267,6 +267,20 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     var userIndex = $scope.requestDetails.userList.indexOf(userEmail);
     if(userIndex != -1) {
       $scope.requestDetails.userList.splice(userIndex, 1);
+    }
+  }
+
+  $scope.convertDates = function(startDate, endDate) {
+    if (startDate.toDateString() == endDate.toDateString()) {
+      var displayDate = startDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric'});
+      var startTime = startDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+      var endTime = endDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+      return displayDate + ', ' + startTime + ' - ' + endTime;
+    }
+    else {
+      var end = endDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit'});
+      var start = startDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit'})
+      return start + ' - ' + end;
     }
   }
 });

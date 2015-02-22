@@ -1,8 +1,12 @@
-app.controller('sideBarController', function($scope, $rootScope, $http) {
+app.controller('sideBarController', function($scope, $http, $rootScope) {
   $scope.title = 'Select an Option';
   $scope.text = 'N/A';
   $scope.selector = -1;
   $scope.newRule = {};
+
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  };
 
   // USER GROUP DISPLAYS
   $scope.displayUserGroups = function() {
@@ -31,6 +35,7 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
     $scope.selector = 5;
 
     $scope.selectedCalendar = calendar;
+    console.log(calendar);
   }
 
   $scope.displayCalendars = function() {
@@ -197,24 +202,27 @@ app.controller('sideBarController', function($scope, $rootScope, $http) {
   // RULES ROUTES
   $scope.addUserEmailToRule = function() {
     var newUserEmail = angular.copy($scope.userEmail);
-    if($scope.newRule.userEmails) {
-      $scope.newRule.userEmails.push(newUserEmail);
+    if($scope.newRule.userIds) {
+      $scope.newRule.userIds.push(newUserEmail);
     }
     else {
-      $scope.newRule.userEmails = [newUserEmail];
+      $scope.newRule.userIds = [newUserEmail];
     }
     $scope.userEmail = '';
   }
 
   $scope.addUserGroupToRule = function() {
-    var newGroupId = angular.copy($scope.userGroupId._id);
+    console.log($scope.userGroup);
+    var newGroupId = angular.copy($scope.userGroup._id);
     if($scope.newRule.userGroupIds) {
+      $scope.userGroupDisplay.push($scope.userGroup.name);
       $scope.newRule.userGroupIds.push(newGroupId);
     }
     else {
+      $scope.userGroupDisplay = [$scope.userGroup.name];
       $scope.newRule.userGroupIds = [newGroupId];
     }
-    $scope.userGroupId = {};
+    $scope.userGroup = {};
   }
 
   $scope.addRule = function() {

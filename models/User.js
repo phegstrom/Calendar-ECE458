@@ -31,6 +31,7 @@ UserSchema.statics.convertToIds = function (emails) {
 	return this.find({email: {$in: emails}}, '_id').exec();
 };
 
+// called from Event Schema, returns in cb highest priority PUD
 UserSchema.methods.getBestPUD = function (alottedTime, cb) {
 
 	PUD.find({_id: {$in: this.PUDs}}).exec(function (err, puds) {

@@ -8,7 +8,7 @@ var User = require('./User');
 // specific parts of it easily. just google javascript date object
 var EventSchema = new Schema({
 	name: String,
-	evType: {type: String, enum: states, default: states[0]}, 
+	evType: {type: String, enum: states, default: states[1]}, 
 	description: String,
 	location: String,
 	start: {type: Date},
@@ -43,18 +43,18 @@ var EventSchema = new Schema({
 });
 
 
-// return displayable information for PUD
-EventSchema.method.getPUD = function () {
+// return displayable information for PUD in the cb(pud)
+EventSchema.method.getPUD = function (cb) {
 	if (this.evType == 'pud') {
 		User.findOne({_id: this.ownerID}, function (err, user) {
 			var alottedTime = this.end - this.start;
 			user.getBestPUD(alottedTime, function (pud) {
 				if (pud == null) return null;	
-				return pud;
+				cb(pud);
 			});
 		});
 	} 
-	return null;
+	cb(null);
 };
 
 

@@ -48,9 +48,10 @@ EventSchema.methods.getPUD = function (cb) {
 
 	var alottedTime = (this.end.getTime() - this.start.getTime());
 	alottedTime = alottedTime / 3600000;
-
 	if (this.evType == 'pud') {
+
 		User.findOne({_id: this.creator}, function (err, user) {
+			if (err) next(err);
 			user.getBestPUD(alottedTime, function (pud) {
 				// if (pud == null) {
 				// 	cb(null);	

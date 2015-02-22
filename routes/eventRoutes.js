@@ -86,7 +86,12 @@ function createAlertSchemas(objArray, ev, req) {
 router.get('/pud/:eventId', function (req, res, next) {
 
 	var pid = req.params.eventId;
+	console.log("BEFORE");
+
 	Event.findOne({_id: pid}).exec(function (err, ev) {
+		if (err) next(err);
+
+		req.count = 0; // so wouldn't run twice!!
 		ev.getPUD(function (pud) {
 
 
@@ -96,12 +101,13 @@ router.get('/pud/:eventId', function (req, res, next) {
 
 
 			if (pud != null) {
+				req.count++; 
 				var time = pud.time;
 				var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
 				res.send(pudString);
 			} 
-			else {
-				//res.send(nullString);
+			else if (req.count == 0) {
+				res.send(nullString);
 			}
 
 		});

@@ -95,7 +95,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 					request.usersStatus = tempStatus;
 					request.save();
 
-					res.send("SUCCESS");
+					res.send(request);
 				});
 
 				Calendar.update({_id: cal._id}, {$push: {events: copyEvent._id}}, function(err, num, raw) {

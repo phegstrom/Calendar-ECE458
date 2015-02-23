@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var collectionName = 'calendarsC';
+var deepPopulate = require('mongoose-deep-populate');
 
 var CalendarSchema = new Schema({
 	name: String,
@@ -10,5 +11,8 @@ var CalendarSchema = new Schema({
 	rules: [{type: Schema.ObjectId, ref: 'Rule'}]
 
 }, {collection: collectionName});
+
+CalendarSchema.plugin(deepPopulate);
+
 
 module.exports = mongoose.model('Calendar', CalendarSchema);

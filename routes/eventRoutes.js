@@ -138,9 +138,9 @@ router.put('/:eventId', function(req, res, next) {
 	 	ev.calendar = req.body.calendar;
 
 	 	if (req.body.eType == undefined) 
-			newEvent.evType = 'regular';
+			ev.evType = 'regular';
 		else 
-			newEvent.evType = req.body.eType;
+			ev.evType = req.body.eType;
 
  		if(req.body.alerts == undefined)
  			ev.alerts = new Alert();

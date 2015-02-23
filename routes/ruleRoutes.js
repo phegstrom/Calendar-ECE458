@@ -25,7 +25,7 @@ router.post('/:calendId', function (req, res, next) {
 							  assocUsers: emailToIDArray,
 							  assocUserGroups: req.body.userGroupIds});
 
-		rule.save(function (err) {
+		rule.save(function (err, saved) {
 			if (err) next(err);
 
 			var usersAdded = [];
@@ -67,7 +67,7 @@ router.post('/:calendId', function (req, res, next) {
 										  req.params.calendId);					
 			 }
 
-			res.send("RULE CREATED");
+			res.send(saved); // returns the rule that was created
 		});
 
 	});	

@@ -8,7 +8,7 @@ var User = require('./User');
 // specific parts of it easily. just google javascript date object
 var EventSchema = new Schema({
 	name: String,
-	evType: {type: String, enum: states, default: states[1]}, 
+	evType: {type: String, enum: states, default: states[0]}, 
 	description: String,
 	location: String,
 	start: {type: Date},

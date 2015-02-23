@@ -47,9 +47,13 @@ router.put('/modList/add/:calId', function (req, res, next) {
 				if (err) next(err);
 			});
 		});
+
+		Calendar.findOne({_id: req.params.calId}, function (err, cal) {
+			res.send(cal.modList);
+		});
 	});
 
-	res.send("Users added to modList");
+	// res.send("Users added to modList");
 });
 
 // removes users from calendar modList and calendar from users' modLists

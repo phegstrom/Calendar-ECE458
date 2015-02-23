@@ -398,6 +398,16 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     return undefined;
   }
+
+  $rootScope.getUserEmail = function(userId) {
+    for(var userIndex=0; userIndex < $rootScope.userList.length; userIndex++) {
+      if($rootScope.userList[userIndex]._id == userId) {
+        return $rootScope.userList[userIndex].email;
+      }
+    }
+
+    return 'Unknown User';
+  }
   
   //Initialization
   $rootScope.getCalendarData();

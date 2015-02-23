@@ -108,6 +108,13 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       eventDetails.repeats = [repeats];
     }
 
+    if(eventDetails.isPUD) {
+      eventDetails.evType='pud';
+    }
+    else {
+      eventDetails.evType='regular';
+    }
+
     var request = {};
 
     if(eventDetails._id) {
@@ -181,7 +188,9 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.addAlert = function() {
-    var newAlert = new Date($rootScope.alertTime);
+    var newAlert = new Date($scope.alertTime);
+    console.log(newAlert);
+    console.log($scope.alertTime);
     if($rootScope.eventDetails.alerts) {
       $rootScope.eventDetails.alerts.push(newAlert);
     }
@@ -271,6 +280,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.convertDates = function(startDate, endDate) {
+    startDate = new Date(startDate);
+    endDate = new Date(endDate);
     if (startDate.toDateString() == endDate.toDateString()) {
       var displayDate = startDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric'});
       var startTime = startDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});

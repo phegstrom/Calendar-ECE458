@@ -11,7 +11,8 @@ var PUDSchema = new Schema({
 		frequency: {type: Number, default: null},
 		endDate: {type: Date, default: null},
 		days: [{type: Date}]
-	}]
+	}],
+	repeatInterval: Date
 }, {collection: collectionName});
 
 function toHours(n) {

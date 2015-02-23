@@ -83,6 +83,39 @@ function createAlertSchemas(objArray, ev, req) {
  	return toRet;
 }
 
+router.get('/pud/:eventId', function (req, res, next) {
+
+	var pid = req.params.eventId;
+	console.log("BEFORE");
+
+	Event.findOne({_id: pid}).exec(function (err, ev) {
+		if (err) next(err);
+
+		req.count = 0; // so wouldn't run twice!!
+		ev.getPUD(function (pud) {
+
+
+			var nullString = "Not sufficient amount of time to complete any of your PUD's";
+			//console.log(pud.description);
+			console.log("PRINT");
+
+
+			if (pud != null) {
+				req.count++; 
+				var time = pud.time;
+				var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
+				res.send(pudString);
+			} 
+			else if (req.count == 0) {
+				res.send(nullString);
+			}
+
+		});
+
+	});
+
+});
+
 // edit Event
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body

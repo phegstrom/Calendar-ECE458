@@ -1,6 +1,7 @@
 var express = require('express');
 var User 		= require('../models/User');
 var PUD 		= require('../models/PUD');
+var Event 		= require('../models/Event');
 var router 		= express.Router();
 
 
@@ -13,7 +14,7 @@ router.post('/createPUD', function (req, res, next) {
 
 	// for POSTman
 	var uid = req.session.user._id;
-	// var uid = '54d25e88f98e0e3cf81bc051';
+	 // var uid = '54d25e88f98e0e3cf81bc051';
 
 	newPUD.save(function (err, saved) {
 		if (err) next(err);
@@ -40,14 +41,43 @@ router.get('/', function (req, res, next) {
 		});
 });
 
-// router.get('/test', function (req, res, next) {
+// returns specific PUD if given ID
+router.get('/:pudId', function (req, res, next) {
 
-// 	var pid = '54e9393ecdc439c671363aef';
-// 	PUD.findById(pid).exec(function (err, pud) {
-// 		res.send(200, pud.time);
-// 	})
+	PUD.findOne({_id: req.params.pudId}).exec(function (err, pud) {
+			if(err) next(err);
+			var obj = pud.toJSON();
+			obj.time = pud.time;
+			res.send(200, obj);
+	});
 
-// });
+});
+
+// for testing only
+router.get('/test', function (req, res, next) {
+
+	var pid = '54e9393ecdc439c671363aef';
+	PUD.findById(pid).exec(function (err, pud) {
+
+		res.send(200, pud.time);
+	})
+
+});
+
+// for testing only
+router.get('/evType', function (req, res, next) {
+
+	var pid = '54e3da3d377962b61a3ff7d5';
+	Event.findOne({_id: pid}, function (err, ev) {
+
+		ev.getPUD(function (pud) {
+			res.send(pud);
+		});
+
+	});
+
+});
+
 
 // edits a PUD given a pud ID
 router.put('/:pudId', function (req, res, next) {

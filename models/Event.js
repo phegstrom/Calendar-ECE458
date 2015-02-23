@@ -43,18 +43,26 @@ var EventSchema = new Schema({
 });
 
 
-// return displayable information for PUD in the cb(pud)
-EventSchema.method.getPUD = function (cb) {
+// returns PUD in the cb(pud)
+EventSchema.methods.getPUD = function (cb) {
+
+	var alottedTime = (this.end.getTime() - this.start.getTime());
+	alottedTime = alottedTime / 3600000;
 	if (this.evType == 'pud') {
-		User.findOne({_id: this.ownerID}, function (err, user) {
-			var alottedTime = this.end - this.start;
+
+		User.findOne({_id: this.creator}, function (err, user) {
+			if (err) next(err);
 			user.getBestPUD(alottedTime, function (pud) {
-				if (pud == null) return null;	
+				// if (pud == null) {
+				// 	cb(null);	
+				// }
+				// console.log(pud);
 				cb(pud);
 			});
 		});
-	} 
-	cb(null);
+	}
+	// else  
+	// 	cb(null);
 };
 
 

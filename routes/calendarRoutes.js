@@ -82,7 +82,7 @@ router.get('/id/:calendarId', function (req, res, next) {
 router.get('/:calType', function (req, res, next) {
 	var uId = req.session.user._id;
 
-	var popType = req.params.calType+".events.alerts " + req.params.calType+".events.requestID " + req.params.calType+".rules.assocUserGroups";
+	var popType = req.params.calType+".events.alerts " + req.params.calType+".rules.assocUserGroups";
 
 	User.findOne({_id: uId}).deepPopulate(popType).exec(function (err, user) {
 		var eventIdArray = [];

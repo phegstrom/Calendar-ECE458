@@ -79,6 +79,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       } else {
         $scope.selectedCalendar.modList = angular.copy($scope.modUserList);
       }
+      console.log($scope.selectedCalendar);
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {

@@ -82,20 +82,12 @@ router.get('/id/:calendarId', function (req, res, next) {
 router.get('/:calType', function (req, res, next) {
 	var uId = req.session.user._id;
 
-	var popType = req.params.calType+".events.alerts " + req.params.calType+".events.requestID " + req.params.calType+".rules.assocUserGroups";
-
-	User.findOne({_id: uId}).deepPopulate(popType).exec(function (err, user) {
-		var eventIdArray = [];
-
-		// for (var i = 0; i < user.calType.length; i++) {
-		// 	for (var j = 0; j < user.calType[i].events.length; j++) {
-		// 		var currEv = user.calType[i].events[j];
-		// 		// currEv
-		// 	}
-		// }
-
-		// console.log(user);
-		res.send(user[req.params.calType]);
+	User.findOne({_id: uId}, req.params.calType).exec(function (err, user) {
+		var popType = "owner events.alerts rules.assocUsers rules.assocUserGroups";
+		Calendar.find({_id: {$in: user[req.params.calType]}}).deepPopulate(popType)
+				.exec(function (err, cals) {
+					res.send(cals);
+				});
 	});
 });
 
@@ -107,7 +99,6 @@ router.get('/rules/:ruleId', function (req, res, next) {
 				console.log("CALENDAR"+users);
 				res.send(users);
 			});
-
 		});
 });
 

@@ -101,10 +101,13 @@ router.get('/pud/:eventId', function (req, res, next) {
 
 
 			if (pud != null) {
+				var toRet = {pudId: "", display: ""};
 				req.count++; 
 				var time = pud.time;
-				var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
-				res.send(pudString);
+				// var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
+				toRet.display = pud.description + ' ('+time+' hours)';
+				toRet.pudId = pud._id;
+				res.send(toRet);
 			} 
 			else if (req.count == 0) {
 				res.send(nullString);

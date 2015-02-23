@@ -124,7 +124,7 @@ block content
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="modUser in selectedCalendar.modList")
                 {{ getUserEmail(modUser) + " " }}
-                a(href, ng-click="removeModUser(modUser._id)")
+                a(href, ng-click="removeModUser(getUserEmail(modUser))")
                   span(class="glyphicon glyphicon-remove")
             hr
             form(name="addRuleForm")

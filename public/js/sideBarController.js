@@ -72,13 +72,15 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     console.log($scope.modUserList);
     $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: $scope.modUserList}).
     success(function(data, status, headers, config) {
-      if ($scope.selectedCalendar.modList) {
-        for (var modUserName in $scope.modUserList) {
-          $scope.selectedCalendar.modList.push(modUserName);
-        }
-      } else {
-        $scope.selectedCalendar.modList = angular.copy($scope.modUserList);
-      }
+      console.log(angular.fromJson(data));
+      $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
+      // if ($scope.selectedCalendar.modList) {
+      //   for (var modUserName in $scope.modUserList) {
+      //     $scope.selectedCalendar.modList.push(modUserName);
+      //   }
+      // } else {
+      //   $scope.selectedCalendar.modList = angular.copy($scope.modUserList);
+      // }
       console.log($scope.selectedCalendar);
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
@@ -100,9 +102,11 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   }
 
   // delete users from modify users list
-  $scope.removeModUser = function(modUserID) {
-    $http.put('/calendar/modList/remove/' + $scope.selectedCalendar._id, {modList: [modUserID]}).
+  $scope.removeModUser = function(modUserEmail) {
+    $http.put('/calendar/modList/remove/' + $scope.selectedCalendar._id, {modList: [modUserEmail]}).
     success(function(data, status, headers, config) {
+
+      $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {

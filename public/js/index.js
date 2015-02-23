@@ -25,6 +25,18 @@ app.run(function($rootScope, $q, $http, $modal) {
     });
   }
 
+  $rootScope.getCurrentUserID = function() {
+    $rootScope.currentUserID = undefined;
+
+    $http.get().
+    success(function(data, status, headers, config) {
+      $rootScope.currentUserID = angular.fromJson(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not get current user\'s ID');
+    })
+  }
+
   $rootScope.getRequests = function() {
     $rootScope.ownRequests = [];
     $rootScope.otherRequests = [];

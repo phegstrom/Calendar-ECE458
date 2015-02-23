@@ -1,6 +1,7 @@
-var passport = require('passport');
-var User = require('../models/User');
-var router = require('express').Router();
+var passport  = require('passport');
+var User      = require('../models/User');
+var Calendar  = require('../models/Calendar');
+var router    = require('express').Router();
 
 router.get('/', requireLogin, function(req, res, next) {
   res.render('dashboard', {user: req.user});
@@ -15,6 +16,17 @@ router.post('/register', function(req, res, next) {
   console.log('registering user');
   User.register(new User({ name: req.body.name, email: req.body.email}), req.body.password, function(err, acc) {
     if (err) { console.log('error while user register!', err); return next(err); }
+
+    // create default calendar for new registered user
+    var defCal = new Calendar({name: "My Calendar", owner: acc._id});
+    defCal.save(function (err) {
+      if(err) next (err);
+
+      User.update({_id: acc._id}, {$push:{myCalId: defCal._id}}, function (err, num, raw) {
+        if (err) next(err);
+      });
+    })
+
     res.redirect('/login');
   });
 });

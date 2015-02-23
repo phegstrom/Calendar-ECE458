@@ -174,9 +174,9 @@ block content
               li(ng-repeat="request in ownRequests")
                 //request.eventID is an event object, not an ID, naming is due to database storage
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
-            h4 Recieved Invitations
+            h4 Received Invitations
             ul(style='list-style-type: none; padding-left: 10px;')
-              li(ng-repeat="request in otherRequests")
+              li(ng-repeat="request in pendingRequests")
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
                 a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id") [v]
                 br
@@ -186,7 +186,7 @@ block content
                   .btn-group
                     button.btn.btn-primary(ng-disabled="requestCalendar == undefined", ng-click="acceptRequest(request, requestCalendar)") Accept
                     button.btn.btn-warning(ng-click="declineRequest(request)") Decline
-                    button.btn.btn-danger(ng-click="ignoreRequest(request)") Ignore
+                    button.btn.btn-danger(ng-click="ignoreRequest(request)") Remove
 
 
     script(type="text/ng-template" id="createEventModal.html" )
@@ -276,36 +276,51 @@ block content
         h4#myModalLabel.modal-title(ng-hide="selectedEvent.canViewEvent") Event
         h4#myModalLabel.modal-title(ng-show="selectedEvent.canViewEvent") {{ selectedEvent.name }}
       .modal-body
-        div(ng-show="selectedEvent.canViewEvent")
-          p(ng-show="selectedEvent.description")
-            b Description 
-            | {{ selectedEvent.description }}
-          p
-            b When 
-            | {{convertDates(selectedEvent.start, selectedEvent.end)}}
-          p(ng-show="selectedEvent.location")
-            b Where 
-            | {{ selectedEvent.location }}
-        p
-          b Calendar 
-          | {{ selectedEvent.calendarName }}
-        div(ng-show="selectedEvent.canViewEvent")
-          div(ng-hide="selectedEvent.alerts == null")
-            b Alerts
-            ul
-              li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
-          div(ng-hide="selectedEvent.willRepeat == null")
-            h4 Repeats?
-            p {{ selectedEvent.willRepeat }}
-              div(ng-show="selectedEvent.willRepeat")
-                p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
-                p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
-        h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
-        hr
-        .btn-group
-          button.btn.btn-primary.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
-          button.btn.btn-danger.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
-          button.btn.btn-warning.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users
+        .row
+          .col-md-6
+            div(ng-show="selectedEvent.canViewEvent")
+              p(ng-show="selectedEvent.description")
+                b Description 
+                | {{ selectedEvent.description }}
+              p
+                b When 
+                | {{convertDates(selectedEvent.start, selectedEvent.end)}}
+              p(ng-show="selectedEvent.location")
+                b Where 
+                | {{ selectedEvent.location }}
+            p
+              b Calendar 
+              | {{ selectedEvent.calendarName }}
+            div(ng-show="selectedEvent.canViewEvent")
+              div(ng-hide="selectedEvent.alerts == null")
+                b Alerts
+                ul
+                  li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
+              div(ng-hide="selectedEvent.willRepeat == null")
+                h4 Repeats?
+                p {{ selectedEvent.willRepeat }}
+                  div(ng-show="selectedEvent.willRepeat")
+                    p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
+                    p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
+            h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
+          .col-md-6
+            div(ng-show="selectedRequest")
+              p
+                b 
+                  | Invite Information
+              p
+                {{ selectedRequest.info }}
+              p
+                b
+                  | User Invite Statuses
+                p(ng-repeat="userId in selectedRequest.userIDs")
+                  {{ getUserEmail(userId) + ": " + selectedRequest.usersStatus[userId].status }}
+        .row
+          hr
+          .btn-group
+            button.btn.btn-primary.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
+            button.btn.btn-danger.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+            button.btn.btn-warning.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users
     
     script(type="text/ng-template" id="inviteUserModal.html")
       .modal-header

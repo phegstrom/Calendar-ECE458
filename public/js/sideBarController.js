@@ -352,15 +352,12 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   }
 
   var removeRequest = function(request) {
-    console.log($rootScope.otherRequests);
-    console.log(request);
-    for(requestIndex=0; requestIndex < $rootScope.otherRequests.length; requestIndex++) {
-      if(request._id == $rootScope.otherRequests[requestIndex]._id) {
-        console.log(requestIndex);
-        $rootScope.otherRequests.splice(requestIndex, 1);
-        break;
+    for(requestIndex=0; requestIndex < $rootScope.pendingRequests.length; requestIndex++) {
+        if(request._id == $rootScope.pendingRequests[requestIndex]._id) {
+          $rootScope.pendingRequests.splice(requestIndex, 1);
+          break;
+        }
       }
-    }
   }
 
   //Initialization

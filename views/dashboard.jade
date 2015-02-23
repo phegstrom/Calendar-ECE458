@@ -163,6 +163,7 @@ block content
               h4 {{ value[0].parentData.calendarName }}
               li(style="list-style-type: none; padding-left: 10px", ng-repeat="event in value")
                 a(href, ng-click="displayEventDetails(event)") {{ event.title }}
+            br
             a.btn.btn-primary(href, ng-click="createNewEvent()") Create Event
           
           #eventInvites(ng-show="selector == 6")

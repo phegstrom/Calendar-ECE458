@@ -230,14 +230,15 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);
-    console.log($scope.selectedCalendar);
 
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
-      $scope.newRule._id = angular.fromJson(data)._id;
+      //$scope.newRule._id = angular.fromJson(data)._id;
+      $scope.selectedCalendar.rules.push(angular.copy(angular.fromJson(data)));
       $scope.displayOwnerCalendar($scope.selectedCalendar);
-      $scope.selectedCalendar.rules.push(angular.copy($scope.newRule));
       $scope.newRule = {};
+      $scope.userGroupDisplay = [];
+      console.log($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to create rule.');

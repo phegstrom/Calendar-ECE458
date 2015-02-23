@@ -118,8 +118,8 @@ block content
                     {{ group.name }}
                 | Users 
                 ul(style='list-style-type: none; padding-left: 10px;')
-                  li(ng-repeat="userId in rule.assocUsers")
-                    {{ getUserEmail(userId) }}
+                  li(ng-repeat="user in rule.assocUsers")
+                    {{ user.name }}
             b Users with Modify 
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="modUser in selectedCalendar.modList")

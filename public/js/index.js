@@ -26,7 +26,6 @@ app.run(function($rootScope, $q, $http, $modal) {
   }
 
   $rootScope.getCurrentUserID = function() {
-
     $http.get('/user').
     success(function(data, status, headers, config) {
       $rootScope.currentUserID = data;
@@ -50,6 +49,8 @@ app.run(function($rootScope, $q, $http, $modal) {
     $http.get('/request/getCreated').
     success(function(data, status, headers, config) {
       $rootScope.ownRequests = angular.fromJson(data);
+
+      console.log($rootScope.ownRequests);
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve list of created event requests.');
@@ -57,12 +58,13 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $http.get('/request/getIncoming').
     success(function(data, status, headers, config) {
-      var incomingRequests = angular.fromJson(data);
+      $rootScope.otherRequests = angular.fromJson(data);
+      $rootScope.pendingRequests = [];
 
-      for(var requestIndex=0; requestIndex < incomingRequests.length; requestIndex++) {
-        console.log(incomingRequests[requestIndex]);
-        if(incomingRequests[requestIndex].usersStatus[$rootScope.currentUserID].status == 'pending') {
-          $rootScope.otherRequests.push(incomingRequests[requestIndex]);
+      for(var requestIndex=0; requestIndex < $rootScope.otherRequests.length; requestIndex++) {
+        console.log($rootScope.otherRequests[requestIndex]);
+        if($rootScope.otherRequests[requestIndex].usersStatus[$rootScope.currentUserID].status == 'pending') {
+          $rootScope.pendingRequests.push($rootScope.otherRequests[requestIndex]);
         }
       }
     }).
@@ -155,6 +157,10 @@ app.run(function($rootScope, $q, $http, $modal) {
       $rootScope.selectedEvent.canEditEvent = false;
       $rootScope.selectedEvent.canViewEvent = true;
     }
+
+    //Populate request details if owner of request
+    $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
+
     $modal.open({
         templateUrl: 'eventDetailsModal.html',
         controller: 'modalController'
@@ -425,6 +431,26 @@ app.run(function($rootScope, $q, $http, $modal) {
     }
 
     return 'Unknown User';
+  }
+
+  $rootScope.getOwnRequest = function(requestId) {
+    for(var requestIndex=0; requestIndex<$rootScope.ownRequests.length; requestIndex++) {
+      if($rootScope.ownRequests[requestIndex]._id == requestId) {
+        return $rootScope.ownRequests[requestIndex];
+      }
+    }
+
+    return null;
+  }
+
+  $rootScope.getOtherRequest = function(requestId) {
+    for(var requestIndex=0; requestIndex<$rootScope.otherRequests.length; requestIndex++) {
+      if($rootScope.otherRequests[requestIndex]._id == requestId) {
+        return $rootScope.otherRequests[requestIndex];
+      }
+    }
+
+    return null;
   }
   
   //Initialization

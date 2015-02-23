@@ -144,6 +144,19 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
           }
         }
 
+        //If this event is tied to another user's request
+        if($rootScope.ownRequests.indexOf(eventDetails.requestID) != -1 || $rootScope.otherRequests.indexOf(eventDetails.requestID) != -1) {
+          $http.put('/request/edit/' + eventDetails._id, eventDetails).
+          success(function(data, status, headers, config) {
+            if($rootScope.ownRequests.indexOf(eventDetails.requestID) != -1) {
+              var requestData = $rootScope.getOwnRequest(eventDetails.requestID);
+              //$http.put
+            }
+          }).
+          error(function(data, status, headers, config) {
+            console.log('Could not edit event request: ' + eventDetails.requestID);
+          });
+        }
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs

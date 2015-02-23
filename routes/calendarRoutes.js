@@ -35,16 +35,15 @@ router.post('/', function(req, res, next) {
 
 // adding user to calendar modList and calendar to users' modLists
 router.put('/modList/add/:calId', function (req, res, next) {
-	var emailToIDArray = [];
 	User.find({email: req.body.modList}, function (err, users) {
 		if (err) next(err);
 
 		users.forEach(function (user) {
-			Calendar.update({_id: req.params.calId}, {$push: {modList: user}}, function (err, num, raw) {
+			Calendar.update({_id: req.params.calId}, {$push: {modList: user._id}}, function (err, num, raw) {
 				if (err) next(err);
 			});
 
-			User.update({_id: user}, {$push: {modCalId: req.params.calId}}, function (err, num, raw) {
+			User.update({_id: user._id}, {$push: {modCalId: req.params.calId}}, function (err, num, raw) {
 				if (err) next(err);
 			});
 		});
@@ -55,16 +54,15 @@ router.put('/modList/add/:calId', function (req, res, next) {
 
 // removes users from calendar modList and calendar from users' modLists
 router.put('/modList/remove/:calId', function (req, res, next) {
-	var emailToIDARray = [];
 	User.find({email: req.body.modList}, function (err, users) {
 		if (err) next(err);
 
 		users.forEach(function (user) {
-			Calendar.update({_id: req.params.calId}, {$pull: {modList: user}}, function(err, num, raw) {
+			Calendar.update({_id: req.params.calId}, {$pull: {modList: user._id}}, function(err, num, raw) {
 				if (err) next(err);
 			});
 
-			User.update({_id: user}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
+			User.update({_id: user._id}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
 				if(err) next(err);
 			});
 		});

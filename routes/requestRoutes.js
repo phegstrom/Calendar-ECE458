@@ -78,7 +78,8 @@ router.put('/accept/:requestId', function (req, res, next) {
 				copyEvent.parentID = currEvent[0]._id;
 
 				// do we need to copy alerts?
-				copyEvent.alerts = currEvent[0].alerts;
+				//copyEvent.alerts = currEvent[0].alerts;
+				copyEvent.requestID = currEvent[0].request._id;
 				copyEvent.repeats = currEvent[0].repeats;
 				copyEvent.creator = currEvent[0].creator;
 
@@ -116,6 +117,8 @@ router.put('/deny/:requestId', function (req, res, next) {
 		tempStatus[req.session.user._id] = {status: "denied"};
 		request.usersStatus = tempStatus;
 		request.save();
+
+		res.send(request);
 	});
 });
 
@@ -128,6 +131,8 @@ router.put('/remove/:requestId', function (req, res, next) {
 		tempStatus[req.session.user._id] = {status: "removed"};
 		request.usersStatus = tempStatus;
 		request.save();
+
+		res.sent(request);
 	});
 });
 
@@ -140,7 +145,9 @@ router.put('/edit/:eventId', function (req, res, next) {
 	prom.addBack(function (err, event) {
 		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
 			if (err) next(err);
-			res.send('Edit sent');
+			Request.findOne({_id: req.body.requestID}, function(err, request) {
+				res.send(request);
+			});
 		});
 	});
 

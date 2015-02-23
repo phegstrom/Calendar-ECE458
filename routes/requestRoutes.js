@@ -140,8 +140,8 @@ router.put('/remove/:requestId', function (req, res, next) {
 router.put('/edit/:eventId', function (req, res, next) {
 	var prom = Event.findOne({_id: req.params.eventId}).exec();
 	// for POSTman
-	req.body['editor'] = 'parker.hegstrom@gmail.com';
-	//req.body['editor'] = req.session.user.email; // adds editor email to edit body
+	//req.body['editor'] = 'parker.hegstrom@gmail.com';
+	req.body['editor'] = req.session.user.email; // adds editor email to edit body
 	prom.addBack(function (err, event) {
 		Request.update({_id: event.requestID}, {$push: {edits: req.body}}, function (err, num, raw) {
 			if (err) next(err);

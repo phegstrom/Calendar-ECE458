@@ -5,14 +5,10 @@ var collectionName = 'pudC';
 
 var PUDSchema = new Schema({
 	description: String,
+	myDate: {type: Date, default: Date.now},
 	// length of time in milliseconds
 	time: {type: Number, get: toHours, set: toMilli},
-	repeats: [{
-		frequency: {type: Number, default: null},
-		endDate: {type: Date, default: null},
-		days: [{type: Date}]
-	}],
-	repeatInterval: Date
+	repeatInterval: Number
 }, {collection: collectionName});
 
 function toHours(n) {

@@ -119,7 +119,7 @@ block content
                 | Users 
                 ul(style='list-style-type: none; padding-left: 10px;')
                   li(ng-repeat="user in rule.assocUsers")
-                    {{ user.name }}
+                    {{ user.email }}
             b Users with Modify 
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="modUser in selectedCalendar.modList")
@@ -152,11 +152,11 @@ block content
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
             hr
             form(name="addModUserForm")
-              input(type="text", ng-model="inputModUserId", list="emails")
+              input(type="text", ng-model="inputModUserEmail", list="emails")
               &nbsp;
               button.btn(ng-click="addModUsertoList()") Add User with Modify
               ul
-                li(ng-repeat="modUserId in modUserList") {{ modUserId }}
+                li(ng-repeat="modUserEmail in modUserList") {{ modUserEmail }}
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
             br
 

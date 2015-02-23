@@ -35,33 +35,47 @@ router.post('/', function(req, res, next) {
 
 // adding user to calendar modList and calendar to users' modLists
 router.put('/modList/add/:calId', function (req, res, next) {
-	for(var i = 0; i < req.body.modList.length; i++) {
-		Calendar.update({_id: req.params.calId}, {$push: {modList: req.body.modList[i]}}, function(err, num, raw) {
-			if (err) next(err);
+	User.find({email: req.body.modList}, function (err, users) {
+		if (err) next(err);
+
+		users.forEach(function (user) {
+			Calendar.update({_id: req.params.calId}, {$push: {modList: user._id}}, function (err, num, raw) {
+				if (err) next(err);
+			});
+
+			User.update({_id: user._id}, {$push: {modCalId: req.params.calId}}, function (err, num, raw) {
+				if (err) next(err);
+			});
 		});
 
-
-		User.update({_id: req.body.modList[i]}, {$push: {modCalId: req.params.calId}}, function (err, num, raw) {
-			if(err) next(err);
+		Calendar.findOne({_id: req.params.calId}, function (err, cal) {
+			res.send(cal.modList);
 		});
-	}
+	});
 
-	res.send("Users added to modList");
+	// res.send("Users added to modList");
 });
 
 // removes users from calendar modList and calendar from users' modLists
 router.put('/modList/remove/:calId', function (req, res, next) {
-	for(var i = 0; i < req.body.modList.length; i++) {
-		Calendar.update({_id: req.params.calId}, {$pull: {modList: req.body.modList[i]}}, function(err, num, raw) {
-			if (err) next(err);
+	User.find({email: req.body.modList}, function (err, users) {
+		if (err) next(err);
+
+		users.forEach(function (user) {
+			Calendar.update({_id: req.params.calId}, {$pull: {modList: user._id}}, function(err, num, raw) {
+				if (err) next(err);
+			});
+
+			User.update({_id: user._id}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
+				if(err) next(err);
+			});
 		});
 
-		User.update({_id: req.body.modList[i]}, {$pull: {modCalId: req.params.calId}}, function (err, num, raw) {
-			if(err) next(err);
+		Calendar.findOne({_id: req.params.calId}, function (err, cal) {
+			res.send(cal.modList);
 		});
-	}
+	});
 
-	res.send("Users removed from modList");
 });
 
 // get one Calendar based on its calId

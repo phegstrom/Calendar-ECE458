@@ -79,7 +79,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 
 				// do we need to copy alerts?
 				//copyEvent.alerts = currEvent[0].alerts;
-				copyEvent.requestID = currEvent[0].request._id;
+				copyEvent.requestID = currEvent[0].requestID;
 				copyEvent.repeats = currEvent[0].repeats;
 				copyEvent.creator = currEvent[0].creator;
 
@@ -159,7 +159,7 @@ router.put('/denyEdit/:requestId', function (req, res, next) {
 	Request.findOne({_id: req.params.requestId}, function (err, myReq) {
 		myReq.edits.splice(index, 1);
 		myReq.save(function (err, saved) {
-			res.send('Edit denied');
+			res.send(myReq);
 		});
 	});	
 });
@@ -199,7 +199,7 @@ router.put('/approveEdit/:requestId', function (req, res, next) {
 		 		myReq.changeUsersStatus('pending', function (updatedReq) {
 		 			console.log("UPDATED REQUEST");
 		 			console.log(updatedReq);
-		 			res.send("approved the edit!");
+		 			res.send(myReq);
 		 		});
 
 		 	});

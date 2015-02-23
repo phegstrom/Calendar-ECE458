@@ -11,6 +11,11 @@ router.post('/createPUD', function (req, res, next) {
 
 	newPUD.description = req.body.description;
 	newPUD.time = req.body.time;
+	// newPUD.myDate = Date.now();
+	myD = new Date();
+	myD.setMinutes(myD.getMinutes() + 50);
+	newPUD.myDate = myD;
+	newPUD.repeatInterval = req.body.interval;
 
 	// for POSTman
 	var uid = req.session.user._id;
@@ -26,18 +31,20 @@ router.post('/createPUD', function (req, res, next) {
 	});
 });
 
-// Returns list of PUDS associated with user
+// Returns list of PUDS associated with user that aren't in future
 router.get('/', function (req, res, next) {
 
 	var uid = req.session.user._id;
 	// var uid = '54d25e88f98e0e3cf81bc051';
 
-	User.findOne({_id: uid})
-		.populate('PUDs')
-		.exec(function (err, user) {
+	User.findOne({_id: uid}).exec(function (err, user) {
 			if(err) next(err);
 
-			res.send(user.PUDs);
+			PUD.find({_id: {$in: user.PUDs}, myDate: {$lt: Date.now()}}).exec(function (err, puds){
+				if (err) next(err);
+				res.send(puds);
+			});
+			
 		});
 });
 
@@ -101,7 +108,38 @@ router.put('/reorder', function (req, res, next) {
 	});
 });
 
-// deletes a PUD
+// completes a PUD , might remove depending if there is repeat set
+router.post('/:pudId', function (req, res, next) {
+
+	var uid = req.session.user._id;
+	// var uid = '54d25e88f98e0e3cf81bc051';
+
+
+
+	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
+		if (pud.myInterval != 0) {
+			var currDate = pud.myDate;
+			console.log("previous date: " + currDate);
+			currDate.setDate(pud.myDate.getDate() + pud.myInterval);
+			console.log("new date: " + currDate);
+			pud.save(function (err, saved) {
+				if (err) next(err);
+				res.send(saved);
+			})
+		} else {
+			User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
+				pud.remove();
+				res.send('PUD Removed');
+			});
+		}
+		
+	});
+
+
+});
+
+
+// deletes a PUD from a users list
 router.delete('/:pudId', function (req, res, next) {
 
 	var uid = req.session.user._id;
@@ -110,9 +148,10 @@ router.delete('/:pudId', function (req, res, next) {
 	User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
 		// do logic here to create new PUD if there is a repeat
 
-		PUD.findOneAndRemove({_id: req.params.pudId}, function (errT, numT) {
-			res.send("PUD removed");
+		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, num) {
+			res.send('PUD Destroyed');
 		});
+
 	});
 });
 

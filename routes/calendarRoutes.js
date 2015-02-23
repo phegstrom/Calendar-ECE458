@@ -70,9 +70,12 @@ router.put('/modList/remove/:calId', function (req, res, next) {
 				if(err) next(err);
 			});
 		});
+
+		Calendar.findOne({_id: req.params.calId}, function (err, cal) {
+			res.send(cal.modList);
+		});
 	});
 
-	res.send("Users removed from modList");
 });
 
 // get one Calendar based on its calId

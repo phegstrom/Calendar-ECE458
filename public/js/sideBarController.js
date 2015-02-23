@@ -35,7 +35,6 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     $scope.selector = 5;
 
     $scope.selectedCalendar = calendar;
-    console.log(calendar);
   }
 
   $scope.displayCalendars = function() {
@@ -279,10 +278,8 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   $scope.acceptRequest = function(request, requestCalendar) {
     var calendarSelection = requestCalendar;
 
-    console.log(calendarSelection._id);
-
     var calendarID = {
-        CalendarId: calendarSelection._id
+        calendarId: calendarSelection._id
       };
 
     $http.put('/request/accept/'+ request._id, calendarID).

@@ -89,13 +89,14 @@ router.put('/accept/:requestId', function (req, res, next) {
 
 					var tempStatus = request.usersStatus;
 					request.usersStatus = null;
+					console.log(cal);
 					tempStatus[req.session.user._id] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
 					// tempStatus["54e2de1d9e41c46cfe113125"] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
 
 					request.usersStatus = tempStatus;
 					request.save();
 
-					res.send("SUCCESS");
+					res.send(request);
 				});
 			});		
 		});

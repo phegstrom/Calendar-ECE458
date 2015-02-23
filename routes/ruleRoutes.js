@@ -67,7 +67,12 @@ router.post('/:calendId', function (req, res, next) {
 										  req.params.calendId);					
 			 }
 
-			res.send(saved); // returns the rule that was created
+			Rule.findOne({_id: saved._id})
+				.populate('assocUsers assocUserGroups')
+				.exec(function (err, pops) {
+					res.send(pops);
+				})
+
 		});
 
 	});	

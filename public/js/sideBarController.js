@@ -211,7 +211,6 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   }
 
   $scope.addUserGroupToRule = function() {
-    console.log($scope.userGroup);
     var newGroupId = angular.copy($scope.userGroup._id);
     if($scope.newRule.userGroupIds) {
       $scope.userGroupDisplay.push($scope.userGroup.name);
@@ -231,12 +230,13 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);
-    console.log($scope.selectedCalendar._id);
+    console.log($scope.selectedCalendar);
 
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
+      $scope.newRule._id = angular.fromJson(data)._id;
       $scope.displayOwnerCalendar($scope.selectedCalendar);
-      //$scope.selectedCalendar.rules.push(angular.copy($scope.newRule));
+      $scope.selectedCalendar.rules.push(angular.copy($scope.newRule));
       $scope.newRule = {};
     }).
     error(function(data, status, headers, config) {
@@ -245,8 +245,18 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   }
 
   $scope.deleteRule = function(ruleId) {
+    console.log(ruleId);
+    console.log($scope.selectedCalendar);
     $http.delete('/rule/'+ ruleId + '/' + $scope.selectedCalendar._id).
     success(function(data, status, headers, config) {
+
+      for(var deleteRuleIndex = 0; deleteRuleIndex < $scope.selectedCalendar.rules.length; deleteRuleIndex++) {
+        if($scope.selectedCalendar.rules[deleteRuleIndex]._id == ruleId) {
+          $scope.selectedCalendar.rules.splice(deleteRuleIndex, 1);
+          break;
+        }
+      }
+
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {

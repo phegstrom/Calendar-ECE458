@@ -111,10 +111,11 @@ block content
                 {{ rule.ruleType + " " }}
                 a(href, ng-click="deleteRule(rule._id)")
                   span(class="glyphicon glyphicon-remove")
+                br
                 | Groups 
                 ul(style='list-style-type: none; padding-left: 10px;')
-                  li(ng-repeat="groupId in rule.assocUserGroups")
-                    {{ groupId }}
+                  li(ng-repeat="group in rule.assocUserGroups")
+                    {{ group.name }}
                 | Users 
                 ul(style='list-style-type: none; padding-left: 10px;')
                   li(ng-repeat="userId in rule.assocUsers")
@@ -125,10 +126,10 @@ block content
                 {{ getUserEmail(modUser) + " " }}
                 a(href, ng-click="removeModUser(modUser._id)")
                   span(class="glyphicon glyphicon-remove")
-            br
+            hr
             form(name="addRuleForm")
               label Rule Type
-              br
+              &nbsp;
               select(ng-model="newRule.ruleType")
                 option(value="canView") Can View
                 option(value="canViewBusy") Can View Busy
@@ -149,7 +150,7 @@ block content
               ul(style='list-style-type: none; padding-left: 10px;')
                 li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
-              br
+            hr
             form(name="addModUserForm")
               input(type="text", ng-model="inputModUserId", list="emails")
               &nbsp;
@@ -157,6 +158,7 @@ block content
               ul
                 li(ng-repeat="modUserId in modUserList") {{ modUserId }}
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
+            br
 
           #calendarEvents(ng-show="selector == 4")
             ul(style="padding-left: 0", ng-repeat="(key, value) in localEvents | groupBy: 'parentData.calendarId'")
@@ -232,7 +234,10 @@ block content
            li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
              a(href ng-click="removeAlert(time)")
               span(class="glyphicon glyphicon-remove")
-          
+          label For PUD?
+          &nbsp;
+          input(type="checkbox", ng-model="eventDetails.isPUD")
+          br
           label Repeat? &nbsp;
           input(type="checkbox", ng-model="eventDetails.willRepeat")
           br
@@ -256,9 +261,6 @@ block content
             div(ng-repeat="day in daysOfTheWeek")
               label {{ day.name }} &nbsp;
               input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
-          label For PUD?
-          br
-          input(type="checkbox", ng-model="eventDetails.isPUD")
           br
           label Containing Calendar
           br

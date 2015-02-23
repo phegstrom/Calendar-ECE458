@@ -272,7 +272,6 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
   //Request display
   $scope.displayInvites = function() {
-    console.log($rootScope.otherRequests)
     $scope.selector = 6;
   }
   $scope.acceptRequest = function(request, requestCalendar) {
@@ -285,9 +284,12 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     $http.put('/request/accept/'+ request._id, calendarID).
     success(function(data, status, headers, config) {
       var returnedRequest = angular.fromJson(data);
-      var dBEvent =returnedRequest.eventID;
+      returnedRequest.eventID = request.eventID;
+      var dBEvent = returnedRequest.eventID;
       //Currently only allows adding to Owned Calendars
       $rootScope.setEventData(calendarSelection, "success", true, true, dBEvent);
+
+      console.log(dBEvent);
 
       var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
 

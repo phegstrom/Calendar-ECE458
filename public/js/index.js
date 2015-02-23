@@ -26,11 +26,17 @@ app.run(function($rootScope, $q, $http, $modal) {
   }
 
   $rootScope.getCurrentUserID = function() {
-    $rootScope.currentUserID = undefined;
 
-    $http.get().
+    $http.get('/user').
     success(function(data, status, headers, config) {
-      $rootScope.currentUserID = angular.fromJson(data);
+      $rootScope.currentUserID = data;
+      $http.get('/user/email/' + data).
+      success(function(data, status, headers, config) {
+        $rootScope.currentUserEmail = data;
+      }).
+      error(function(data, status, headers, config) {
+        console.log('Could not get current user\'s email');
+      })
     }).
     error(function(data, status, headers, config) {
       console.log('Could not get current user\'s ID');
@@ -51,14 +57,14 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $http.get('/request/getIncoming').
     success(function(data, status, headers, config) {
-      $rootScope.otherRequests = angular.fromJson(data);
-      /*var incomingRequests = angular.fromJson(data);
+      var incomingRequests = angular.fromJson(data);
 
       for(var requestIndex=0; requestIndex < incomingRequests.length; requestIndex++) {
-        if(incomingRequests[requestIndex].) {
-          dsf
+        console.log(incomingRequests[requestIndex]);
+        if(incomingRequests[requestIndex].usersStatus[$rootScope.currentUserID].status == 'pending') {
+          $rootScope.otherRequests.push(incomingRequests[requestIndex]);
         }
-      }*/
+      }
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve list of incoming event requests.');
@@ -422,6 +428,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   }
   
   //Initialization
+  $rootScope.getCurrentUserID();
   $rootScope.getCalendarData();
   $rootScope.getAllUsers();
   $rootScope.getRequests();

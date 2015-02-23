@@ -83,20 +83,24 @@ router.put('/accept/:requestId', function (req, res, next) {
 				copyEvent.creator = currEvent[0].creator;
 
 				console.log("copyEvent:    " + copyEvent);
-				var cpyID = copyEvent._id;
 				copyEvent.save(function (err) {
 					// go into request object and edit usersStatus
 					// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
 
 					var tempStatus = request.usersStatus;
 					request.usersStatus = null;
-					tempStatus[req.session.user._id] = {status: "accepted", calId: cal._id, copyEventId: cpyID};
+					tempStatus[req.session.user._id] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
 					// tempStatus["54e2de1d9e41c46cfe113125"] = {status: "accepted", calId: cal._id, copyEventId: copyEvent._id};
 
 					request.usersStatus = tempStatus;
 					request.save();
 
 					res.send(request);
+				});
+
+				Calendar.update({_id: cal._id}, {$push: {events: copyEvent._id}}, function(err, num, raw) {
+					if (err)
+						next (err);
 				});
 			});		
 		});

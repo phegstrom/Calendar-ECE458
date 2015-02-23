@@ -5,14 +5,12 @@ var Calendar	= require('../models/Calendar');
 var Alert		= require('../models/Alert');
 var Repeat		= require('../models/Repeat');
 var Request		= require('../models/Request');
+var PUD			= require('../models/PUD');
 var router 		= express.Router();
 
 // post new Event
 router.post('/', function(req, res, next) {
 	var newEvent = new Event();
-
-	console.log("TEST REQ BODY");
-	console.log(req.body);
 
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
@@ -23,7 +21,13 @@ router.post('/', function(req, res, next) {
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
+
 	newEvent.repeats = req.body.repeats;
+
+	if (req.body.eType == undefined) 
+		newEvent.evType = 'regular';
+	else 
+		newEvent.evType = req.body.eType;
 
 	console.log("EVENT CREATED");
 	console.log(newEvent);
@@ -79,6 +83,39 @@ function createAlertSchemas(objArray, ev, req) {
  	return toRet;
 }
 
+router.get('/pud/:eventId', function (req, res, next) {
+
+	var pid = req.params.eventId;
+	console.log("BEFORE");
+
+	Event.findOne({_id: pid}).exec(function (err, ev) {
+		if (err) next(err);
+
+		req.count = 0; // so wouldn't run twice!!
+		ev.getPUD(function (pud) {
+
+
+			var nullString = "Not sufficient amount of time to complete any of your PUD's";
+			//console.log(pud.description);
+			console.log("PRINT");
+
+
+			if (pud != null) {
+				req.count++; 
+				var time = pud.time;
+				var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
+				res.send(pudString);
+			} 
+			else if (req.count == 0) {
+				res.send(nullString);
+			}
+
+		});
+
+	});
+
+});
+
 // edit Event
 router.put('/:eventId', function(req, res, next) {
 	//get event from req.body
@@ -89,12 +126,18 @@ router.put('/:eventId', function(req, res, next) {
 
 	console.log(req.body);
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
+
 	 	ev.name = req.body.name;
 	 	ev.description = req.body.description;
 	 	ev.location = req.body.location;
 	 	ev.start = req.body.start;
 	 	ev.end = req.body.end;
 	 	ev.calendar = req.body.calendar;
+
+	 	if (req.body.eType == undefined) 
+			newEvent.evType = 'regular';
+		else 
+			newEvent.evType = req.body.eType;
 
  		if(req.body.alerts == undefined)
  			ev.alerts = new Alert();
@@ -109,8 +152,6 @@ router.put('/:eventId', function(req, res, next) {
 	 			});
 	 		});
 	 	}
-	 	// ev.creator = req.session.user._id;
-	 	//ev.creator = req.body.creator;
 
 	 	ev.save();
 
@@ -140,8 +181,6 @@ router.delete('/:eventId', function(req, res, next) {
 		});
 
 	});
-
-	// Event.findByIdAndRemove({_id: req.params.eventId});
 
 	res.send("HELLO");
 });

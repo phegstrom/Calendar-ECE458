@@ -35,7 +35,6 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     $scope.selector = 5;
 
     $scope.selectedCalendar = calendar;
-    console.log(calendar);
   }
 
   $scope.displayCalendars = function() {
@@ -232,14 +231,16 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);
+    console.log($scope.selectedCalendar._id);
 
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
       $scope.displayOwnerCalendar($scope.selectedCalendar);
+      //$scope.selectedCalendar.rules.push(angular.copy($scope.newRule));
       $scope.newRule = {};
     }).
     error(function(data, status, headers, config) {
-      $scope.text = 'Failed to create rule.';
+      console.log('Failed to create rule.');
     });
   }
 
@@ -249,7 +250,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
-      $scope.text = 'Failed to delete rule.';
+      console.log('Failed to delete rule.');
     });
   }
 
@@ -271,20 +272,24 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
   //Request display
   $scope.displayInvites = function() {
-    console.log($rootScope.otherRequests)
     $scope.selector = 6;
   }
   $scope.acceptRequest = function(request, requestCalendar) {
     var calendarSelection = requestCalendar;
 
-    console.log(calendarSelection._id);
+    var calendarID = {
+        calendarId: calendarSelection._id
+      };
 
-    $http.put('/request/accept/'+ request._id, calendarSelection._id).
+    $http.put('/request/accept/'+ request._id, calendarID).
     success(function(data, status, headers, config) {
       var returnedRequest = angular.fromJson(data);
-      var dBEvent =returnedRequest.eventID;
+      returnedRequest.eventID = request.eventID;
+      var dBEvent = returnedRequest.eventID;
       //Currently only allows adding to Owned Calendars
       $rootScope.setEventData(calendarSelection, "success", true, true, dBEvent);
+
+      console.log(dBEvent);
 
       var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
 
@@ -309,6 +314,10 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to accept invite.';
+      console.log(data);
+      console.log(status);
+      console.log(headers);
+      console.log(config);
     });
   }
 

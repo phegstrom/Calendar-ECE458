@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     passportLocalMongoose = require('passport-local-mongoose');
     collectionName = "usersC";
+    PUD = require('./PUD');
 
 var deepPopulate = require('mongoose-deep-populate');
 
@@ -15,6 +16,7 @@ var UserSchema = new Schema({
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
 	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
 	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
+	PUDs: [{type: Schema.Types.ObjectId, ref: 'PUD'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 
@@ -27,6 +29,21 @@ UserSchema.plugin(deepPopulate);
 // returns a promise that will give access to array of ids
 UserSchema.statics.convertToIds = function (emails) {
 	return this.find({email: {$in: emails}}, '_id').exec();
+};
+
+// called from Event Schema, returns in cb highest priority PUD
+UserSchema.methods.getBestPUD = function (alottedTime, cb) {
+
+	PUD.find({_id: {$in: this.PUDs}}).exec(function (err, puds) {
+		if (err) next(err);
+		for (var i = 0; i < puds.length; i++) {
+			if (puds[i].time <= alottedTime) {
+				cb(puds[i]);
+			}
+		}
+		cb(null);
+	});
+
 };
 
 module.exports = mongoose.model('User', UserSchema);

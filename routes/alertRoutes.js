@@ -14,6 +14,21 @@ var transporter = nodemailer.createTransport({
     }
 });
 
+
+// router.get('/myTest', function(req, res, next) {
+// 	var d0 = new Date();
+// 	var d1 = new Date();
+// 	d1.setMinutes(d1.getMinutes() + 5);
+// 	d0ms = d0.getTime();
+// 	d1ms = d1.getTime();
+// 	console.log(d0ms);
+// 	console.log(d1ms);
+// 	var diff = d1ms - d0ms;
+// 	console.log(diff);
+// 	diff = diff / 1000 / 60 / 60;
+// 	res.send(200, diff);
+// });
+
 setInterval(intervalFunction, 1000 * 60);
 
 // send mail with defined transport object

@@ -69,6 +69,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 					copyEvent = currEvent[1];			
 
 				copyEvent.name = currEvent[0].name;
+				copyEvent.evType = currEvent[0].evType;
 				copyEvent.description = currEvent[0].description;
 				copyEvent.location = currEvent[0].location;
 				copyEvent.start = currEvent[0].start;
@@ -94,7 +95,12 @@ router.put('/accept/:requestId', function (req, res, next) {
 					request.usersStatus = tempStatus;
 					request.save();
 
-					res.send("SUCCESS");
+					res.send(request);
+				});
+
+				Calendar.update({_id: cal._id}, {$push: {events: copyEvent._id}}, function(err, num, raw) {
+					if (err)
+						next (err);
 				});
 			});		
 		});

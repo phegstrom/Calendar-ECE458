@@ -37,6 +37,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   $scope.deleteSelectedEvent = function() {
     var selectedEventId = $rootScope.selectedEvent._id;
+    var eventRequestId = undefined;
 
     $http.delete('/event/'+$rootScope.selectedEvent._id).
     success(function(data, status, headers, config) {
@@ -55,6 +56,15 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         if(calendarEventList[i]._id == selectedEventId) {
           calendarEventList.splice(calEventIndex, 1);
           break;
+        }
+      }
+
+      if(eventRequest != undefined) {
+        for(var requestIndex=0; requestIndex < $rootScope.ownRequests.length; requestIndex++) {
+          if(eventRequest._id == $rootScope.ownRequests[requestIndex]._id) {
+            $rootScope.ownRequests.splice(requestIndex, 1);
+            break;
+          }
         }
       }
     }).
@@ -106,6 +116,13 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       }
 
       eventDetails.repeats = [repeats];
+    }
+
+    if(eventDetails.isPUD) {
+      eventDetails.evType='pud';
+    }
+    else {
+      eventDetails.evType='regular';
     }
 
     var request = {};
@@ -181,7 +198,9 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.addAlert = function() {
-    var newAlert = new Date($rootScope.alertTime);
+    var newAlert = new Date($scope.alertTime);
+    console.log(newAlert);
+    console.log($scope.alertTime);
     if($rootScope.eventDetails.alerts) {
       $rootScope.eventDetails.alerts.push(newAlert);
     }
@@ -271,6 +290,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.convertDates = function(startDate, endDate) {
+    startDate = new Date(startDate);
+    endDate = new Date(endDate);
     if (startDate.toDateString() == endDate.toDateString()) {
       var displayDate = startDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric'});
       var startTime = startDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});

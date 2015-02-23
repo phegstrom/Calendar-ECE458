@@ -24,6 +24,7 @@ var userRoutes = require('./routes/userRoutes');
 var usergroupRoutes = require('./routes/usergroupRoutes');
 var alertRoutes = require('./routes/alertRoutes');
 var requestRoutes = require('./routes/requestRoutes');
+var PUDRoutes = require('./routes/PUDRoutes');
 
 var app = express();
 
@@ -111,6 +112,7 @@ app.use(function(req, res, next) {
   }
 });
 
+// load in middleware
 app.use('/', loginRoutes);
 app.use('/calendar', requireLogin, calendarRoutes);
 app.use('/event', requireLogin, eventRoutes);
@@ -119,6 +121,7 @@ app.use('/user', requireLogin, userRoutes);
 app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
 app.use('/request', requestRoutes);
+app.use('/pud', PUDRoutes);
 
 function requireLogin (req, res, next) {
   if (!req.user) {
@@ -127,19 +130,6 @@ function requireLogin (req, res, next) {
     next();
   }
 };
-
-
-// var User = require('./models/User');
-// setInterval(intervalFunction, 1000 * 5);
-
-// function intervalFunction() {
-//   User.findOne({email: 'aaa'})
-//       .exec(function (err, user) {
-//           console.log("Just pinged: " + user.name);
-//       });
-// } 
-
-
  
 
 // catch 404 and forward to error handler

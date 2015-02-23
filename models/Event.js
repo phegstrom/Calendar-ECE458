@@ -1,11 +1,14 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var collectionName = 'eventsC';
+var states = 'regular pud'.split(' ');
+var User = require('./User');
 
 // Date is a javascript Date object which you can query
 // specific parts of it easily. just google javascript date object
 var EventSchema = new Schema({
 	name: String,
+	evType: {type: String, enum: states, default: states[1]}, 
 	description: String,
 	location: String,
 	start: {type: Date},
@@ -38,5 +41,29 @@ var EventSchema = new Schema({
 }, {
 	collection: collectionName
 });
+
+
+// returns PUD in the cb(pud)
+EventSchema.methods.getPUD = function (cb) {
+
+	var alottedTime = (this.end.getTime() - this.start.getTime());
+	alottedTime = alottedTime / 3600000;
+	if (this.evType == 'pud') {
+
+		User.findOne({_id: this.creator}, function (err, user) {
+			if (err) next(err);
+			user.getBestPUD(alottedTime, function (pud) {
+				// if (pud == null) {
+				// 	cb(null);	
+				// }
+				// console.log(pud);
+				cb(pud);
+			});
+		});
+	}
+	// else  
+	// 	cb(null);
+};
+
 
 module.exports = mongoose.model('Event', EventSchema);

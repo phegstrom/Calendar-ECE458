@@ -234,6 +234,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
+      $scope.newRule._id = angular.fromJson(data)._id;
       $scope.displayOwnerCalendar($scope.selectedCalendar);
       $scope.selectedCalendar.rules.push(angular.copy($scope.newRule));
       $scope.newRule = {};
@@ -251,7 +252,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
       for(var deleteRuleIndex = 0; deleteRuleIndex < $scope.selectedCalendar.rules.length; deleteRuleIndex++) {
         if($scope.selectedCalendar.rules[deleteRuleIndex]._id == ruleId) {
-          $scope.selectedCalendar.splice(deleteRuleIndex, 1);
+          $scope.selectedCalendar.rules.splice(deleteRuleIndex, 1);
           break;
         }
       }

@@ -37,6 +37,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   $scope.deleteSelectedEvent = function() {
     var selectedEventId = $rootScope.selectedEvent._id;
+    var eventRequestId = undefined;
 
     $http.delete('/event/'+$rootScope.selectedEvent._id).
     success(function(data, status, headers, config) {
@@ -55,6 +56,15 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         if(calendarEventList[i]._id == selectedEventId) {
           calendarEventList.splice(calEventIndex, 1);
           break;
+        }
+      }
+
+      if(eventRequest != undefined) {
+        for(var requestIndex=0; requestIndex < $rootScope.ownRequests.length; requestIndex++) {
+          if(eventRequest._id == $rootScope.ownRequests[requestIndex]._id) {
+            $rootScope.ownRequests.splice(requestIndex, 1);
+            break;
+          }
         }
       }
     }).

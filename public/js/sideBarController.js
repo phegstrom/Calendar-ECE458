@@ -281,7 +281,11 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
     console.log(calendarSelection._id);
 
-    $http.put('/request/accept/'+ request._id, calendarSelection._id).
+    var calendarID = {
+        CalendarId: calendarSelection._id
+      };
+
+    $http.put('/request/accept/'+ request._id, calendarID).
     success(function(data, status, headers, config) {
       var returnedRequest = angular.fromJson(data);
       var dBEvent =returnedRequest.eventID;
@@ -311,6 +315,10 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to accept invite.';
+      console.log(data);
+      console.log(status);
+      console.log(headers);
+      console.log(config);
     });
   }
 

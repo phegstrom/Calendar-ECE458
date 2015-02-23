@@ -413,4 +413,5 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.getCalendarData();
   $rootScope.getAllUsers();
   $rootScope.getRequests();
+  console.log($rootScope.events);
 });

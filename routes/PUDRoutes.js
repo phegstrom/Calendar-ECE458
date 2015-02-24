@@ -13,7 +13,6 @@ router.post('/createPUD', function (req, res, next) {
 	newPUD.time = req.body.time;
 	// newPUD.myDate = Date.now();
 	myD = new Date();
-	console.log(myD);
 	newPUD.myDate = myD;
 	newPUD.repeatInterval = req.body.interval;
 
@@ -26,7 +25,10 @@ router.post('/createPUD', function (req, res, next) {
 		User.findOneAndUpdate({_id: uid}, {$push: {PUDs: saved._id}}, 
 				function(err, numAffected) {
 					if (err) next(err);
-					res.send(saved);
+					var toRet = saved.toJSON();
+					toRet.time = saved.time;
+					console.log(toRet);
+					res.send(toRet);
 		});
 	});
 });
@@ -44,11 +46,28 @@ router.get('/', function (req, res, next) {
 
 			PUD.find({_id: {$in: user.PUDs}, myDate: {$lt: Date.now()}}).exec(function (err, puds){
 				if (err) next(err);
-				res.send(puds);
+				var toRet = convertToHours(puds);
+				// for (var i = 0; i < puds.length; i++) {
+				// 	var obj = puds[i].toJSON();
+				// 	obj.time = puds[i].time;
+				// 	toRet.push(obj);
+				// }
+				res.send(toRet);
 			});
 			
 		});
 });
+
+// returns an array of pud objects, but with time property converted
+function convertToHours(puds) {
+	var toRet = [];
+	for (var i = 0; i < puds.length; i++) {
+		var obj = puds[i].toJSON();
+		obj.time = puds[i].time;
+		toRet.push(obj);
+	}
+	return toRet;
+}
 
 // Returns list of PUDS associated with user that aren't in future
 router.get('/getAll', function (req, res, next) {
@@ -61,7 +80,8 @@ router.get('/getAll', function (req, res, next) {
 
 			PUD.find({_id: {$in: user.PUDs}}).exec(function (err, puds){
 				if (err) next(err);
-				res.send(puds);
+				var toRet = convertToHours(puds);
+				res.send(toRet);
 			});
 			
 		});

@@ -5,7 +5,7 @@ var collectionName = 'pudC';
 
 var PUDSchema = new Schema({
 	description: String,
-	myDate: {type: Date, default: Date.now},
+	myDate: {type: Date},
 	// length of time in milliseconds
 	time: {type: Number, get: toHours, set: toMilli},
 	repeatInterval: Number

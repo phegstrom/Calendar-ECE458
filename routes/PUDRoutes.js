@@ -13,7 +13,7 @@ router.post('/createPUD', function (req, res, next) {
 	newPUD.time = req.body.time;
 	// newPUD.myDate = Date.now();
 	myD = new Date();
-	myD.setMinutes(myD.getMinutes() + 50);
+	console.log(myD);
 	newPUD.myDate = myD;
 	newPUD.repeatInterval = req.body.interval;
 
@@ -31,6 +31,8 @@ router.post('/createPUD', function (req, res, next) {
 	});
 });
 
+
+
 // Returns list of PUDS associated with user that aren't in future
 router.get('/', function (req, res, next) {
 
@@ -41,6 +43,23 @@ router.get('/', function (req, res, next) {
 			if(err) next(err);
 
 			PUD.find({_id: {$in: user.PUDs}, myDate: {$lt: Date.now()}}).exec(function (err, puds){
+				if (err) next(err);
+				res.send(puds);
+			});
+			
+		});
+});
+
+// Returns list of PUDS associated with user that aren't in future
+router.get('/getAll', function (req, res, next) {
+
+	var uid = req.session.user._id;
+	// var uid = '54d25e88f98e0e3cf81bc051';
+
+	User.findOne({_id: uid}).exec(function (err, user) {
+			if(err) next(err);
+
+			PUD.find({_id: {$in: user.PUDs}}).exec(function (err, puds){
 				if (err) next(err);
 				res.send(puds);
 			});
@@ -100,11 +119,15 @@ router.put('/:pudId', function (req, res, next) {
 
 // handles reordering of priorities
 router.put('/reorder', function (req, res, next) {
+	console.log("here");
+	console.log(req.body.PUDs);
+
+	
 	User.findById(req.session.user._id, function (err, user) {
 		user.PUDs = req.body.PUDs;
 		user.save(function (err, saved) {
 			res.send(saved);
-		})
+		});
 	});
 });
 
@@ -117,7 +140,8 @@ router.post('/:pudId', function (req, res, next) {
 
 
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
-		if (pud.myInterval != 0) {
+		console.log("interval: " + pud.myInterval);
+		if (pud.myInterval != null) {
 			var currDate = pud.myDate;
 			console.log("previous date: " + currDate);
 			currDate.setDate(pud.myDate.getDate() + pud.myInterval);
@@ -149,6 +173,7 @@ router.delete('/:pudId', function (req, res, next) {
 		// do logic here to create new PUD if there is a repeat
 
 		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, num) {
+			if (err) next(err);
 			res.send('PUD Destroyed');
 		});
 

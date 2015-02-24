@@ -77,11 +77,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     $http.get('/pud').
     success(function(data, status, headers, config) {
       console.log(data);
-      var pudList = angular.fromJson(data);
-      for(var pudIndex=0; pudIndex < pudList.length; pudIndex++) {
-        pudList[pudIndex].time /= $rootScope.HOUR;
-        $rootScope.pudList.push(pudList[pudIndex]);
-      }
+      $rootScope.pudList = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve PUD list.');

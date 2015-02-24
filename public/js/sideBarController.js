@@ -311,7 +311,13 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
         swap(pudIds, oldPudIndex, oldPudIndex + movement);
 
-        $http.put('/pud/reorder/', pudIds).
+        var pudIdContainer = {
+          PUDs: pudIds
+        };
+
+        console.log(pudIdContainer);
+
+        $http.put('/pud/reorder/', pudIdContainer).
         success(function(data, status, headers, config) {
           swap($rootScope.pudList, oldPudIndex, oldPudIndex + movement);
         }).

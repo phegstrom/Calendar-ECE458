@@ -157,7 +157,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
 
     //Populate PUD value if it exists
-    if($rootScope.selectedRequest.evType == 'pud') {
+    if($rootScope.selectedEvent.evType == 'pud') {
       $http.get('/event/pud/' + $rootScope.selectedEvent._id).
       success(function(data, status, headers, config) {
         var resData = angular.fromJson(data);

@@ -289,11 +289,50 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     })
   }
 
+  $scope.movePud = function(pud, direction) {
+    var movement = 0;
+    if(direction == 'up'){
+      movement = -1;
+    }
+    else if(direction == 'down') {
+      movement = 1;
+    }
+
+    var oldPudIndex = $rootScope.pudList.indexOf(pud);
+
+    if(oldPudIndex != -1) {
+
+      if(oldPudIndex + movement >= 0 && oldPudIndex + movement < $rootScope.pudList.length) {
+        var pudIds = [];
+
+        for(var pudIndex=0; pudIndex < $rootScope.pudList.length; pudIndex++) {
+          pudIds.push($rootScope.pudList[pudIndex]._id);
+        }
+
+        swap(pudIds, oldPudIndex, oldPudIndex + movement);
+
+        $http.put('/pud/reorder/', pudIds).
+        success(function(data, status, headers, config) {
+          swap($rootScope.pudList, oldPudIndex, oldPudIndex + movement);
+        }).
+        error(function(data, status, headers, config) {
+          console.log('Failed to reorder PUDs');
+        });
+      }
+    }
+  }
+
   var removePud = function(pud) {
     var pudIndex = $rootScope.pudList.indexOf(pud);
     if(pudIndex != -1) {
       $rootScope.pudList.splice(pudIndex, 1);
     }
+  }
+
+  var swap = function(list, index1, index2) {
+    var temp = list[index1];
+    list[index1] = list[index2];
+    list[index2] = temp;
   }
 
   //User group display?

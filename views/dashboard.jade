@@ -170,6 +170,10 @@ block content
                   span.glyphicon.glyphicon-check
                 a(href, ng-click="deletePud(pud)")
                   span.glyphicon.glyphicon-remove
+                a(href, ng-click="movePud(pud, 'up')")
+                  span.glyphicon.glyphicon-arrow-up
+                a(href, ng-click="movePud(pud, 'down')")
+                  span.glyphicon.glyphicon-arrow-down
             br
             a.btn.btn-primary(href, ng-click="createPudEvent()") New Task
             br

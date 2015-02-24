@@ -70,9 +70,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }).
     error(function(data, status, headers, config) {
       console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
-    }).then(function(){
-      $rootScope.updateLocalEvents();
-    });
+    })
 
     $scope.cancel();
   }
@@ -202,8 +200,6 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     request.then(function() {
       $scope.eventForm.$setPristine();
       eventDetails = defaultForm;
-
-      $rootScope.updateLocalEvents();
     });
 
     $scope.cancel();
@@ -326,5 +322,47 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       var start = startDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit'})
       return start + ' - ' + end;
     }
+  }
+
+  //PUD Functions
+  $scope.sendPudData = function(pudDetails) {
+    pudDetails.time = parseInt(pudDetails.timeString);
+    if(pudDetails.willRepeat) {
+      pudDetails.interval = parseInt(pudDetails.intervalString);
+    }
+
+    var request = {};
+
+    if(pudDetails._id) {
+      request = $http.put('/pud/'+pudDetails._id, pudDetails).
+      success(function(data, status, headers, config) {
+        for(var pudIndex=0; pudIndex < $rootScope.pudList; pudIndex++) {
+          if($rootScope.pudList[pudIndex]._id == pudDetails._id) {
+            $rootScope.pudList[pudIndex].description = pudDetails.description;
+            $rootScope.pudList[pudIndex].time = pudDetails.time;
+            $rootScope.pudList[pudIndex].interval = pudDetails.interval;
+          }
+        }
+      }).
+      error(function(data, status, headers, config) {
+        console.log('Could not edit PUD.');
+      });
+    }
+    else {
+      request = $http.post('/pud/createPUD', pudDetails).
+      success(function(data, status, headers, config) {
+        $rootScope.pudList.push(angular.fromJson(data));
+      }).
+      error(function(data, status, headers, config) {
+        console.log('Could not create PUD.');
+      });
+    }
+
+    request.then(function() {
+      $scope.eventForm.$setPristine();
+      eventDetails = defaultForm;
+    });
+
+    $scope.cancel();
   }
 });

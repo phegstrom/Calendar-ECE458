@@ -264,11 +264,39 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     });
   }
 
-  //Event display
-  $scope.displayEvents = function() {
+  //PUD event display
+  $scope.displayPUDEvents = function() {
     $scope.selector = 4;
   }
 
+  $scope.completePud = function(pud) {
+    $http.post('/pud/' + pud._id).
+    success(function(data, status, headers, config) {
+      removePud(pud);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to complete PUD');
+    });
+  }
+
+  $scope.deletePud = function(pud) {
+    $http.delete('/pud/' + pud._id).
+    success(function(data, status, headers, config) {
+      removePud(pud);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to delete PUD');
+    })
+  }
+
+  var removePud = function(pud) {
+    var pudIndex = $rootScope.pudList.indexOf(pud);
+    if(pudIndex != -1) {
+      $rootScope.pudList.splice(pudIndex, 1);
+    }
+  }
+
+  //User group display?
   var populateUserGroups = function() {
     $http.get('/usergroup').
     success(function(data, status, headers, config) {
@@ -319,7 +347,6 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
           $rootScope.events.push(calEvent);
         }
       }
-      $rootScope.updateLocalEvents();
       removeRequest(request);
     }).
     error(function(data, status, headers, config) {
@@ -348,6 +375,23 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to ignore invite.';
+    });
+  }
+
+  $scope.respondToRequestEdit = function(request, event, route) {
+    var requestIndex = $rootScope.ownRequests.indexOf(request);
+    var eventIndex = request.edits.indexOf(event);
+
+    var editNum = {
+      editNum: eventIndex
+    };
+
+    $http.put('/request/' + route + 'Edit/' + request._id,editNum).
+    success(function(data, status, headers, config) {
+      $rootScope.ownRequests[requestIndex].edits.splice(eventIndex, 1);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to ' + route + ' request edit.');
     });
   }
 

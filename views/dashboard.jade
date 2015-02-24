@@ -33,7 +33,7 @@ block content
           .btn-group
             button.btn.btn-primary(ng-class="{active: selector == 0 || selector == 1}", ng-click="displayUserGroups()") Groups
             button.btn.btn-primary(ng-class="{active: selector == 2 || selector == 3 || selector == 5}", ng-click="displayCalendars()") Calendars
-            button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayEvents()") Events
+            button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayPUDEvents()") To-Do
             button.btn.btn-primary(ng-class="{active: selector == 6}", ng-click="displayInvites()") Invites
           #userGroupWindow(ng-show="selector == 0")
             br
@@ -160,11 +160,18 @@ block content
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
             br
 
-          #calendarEvents(ng-show="selector == 4")
-            ul(style="padding-left: 0", ng-repeat="(key, value) in localEvents | groupBy: 'parentData.calendarId'")
-              h4 {{ value[0].parentData.calendarName }}
-              li(style="list-style-type: none; padding-left: 10px", ng-repeat="event in value")
-                a(href, ng-click="displayEventDetails(event)") {{ event.title }}
+          #PUDEvents(ng-show="selector == 4")
+            ul(style="padding-left: 0")
+              li(style="list-style-type: none; padding-left: 10px", ng-repeat="pud in pudList")
+                {{ pud.description + " (" + pud.time + " hours) " }}
+                a(href, ng-click="editPud(pud)")
+                  span.glyphicon.glyphicon-pencil
+                a(href, ng-click="completePud(pud)")
+                  span.glyphicon.glyphicon-check
+                a(href, ng-click="deletePud(pud)")
+                  span.glyphicon.glyphicon-remove
+            br
+            a.btn.btn-primary(href, ng-click="createPudEvent()") New Task
             br
             a.btn.btn-primary(href, ng-click="createNewEvent()") Create Event
           
@@ -178,11 +185,16 @@ block content
                   ul
                     li(ng-repeat="editEvent in request.edits")
                       a(href, ng-click="displayEventDetails(editEvent)") {{ editEvent.editor }}
+                      a(href, ng-click="respondToRequestEdit(request, editEvent, 'approve')")
+                        span.glyphicon.glyphicon-ok
+                      a(href, ng-click="respondToRequestEdit(request, editEvent, 'deny')")
+                        span.glyphicon.glyphicon-remove
             h4 Received Invitations
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="request in pendingRequests")
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
-                a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id") [v]
+                a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id")
+                  span.glyphicon.glyphicon-triangle-bottom
                 br
                 form(ng-show="selectedRequest == request._id")
                   select(ng-model="requestCalendar", ng-options="calendar.name for calendar in myCalendars", required)
@@ -373,6 +385,30 @@ block content
           ul
             li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
           button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
+    script(type="text/ng-template" id="createPudModal.html")
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4.modal-title Create/Edit To-Do Task
+      .modal-body
+        form(name="createPudForm")
+          label Task
+          textarea(rows="2", cols="40", ng-model="pudDetails.description", placeholder="Task Description", required)
+          br
+          label Hours Allocated
+          br
+          input(type="text", placeholder="e.g. 2", ng-model="pudDetails.timeString", ng-pattern="^[1-9][0-9]*$")
+          br
+          label Repeat?
+          br
+          input(type="checkbox", ng-model="pudDetails.willRepeat")
+          br
+          div(ng-show="pudDetails.willRepeat")
+            label Days Between Repeats
+            br
+            input(type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="^[1-9][0-9]*$")
+            br
+        .btn-group
+          button.btn.btn-primary(ng-disabled="createPudForm.$invalid", ng-click="sendPudData(pudDetails)") Save
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

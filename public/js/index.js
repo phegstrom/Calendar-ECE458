@@ -73,9 +73,20 @@ app.run(function($rootScope, $q, $http, $modal) {
     });
   }
 
+  $rootScope.getPuds = function() {
+    $rootScope.pudList = [];
+
+    $http.get('/pud').
+    success(function(data, status, headers, config) {
+      $rootScope.pudList = angular.fromJson(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve PUD list.');
+    });
+  }
+
   $rootScope.setViewLength = function(viewLength) {
     $rootScope.calendarView = viewLength;
-    $rootScope.updateLocalEvents();
   }
   $rootScope.nav = function(direction) {
     //There is a race condition here that makes the update apply
@@ -104,24 +115,10 @@ app.run(function($rootScope, $q, $http, $modal) {
     console.log(originalValue);
     console.log($rootScope.calendarDay);
     originalValue = angular.copy($rootScope.calendarDay);
-    $rootScope.updateLocalEvents();
   }
 
   $rootScope.goToToday = function() {
     $rootScope.calendarDay = new Date();
-    $rootScope.updateLocalEvents();
-  }
-  $rootScope.updateLocalEvents = function() {
-    var startPeriod = moment($rootScope.calendarDay).startOf($rootScope.calendarView).toDate();
-    var endPeriod = moment($rootScope.calendarDay).endOf($rootScope.calendarView).toDate();
-    $rootScope.localEvents = [];
-
-    for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
-      var calEvent = $rootScope.events[eventIndex];
-      if(calEvent.starts_at > startPeriod && calEvent.starts_at < endPeriod) {
-        $rootScope.localEvents.push(calEvent);
-      }
-    }
   }
 
   $rootScope.parseDatabaseEvents = function() {
@@ -143,7 +140,6 @@ app.run(function($rootScope, $q, $http, $modal) {
     }
 
     $rootScope.events = calendarEventList;
-    $rootScope.updateLocalEvents();
   }
 
   $rootScope.displayEventDetails = function(event) {
@@ -187,6 +183,23 @@ app.run(function($rootScope, $q, $http, $modal) {
         templateUrl: 'inviteUserModal.html',
         controller: 'modalController'
       });
+  }
+
+  $rootScope.editPud = function(pud) {
+    $rootScope.pudDetails = angular.copy(pud);
+    $rootScope.displayCreatePudModal();
+  }
+
+  $rootScope.createPudEvent = function() {
+    $rootScope.pudDetails = {};
+    $rootScope.displayCreatePudModal();
+  }
+
+  $rootScope.displayCreatePudModal = function() {
+    $modal.open({
+      templateUrl: 'createPudModal.html',
+      controller: 'modalController'
+    });
   }
 
   $rootScope.getCalendarData = function() {
@@ -409,8 +422,6 @@ app.run(function($rootScope, $q, $http, $modal) {
         break;
       }
     }
-
-    $rootScope.updateLocalEvents();
   }
 
   $rootScope.findEvent = function(eventId) {
@@ -458,5 +469,6 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.getCalendarData();
   $rootScope.getAllUsers();
   $rootScope.getRequests();
+  $rootScope.getPuds();
   console.log($rootScope.events);
 });

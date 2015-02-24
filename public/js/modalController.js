@@ -331,6 +331,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       pudDetails.interval = parseInt(pudDetails.intervalString);
     }
 
+    console.log(pudDetails);
+
     var request = {};
 
     if(pudDetails._id) {
@@ -351,17 +353,16 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     else {
       request = $http.post('/pud/createPUD', pudDetails).
       success(function(data, status, headers, config) {
-        $rootScope.pudList.push(angular.fromJson(data));
+        console.log(data);
+        var newPud = angular.fromJson(data);
+        newPud.time /= $rootScope.HOUR;
+        
+        $rootScope.pudList.push(newPud);
       }).
       error(function(data, status, headers, config) {
         console.log('Could not create PUD.');
       });
     }
-
-    request.then(function() {
-      $scope.eventForm.$setPristine();
-      eventDetails = defaultForm;
-    });
 
     $scope.cancel();
   }

@@ -4,6 +4,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
   //Store a week in milliseconds
   var DAY = 1000*60*60*24;
+  $rootScope.HOUR = 1000*60*60;
 
   $rootScope.bottomSelector = -1;
   var currentYear = moment().year();
@@ -49,8 +50,6 @@ app.run(function($rootScope, $q, $http, $modal) {
     $http.get('/request/getCreated').
     success(function(data, status, headers, config) {
       $rootScope.ownRequests = angular.fromJson(data);
-
-      console.log($rootScope.ownRequests);
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve list of created event requests.');
@@ -62,7 +61,6 @@ app.run(function($rootScope, $q, $http, $modal) {
       $rootScope.pendingRequests = [];
 
       for(var requestIndex=0; requestIndex < $rootScope.otherRequests.length; requestIndex++) {
-        console.log($rootScope.otherRequests[requestIndex]);
         if($rootScope.otherRequests[requestIndex].usersStatus[$rootScope.currentUserID].status == 'pending') {
           $rootScope.pendingRequests.push($rootScope.otherRequests[requestIndex]);
         }
@@ -78,7 +76,12 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $http.get('/pud').
     success(function(data, status, headers, config) {
-      $rootScope.pudList = angular.fromJson(data);
+      console.log(data);
+      var pudList = angular.fromJson(data);
+      for(var pudIndex=0; pudIndex < pudList.length; pudIndex++) {
+        pudList[pudIndex].time /= $rootScope.HOUR;
+        $rootScope.pudList.push(pudList[pudIndex]);
+      }
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve PUD list.');
@@ -156,6 +159,15 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     //Populate request details if owner of request
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
+
+    //Populate PUD value if it exists
+    if($rootScope.selectedRequest.evType == 'pud') {
+      $http.get('/event/pud/' + $rootScope.selectedEvent._id).
+      success(function(data, status, headers, config) {
+        var resData = angular.fromJson(data);
+        $rootScope.selectedRequest.pudDetails = resData.display;
+      });
+    }
 
     $modal.open({
         templateUrl: 'eventDetailsModal.html',
@@ -470,5 +482,4 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.getAllUsers();
   $rootScope.getRequests();
   $rootScope.getPuds();
-  console.log($rootScope.events);
 });

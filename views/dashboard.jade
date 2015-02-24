@@ -10,7 +10,7 @@ block content
       .row
         .col-md-8
           h1.text-center
-            {{ calendarControl.getTitle() }}
+            | {{ calendarControl.getTitle() }}
       .row
         .col-md-8
           .pull-left.form-inline
@@ -44,21 +44,21 @@ block content
                   span(class="glyphicon glyphicon-remove")
             form(name="createGroupForm")
               input(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
-              &nbsp;
+              | &nbsp;
               button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
           #userListWindow(ng-show="selector == 1")
             h4 {{ selectedUserGroup.name }}
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in selectedUserGroup.users")
-                {{ user.email + " " }}
+                | {{ user.email + " " }}
                 a(href, ng-click="deleteUserFromGroup(user.email)")
                   span(class="glyphicon glyphicon-remove")
              form(name="addUserForm")
               input(type="text", ng-model="inputUserEmail", placeholder="User Email", list="emails", required)
-              &nbsp;
+              | &nbsp;
               button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
               br
-              {{ text }}
+              | {{ text }}
 
           #calendarInfo(ng-show="selector == 2")
             h4 My Calendars
@@ -82,7 +82,7 @@ block content
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
             form(name="createCalendarForm")
               input(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
-              &nbsp;
+              | &nbsp;
               button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
 
 
@@ -108,28 +108,28 @@ block content
             b Rules 
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="rule in selectedCalendar.rules")
-                {{ rule.ruleType + " " }}
+                | {{ rule.ruleType + " " }}
                 a(href, ng-click="deleteRule(rule._id)")
                   span(class="glyphicon glyphicon-remove")
                 br
                 | Groups 
                 ul(style='list-style-type: none; padding-left: 10px;')
                   li(ng-repeat="group in rule.assocUserGroups")
-                    {{ group.name }}
+                    | {{ group.name }}
                 | Users 
                 ul(style='list-style-type: none; padding-left: 10px;')
                   li(ng-repeat="userId in rule.assocUsers")
-                    {{ getUserEmail(userId) }}
+                    | {{ getUserEmail(userId) }}
             b Users with Modify 
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ getUserEmail(modUser) + " " }}
+                | {{ getUserEmail(modUser) + " " }}
                 a(href, ng-click="removeModUser(modUser._id)")
                   span(class="glyphicon glyphicon-remove")
             hr
             form(name="addRuleForm")
               label Rule Type
-              &nbsp;
+              | &nbsp;
               select(ng-model="newRule.ruleType")
                 option(value="canView") Can View
                 option(value="canViewBusy") Can View Busy
@@ -138,14 +138,14 @@ block content
               label User Group
               br
               select(ng-model="userGroup", ng-options="group.name for group in userGroups")
-              &nbsp;
+              | &nbsp;
               button.btn(ng-click="addUserGroupToRule()") Add User Group
               ul(style='list-style-type: none; padding-left: 10px;')
                 li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
               label User Email
               br
               input(type="text", ng-model="userEmail", list="emails")
-              &nbsp;
+              | &nbsp;
               button.btn(ng-click="addUserEmailToRule()") Add User Email
               ul(style='list-style-type: none; padding-left: 10px;')
                 li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
@@ -153,7 +153,7 @@ block content
             hr
             form(name="addModUserForm")
               input(type="text", ng-model="inputModUserId", list="emails")
-              &nbsp;
+              | &nbsp;
               button.btn(ng-click="addModUsertoList()") Add User with Modify
               ul
                 li(ng-repeat="modUserId in modUserList") {{ modUserId }}
@@ -163,7 +163,7 @@ block content
           #PUDEvents(ng-show="selector == 4")
             ul(style="padding-left: 0")
               li(style="list-style-type: none; padding-left: 10px", ng-repeat="pud in pudList")
-                {{ pud.description + " (" + pud.time + " hours) " }}
+                | {{ pud.description + " (" + pud.time + " hours) " }}
                 a(href, ng-click="editPud(pud)")
                   span.glyphicon.glyphicon-pencil
                 a(href, ng-click="completePud(pud)")
@@ -251,7 +251,7 @@ block content
              a(href ng-click="removeAlert(time)")
               span(class="glyphicon glyphicon-remove")
           label For PUD?
-          &nbsp;
+          | &nbsp;
           input(type="checkbox", ng-model="eventDetails.isPUD")
           br
           label Repeat? &nbsp;
@@ -304,6 +304,9 @@ block content
               p(ng-show="selectedEvent.location")
                 b Where 
                 | {{ selectedEvent.location }}
+              p(ng-show="selectedEvent.pudDetails")
+                b To-Do
+                | {{ selectedEvent.pudDetails }}
             p
               b Calendar 
               | {{ selectedEvent.calendarName }}
@@ -325,12 +328,12 @@ block content
                 b 
                   | Invite Information
               p
-                {{ selectedRequest.info }}
+                | {{ selectedRequest.info }}
               p
                 b
                   | User Invite Statuses
                 p(ng-repeat="userId in selectedRequest.userIDs")
-                  {{ getUserEmail(userId) + ": " + selectedRequest.usersStatus[userId].status }}
+                  | {{ getUserEmail(userId) + ": " + selectedRequest.usersStatus[userId].status }}
         .row
           hr
           .btn-group
@@ -392,11 +395,12 @@ block content
       .modal-body
         form(name="createPudForm")
           label Task
+          br
           textarea(rows="2", cols="40", ng-model="pudDetails.description", placeholder="Task Description", required)
           br
           label Hours Allocated
           br
-          input(type="text", placeholder="e.g. 2", ng-model="pudDetails.timeString", ng-pattern="^[1-9][0-9]*$")
+          input(type="text", placeholder="e.g. 2", ng-model="pudDetails.timeString", ng-pattern="/^[1-9][0-9]*$/", required)
           br
           label Repeat?
           br
@@ -405,8 +409,9 @@ block content
           div(ng-show="pudDetails.willRepeat")
             label Days Between Repeats
             br
-            input(type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="^[1-9][0-9]*$")
+            input(type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="/^[1-9][0-9]*$/")
             br
+        br
         .btn-group
           button.btn.btn-primary(ng-disabled="createPudForm.$invalid", ng-click="sendPudData(pudDetails)") Save
 

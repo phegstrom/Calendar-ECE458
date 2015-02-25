@@ -20,7 +20,7 @@ router.post('/createPUD', function (req, res, next) {
 
 	newPUD.alertInterval = req.body.alertInterv;
 
-	console.log("New alert interval: " + newPUD.alertInterv);
+	console.log("New alert interval: " + newPUD.alertInterval);
 	// create Alert objects
 
 	if (req.body.alert != undefined) {
@@ -65,7 +65,8 @@ function createAlert(alertObj, pud, req) {
 		console.log(myAlert);	
 	});
 
-	return alertId;
+	return myAlert._id;
+
 }
 
 
@@ -207,7 +208,7 @@ router.post('/:pudId', function (req, res, next) {
 
 			if(pud.alert != undefined) {
 				Alert.findOne({_id: pud.alert}, function (err, pudAlert) {
-					vart tempTime = pudAlert.time;
+					var tempTime = pudAlert.time;
 					pud.time = null;
 					// tempTime.setDate(tempTiime.getDate() + pud.repeatInterval);
 					tempTime.setMinutes(tempTiime.getMinutes() + pud.repeatInterval);
@@ -223,7 +224,9 @@ router.post('/:pudId', function (req, res, next) {
 		} else {
 			User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
 				if(pud.alert != undefined) {
-					Alert.findOneAndRemove({_id: pud.alert});
+					Alert.findOneAndRemove({_id: pud.alert}, function (err) {
+						
+					});
 				}
 
 				pud.remove();
@@ -245,7 +248,9 @@ router.delete('/:pudId', function (req, res, next) {
 
 		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, pud) {
 			if(pud.alert != undefined) {
-				Alert.findOneAndRemove({_id: pud.alert});
+				Alert.findOneAndRemove({_id: pud.alert}, function (err) {
+
+				});
 			}
 			if (err) next(err);
 			res.send('PUD Destroyed');

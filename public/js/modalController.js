@@ -344,9 +344,9 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   //PUD Functions
   $scope.sendPudData = function(pudDetails) {
-    pudDetails.time = parseInt(pudDetails.timeString);
+    pudDetails.time = parseFloat(pudDetails.timeString);
     if(pudDetails.willRepeat) {
-      pudDetails.interval = parseInt(pudDetails.intervalString);
+      pudDetails.interval = parseFloat(pudDetails.intervalString);
     }
     else {
       pudDetails.interval = 0;
@@ -357,7 +357,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         time: pudDetails.alertTime,
         method: 'email'
       };
-      pudDetails.alertInterv = parseInt(pudDetails.alertRepeatString);
+      pudDetails.alertInterv = parseFloat(pudDetails.alertRepeatString);
     }
     else {
       pudDetails.alertInterv = 0;

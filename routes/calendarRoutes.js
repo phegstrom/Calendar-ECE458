@@ -29,7 +29,12 @@ router.post('/', function(req, res, next) {
 			if (err) next(err);
 		});
 
-		res.send(newCal);
+		Calendar.findOne({_id: newCal._id})
+				.populate('owner')
+				.exec(function (err, cal) {
+					res.send(cal);
+				});
+
 	});
 });
 

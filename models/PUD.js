@@ -8,7 +8,7 @@ var PUDSchema = new Schema({
 	myDate: {type: Date},
 	time: {type: Number, get: toHours, set: toMilli}, // stored in ms
 	repeatInterval: Number, // days BUT SHOULD CHANGE TO MINUTES
-	alertInterval: Number // minutes,
+	alertInterval: Number, // minutes,
 	alert: {type: Schema.Types.ObjectId, ref: 'Alert', default: null},
 }, {collection: collectionName});
 

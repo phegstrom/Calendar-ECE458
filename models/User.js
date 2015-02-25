@@ -47,6 +47,10 @@ UserSchema.methods.getBestPUD = function (alottedTime, cb) {
 				break;
 			}
 		}
+
+		if (!didBreak)
+			cb(null);
+		
 	});
 };
 

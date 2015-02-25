@@ -199,7 +199,7 @@ router.post('/:pudId', function (req, res, next) {
 
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
 		// console.log("interval: " + pud.repeatInterval);
-		if (pud.repeatInterval != null) {
+		if (pud.repeatInterval != 0) {
 			var tempDate = pud.myDate;
 			pud.myDate = null;
 			// tempDate.setDate(tempDate.getDate() + pud.repeatInterval);

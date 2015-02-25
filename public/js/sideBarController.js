@@ -69,19 +69,13 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
   // add users to modify users list
   $scope.addModUser = function() {
+    var modList = angular.copy($scope.modUserList);
     console.log($scope.modUserList);
-    $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: $scope.modUserList}).
+    $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: modList}).
     success(function(data, status, headers, config) {
-      console.log(angular.fromJson(data));
       $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
-      // if ($scope.selectedCalendar.modList) {
-      //   for (var modUserName in $scope.modUserList) {
-      //     $scope.selectedCalendar.modList.push(modUserName);
-      //   }
-      // } else {
-      //   $scope.selectedCalendar.modList = angular.copy($scope.modUserList);
-      // }
-      console.log($scope.selectedCalendar);
+      console.log(angular.fromJson(data));
+      //console.log($scope.selectedCalendar);
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
@@ -241,7 +235,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     } else if (typeof $scope.newRule.userIds === "undefined") {
       $scope.newRule.userIds = [];
     }
-    //console.log($scope.newRule);
+    console.log($scope.newRule);
 
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {

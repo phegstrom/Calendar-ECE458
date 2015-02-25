@@ -415,8 +415,15 @@ block content
             br
             input(type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="/^[1-9][0-9]*$/")
             br
-          input(type="checkbox", ng-model="pudDetails.willAlertRepeat")
-          div(ng-show="pudDetails.willAlertRepeat")
+          label Alert Time
+          br
+          input(type="datetime-local", ng-model="pudDetails.alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
+          br
+          div(ng-show="isValidTime(pudDetails.alertTime)")
+            label Days Between Alert Repeats
+            br
+            input(type="text", placeholder="0 for no repeats", ng-model="pudDetails.alertRepeatString", ng-pattern="/^[0-9]*$/")
+            br
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createPudForm.$invalid", ng-click="sendPudData(pudDetails)") Save

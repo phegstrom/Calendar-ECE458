@@ -334,6 +334,14 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       pudDetails.interval = 0;
     }
 
+    if($rootScope.isValidTime(pudDetails.alertTime) {
+      pudDetails.alert = {
+        time: pudDetails.alertTime,
+        method: 'email'
+      };
+      pudDetails.alertInterval = parseInt(pudDetails.alertRepeatString);
+    }
+
     console.log(pudDetails);
 
     var request = {};

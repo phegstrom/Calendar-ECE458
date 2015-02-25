@@ -102,7 +102,7 @@ router.get('/pud/:eventId', function (req, res, next) {
 
 		ev.getPUD(function (pud) {
 
-			var nullString = "Not sufficient amount of time to complete any of your PUD's";
+			var nullString = "Not sufficient amount of time to complete any of your tasks";
 			//console.log(pud.description);
 
 			if (pud != null) {
@@ -114,7 +114,7 @@ router.get('/pud/:eventId', function (req, res, next) {
 				res.send(toRet);
 			}
 			else {
-				res.send(nullString);
+				res.send({display: nullString});
 			}
 
 		});

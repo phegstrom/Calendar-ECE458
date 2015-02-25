@@ -37,7 +37,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   $scope.deleteSelectedEvent = function() {
     var selectedEventId = $rootScope.selectedEvent._id;
-    var eventRequestId = undefined;
+    var eventRequestId = $rootScope.selectedEvent.requestID;
 
     $http.delete('/event/'+$rootScope.selectedEvent._id).
     success(function(data, status, headers, config) {
@@ -53,15 +53,15 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       }
 
       for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
-        if(calendarEventList[i]._id == selectedEventId) {
+        if(calendarEventList[calEventIndex]._id == selectedEventId) {
           calendarEventList.splice(calEventIndex, 1);
           break;
         }
       }
 
-      if(eventRequest != undefined) {
+      if(eventRequestId) {
         for(var requestIndex=0; requestIndex < $rootScope.ownRequests.length; requestIndex++) {
-          if(eventRequest._id == $rootScope.ownRequests[requestIndex]._id) {
+          if(eventRequestId == $rootScope.ownRequests[requestIndex]._id) {
             $rootScope.ownRequests.splice(requestIndex, 1);
             break;
           }
@@ -70,9 +70,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }).
     error(function(data, status, headers, config) {
       console.log('Could not delete event: ' + $rootScope.selectedEvent._id);
-    }).then(function(){
-      $rootScope.updateLocalEvents();
-    });
+    })
 
     $scope.cancel();
   }
@@ -119,6 +117,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }
 
     if(eventDetails.isPUD) {
+      console.log('WE DID IT TEAM');
       eventDetails.evType='pud';
     }
     else {
@@ -187,7 +186,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
           name: owningCalendar.name,
           _id: owningCalendar._id
         };
-        $rootScope.setEventData(tempCalendar, 'info', true, true);
+        $rootScope.setEventData(tempCalendar, owningCalendar.evType, true, true);
 
         var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
         owningCalendar.events.push(calEvent);
@@ -202,8 +201,6 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     request.then(function() {
       $scope.eventForm.$setPristine();
       eventDetails = defaultForm;
-
-      $rootScope.updateLocalEvents();
     });
 
     $scope.cancel();
@@ -326,5 +323,48 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       var start = startDate.toLocaleString('en-US', {weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit'})
       return start + ' - ' + end;
     }
+  }
+
+  //PUD Functions
+  $scope.sendPudData = function(pudDetails) {
+    pudDetails.time = parseInt(pudDetails.timeString);
+    if(pudDetails.willRepeat) {
+      pudDetails.interval = parseInt(pudDetails.intervalString);
+    }
+
+    console.log(pudDetails);
+
+    var request = {};
+
+    if(pudDetails._id) {
+      request = $http.put('/pud/'+pudDetails._id, pudDetails).
+      success(function(data, status, headers, config) {
+        for(var pudIndex=0; pudIndex < $rootScope.pudList; pudIndex++) {
+          if($rootScope.pudList[pudIndex]._id == pudDetails._id) {
+            $rootScope.pudList[pudIndex].description = pudDetails.description;
+            $rootScope.pudList[pudIndex].time = pudDetails.time;
+            $rootScope.pudList[pudIndex].interval = pudDetails.interval;
+          }
+        }
+      }).
+      error(function(data, status, headers, config) {
+        console.log('Could not edit PUD.');
+      });
+    }
+    else {
+      request = $http.post('/pud/createPUD', pudDetails).
+      success(function(data, status, headers, config) {
+        console.log(data);
+        var newPud = angular.fromJson(data);
+        newPud.time /= $rootScope.HOUR;
+        
+        $rootScope.pudList.push(newPud);
+      }).
+      error(function(data, status, headers, config) {
+        console.log('Could not create PUD.');
+      });
+    }
+
+    $scope.cancel();
   }
 });

@@ -33,19 +33,21 @@ block content
           .btn-group
             button.btn.btn-primary(ng-class="{active: selector == 0 || selector == 1}", ng-click="displayUserGroups()") Groups
             button.btn.btn-primary(ng-class="{active: selector == 2 || selector == 3 || selector == 5}", ng-click="displayCalendars()") Calendars
-            button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayPUDEvents()") To-Do
+            button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayPUDEvents()") Tasks
             button.btn.btn-primary(ng-class="{active: selector == 6}", ng-click="displayInvites()") Invites
           #userGroupWindow(ng-show="selector == 0")
             br
+            form(name="createGroupForm")
+              input(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
+              | &nbsp;
+              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
+            hr
+            h4 User Groups
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="group in userGroups")
                 a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
                 a(href, ng-click="deleteUserGroup(group._id)")
                   span(class="glyphicon glyphicon-remove")
-            form(name="createGroupForm")
-              input(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
-              | &nbsp;
-              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
           #userListWindow(ng-show="selector == 1")
             h4 {{ selectedUserGroup.name }}
             ul(style='list-style-type: none; padding-left: 10px;')
@@ -61,6 +63,11 @@ block content
               | {{ text }}
 
           #calendarInfo(ng-show="selector == 2")
+            br
+            form(name="createCalendarForm")
+              input(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
+              | &nbsp;
+              button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
             h4 My Calendars
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="calendar in myCalendars")
@@ -80,11 +87,6 @@ block content
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
-            form(name="createCalendarForm")
-              input(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
-              | &nbsp;
-              button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
-
 
           #calendarDetailsWindow(ng-show="selector == 3")
             h3 {{ selectedCalendar.name }}
@@ -161,20 +163,21 @@ block content
             br
 
           #PUDEvents(ng-show="selector == 4")
+            br
+            h4 To-Do
             ul(style="padding-left: 0")
               li(style="list-style-type: none; padding-left: 10px", ng-repeat="pud in pudList")
-                | {{ pud.description + " (" + pud.time + " hours) " }}
-                a(href, ng-click="editPud(pud)")
-                  span.glyphicon.glyphicon-pencil
                 a(href, ng-click="completePud(pud)")
                   span.glyphicon.glyphicon-check
+                | &nbsp;
+                a(href, ng-click="editPud(pud)") {{ pud.description + " (" + pud.time + " hours) " }}
                 a(href, ng-click="deletePud(pud)")
                   span.glyphicon.glyphicon-remove
+                | &nbsp;
                 a(href, ng-click="movePud(pud, 'up')")
                   span.glyphicon.glyphicon-arrow-up
                 a(href, ng-click="movePud(pud, 'down')")
                   span.glyphicon.glyphicon-arrow-down
-            br
             a.btn.btn-primary(href, ng-click="createPudEvent()") New Task
             | &nbsp;
             a.btn.btn-primary(href, ng-click="createNewEvent()") Create Event

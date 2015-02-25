@@ -152,7 +152,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
               var editNumber = {
                 editNum: ownRequestData.edits.length
               }
-              $http.put('/request/approveEdit/' + eventDetails.requestID, editNumber).
+              $http.put('/request/approveEdit/' + eventDetails.requestID, {editNum: editNumber}).
               success(function(data, status, headers, config) {
                 $rootScope.ownRequests[$rootScope.ownRequests.indexOf(ownRequestData)] = angular.fromJson(data);
               }).
@@ -185,7 +185,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
           name: owningCalendar.name,
           _id: owningCalendar._id
         };
-        $rootScope.setEventData(tempCalendar, owningCalendar.evType, true, true);
+        $rootScope.setEventData(tempCalendar, owningCalendar.evType, true, true, dBEvent);
+        dBEvent.alerts = eventDetails.alerts;
 
         var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
         owningCalendar.events.push(calEvent);

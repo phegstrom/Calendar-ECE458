@@ -84,7 +84,7 @@ router.put('/accept/:requestId', function (req, res, next) {
 				copyEvent.creator = currEvent[0].creator;
 
 				console.log("copyEvent:    " + copyEvent);
-				copyEvent.save(function (err) {
+				copyEvent.save(function (err, saved) {
 					// go into request object and edit usersStatus
 					// usersStatus needs to hold 'accept' in status, copyeventID, calendar, and email
 

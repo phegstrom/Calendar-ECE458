@@ -171,7 +171,6 @@ router.put('/:pudId', function (req, res, next) {
 	});
 });
 
-
 // handles reordering of priorities
 router.put('/user/reorder', function (req, res, next) {
 
@@ -190,8 +189,6 @@ router.put('/user/reorder', function (req, res, next) {
 			res.send(saved.PUDs);
 		});
 	});
-
-
 });
 
 // completes a PUD , might remove depending if there is repeat set
@@ -209,17 +206,33 @@ router.post('/:pudId', function (req, res, next) {
 			tempDate.setMinutes(tempDate.getMinutes() + pud.repeatInterval);
 			pud.myDate = tempDate;
 
+			if(pud.alert != undefined) {
+				Alert.findOne({_id: pud.alert}, function (err, pudAlert) {
+					var tempTime = pudAlert.time;
+					pud.time = null;
+					// tempTime.setDate(tempTiime.getDate() + pud.repeatInterval);
+					tempTime.setMinutes(tempTiime.getMinutes() + pud.repeatInterval);
+					pudAlert.time = tempTime;
+					pudAlert.save();
+				});
+			}
+
 			pud.save(function (err, saved) {
 				if (err) next(err);
 				res.send(saved);
 			});
 		} else {
 			User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
+				if(pud.alert != undefined) {
+					Alert.findOneAndRemove({_id: pud.alert}, function (err) {
+						
+					});
+				}
+
 				pud.remove();
 				res.send('PUD Removed');
 			});
 		}
-		
 	});
 });
 
@@ -233,7 +246,12 @@ router.delete('/:pudId', function (req, res, next) {
 	User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
 		// do logic here to create new PUD if there is a repeat
 
-		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, num) {
+		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, pud) {
+			if(pud.alert != undefined) {
+				Alert.findOneAndRemove({_id: pud.alert}, function (err) {
+
+				});
+			}
 			if (err) next(err);
 			res.send('PUD Destroyed');
 		});

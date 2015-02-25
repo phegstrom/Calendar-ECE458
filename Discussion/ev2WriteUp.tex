@@ -1,0 +1,315 @@
+% useful commands
+% \medskip , \smallskip, \noindent, \vspace{0.2in}
+% \sc (all caps)
+%
+
+
+
+
+\documentclass[11pt]{article}   % For Latex2e
+\usepackage{amssymb,amscd,latexsym}   % For Latex2e
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{epsfig}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{moreverb}
+\usepackage{amssymb} % for \smallsetminus
+
+\usepackage{mathtools} % allows you to use \boxed or \Aboxed
+\usepackage{mhchem}
+%%%%%%%%%%
+%\topmargin=-0.5cm
+%\marginparwidth=2cm
+\textwidth=6.3in
+\textheight=22cm
+\hoffset=-1.8cm
+\voffset=-1.3cm
+%%%%%%%%%%%%%%%%%%%
+\def\vdotfill{
+\vbox to 2em
+{\cleaders\hbox{.}\vfill}}
+%------------------------
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=, %tb
+  language=Java,
+  aboveskip=1mm,
+  belowskip=1mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+%  numberstyle=\tiny\color{gray},
+%  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  escapeinside={\%*}{*)},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\newtheorem{Theorem}{Theorem}[section]
+\newtheorem{Lemma}[Theorem]{Lemma}
+\newtheorem{Corollary}[Theorem]{Corollary}
+\newtheorem{Proposition}[Theorem]{Proposition}
+\newtheorem{Remark}[Theorem]{Remark}
+\newtheorem{Example}[Theorem]{Example}
+\newtheorem{Conjecture}[Theorem]{Conjecture}
+\newtheorem{Definition}[Theorem]{Definition}
+\newtheorem{Question}[Theorem]{Question}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\rar}{\rightarrow}
+\newcommand{\lar}{\longrightarrow}
+\newcommand{\llar}{-\kern-5pt-\kern-5pt\longrightarrow}
+\newcommand{\surjects}{\twoheadrightarrow}
+\newcommand{\injects}{\hookrightarrow}
+\newcommand{\Fiber}{{\cal F}}
+
+\renewcommand{\phi}{\varphi}
+\newcommand{\demo}{{\sc Proof. }}
+\renewcommand{\proof}{\demo}
+%\newcommand{\demo}{\noindent{\sc Proof. }}
+%\newcommand{\square}{\mathchoice\sqr64\sqr64\sqr{4}3\sqr{3}3}
+%\newcommand{\qed}{\hspace*{\fill} $\square$}
+%\newcommand{\QED}{\hbox{\qed}}
+
+
+
+
+
+\newcommand{\restr}{{\kern-1pt\restriction\kern-1pt}}
+
+
+
+
+\begin{document}
+
+\begin{center}
+
+\vspace{3in}
+{\Huge{\bf\sc Evolution Two}}\\
+\vspace{.1in}
+{\small\sc ECE 458}
+
+
+\vspace{0.3in}
+
+
+
+{\large\sc Parker Hegstrom} {\large (eph4)} \\
+{\large\sc Peter Yom} {\large (eph4)} \\
+{\large\sc Wayne You} {\large (eph4)} \\
+{\large\sc Brandon Chao} {\large (eph4)} \\
+
+
+\end{center}
+
+
+\vspace{0.2in}
+
+\tableofcontents
+
+
+\pagebreak
+
+
+\section{Overall Design}
+
+\section{Back End Design and Analysis}
+\subsection{New Features}
+Describe how we implemented each
+\subsection{Benefits of Our Previous Design}
+\subsection{Drawbacks of Our Previous Design}
+
+\section{Front End Design and Analysis}
+
+\section{Individual Portion}
+\subsection*{Parker}
+
+\begin{enumerate} [a)]
+\item  {\bf Designing and Conducting Experiments}
+\begin{enumerate} [$\cdot$]
+\item A special feature of javascript in general is that it is asynchronous. To deal with this asynchronous nature of the code, callback functions are used. However, multiple callback functions with callback functions (also known as callback hell) makes it harder to find bugs and/or simply read the code. I researched the use of promises alongside mongoDB and Mongoose. After researching, I then tested the promise implementation--accessing the database with a promise and utilizing the exposed promise API. Minor kinks were worked out, but Peter and I were able to clean up some of our code with promises from then on.
+\end{enumerate}
+\item  {\bf Analyzing and Interpreting Data}
+\begin{enumerate} [$\cdot$]
+\item At times, router methods we wrote did not behave properly, and by that I mean that certain errors were thrown to the console. Different HTTP error codes made up the majority of these errors, so I had to interpret what the server was telling me in order to both find the problem and determine what the best solution would be. One example of this that comes to mind was a server 500 response we were getting from issuing a PUT to the {\tt /pud/reorder} endpoint. After analyzing more console outputs, I was able to find that the Express router treats {\tt /pud/reorder} and {\tt /pud/:pudID} (which is a query parameter) as the same, so both routes were being run. 
+\end{enumerate}
+\item {\bf Designing System Components}
+\begin{enumerate} [$\cdot$]
+\item One new component I designed in the back-end was the PUD. We, as a group, wanted to integrate the PUD into the overall project and specific events without much change to existing code. With that in mind, I made the PUD a separate document type in our database, BUT it shared some of the pre-existing functionality we had developed for alerts and repeats. I was able to reuse a lot of code by using the ‘populate’ as well as the Alert schema to handle such things. An interesting requirement for the PUD was that you could set a time interval (i.e. weekly for the repeat), yet, once the PUD was marked complete, you wouldn’t want it to immediately show up in the list of outstanding PUDs. This was solved by editing the “GET /pud” method to check the {\tt createdDate} for each PUD. 
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
+\begin{enumerate} [$\cdot$]
+\item As I stated in the previous design document we submitted, javascripts asynchronous nature continued to prove difficult at times. Specifically, problems arose when we began writing more functions both in our route files and in our schema files rather than rewriting code all over the place. Each time we made a call to the database, the value would have to be returned to a callback function, so as we segregated our code more and more, we continued to have to abide by the callback rules of javascript, slowing our development speed tremendously at times.
+\end{enumerate}
+\item  {\bf Teamwork and Team Member Interaction}
+\begin{enumerate} [$\cdot$]
+\item Peter and I worked very together on the backend, and, as a whole, I thought our group worked much better together than we did through the first evolution. I was able to work on new features concurrently with the rest of the group, meeting occasionally to make sure there were no design misunderstandings or any small typo-like bugs that would cause integration problems down the development path.
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Wayne}
+
+\begin{enumerate} [a)]
+\item  {\bf Designing and Conducting Experiments}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item  {\bf Analyzing and Interpreting Data}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Designing System Components}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item  {\bf Teamwork and Team Member Interaction}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Brandon}
+
+\begin{enumerate} [a)]
+\item  {\bf Designing and Conducting Experiments}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item  {\bf Analyzing and Interpreting Data}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Designing System Components}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item  {\bf Teamwork and Team Member Interaction}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Peter}
+
+\begin{enumerate} [a)]
+\item  {\bf Designing and Conducting Experiments}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item  {\bf Analyzing and Interpreting Data}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Designing System Components}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item  {\bf Teamwork and Team Member Interaction}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\end{enumerate}
+
+%\keywords{Cremona map \and Newton complementary dual \and monoid \and Cohen--Macaulay}
+
+%\vspace{0.2in}
+
+
+
+
+%\begin{align}
+%e^{j\theta} = cos(\theta) + jsin(\theta)
+%\end{align}
+
+%\begin{figure}[h]
+%\begin{center}
+%\epsfig{file=StatPlot.eps, width=5in}
+%\caption{\label{boxplot} Box plot of the survey data}
+%\end{center}
+%\end{figure}
+
+
+%\begin{figure}[h]
+%\begin{center}
+%\epsfig{file=histogram.eps, width=4in}
+%\caption{\label{histogram} Histogram plot of the survey data}
+%\end{center}
+%\end{figure}
+
+%\begin{table}[h]
+%\begin{center}
+%\caption{\label{histotable}Table of frequency values from the Histogram} 
+%\begin{tabular}{|c|c|}\hline
+%{\bf Type of Engineering} & Frequency \\
+%BME & 59 \\
+%CEE & 6 \\
+%ME & 3 \\
+%ECE & 10 \\
+%Undecided & 1 \\ \hline
+%\end{tabular} \\~\\
+%\end{center}
+%\end{table}
+
+%\begin{figure}[htb]
+%\centering
+%\includegraphics[width=1.3\textwidth]{Screenshot.png}
+%\caption{Screen shot from StatKey}
+%\label{samples}
+%\end{figure}
+
+
+%\appendix
+%\section{Codes}
+%\subsection{MakeGraph.m}
+%\listinginput[1]{1}{MakeGraph.txt}
+
+
+% GIVES TWO TABLES BY EACHOTHER
+%\begin{table}[h!]
+%\begin{minipage}[b]{0.45\linewidth}\centering
+%\caption{\label{ecoli3}Using {\tt ecoli\_edit\_120481.txt}} 
+%\begin{tabular}{|c|c|c|}
+%\hline
+%1 & 1 & 1 \\
+%\hline
+%\end{tabular}
+%\end{minipage}
+%\hspace{0.5cm}
+%\begin{minipage}[b]{0.45\linewidth}
+%\centering
+%\caption{\label{ecoli4}Using {\tt ecoli\_edit\_3947161.txt}} 
+%\begin{tabular}{|c|c|c|}
+%\hline
+%1 & 1 & 1 \\
+%\hline
+%\end{tabular}
+%\end{minipage}
+%\end{table}
+
+
+
+\end{document}
+% end of file template.tex
+

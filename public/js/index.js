@@ -149,8 +149,6 @@ app.run(function($rootScope, $q, $http, $modal) {
     else if(event) {
       //DBEvent
       $rootScope.selectedEvent = event;
-      $rootScope.selectedEvent.canEditEvent = false;
-      $rootScope.selectedEvent.canViewEvent = true;
     }
 
     //Populate request details if owner of request

@@ -357,10 +357,10 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         time: pudDetails.alertTime,
         method: 'email'
       };
-      pudDetails.alertInterval = parseInt(pudDetails.alertRepeatString);
+      pudDetails.alertInterv = parseInt(pudDetails.alertRepeatString);
     }
     else {
-      pudDetails.alertInterval = 0;
+      pudDetails.alertInterv = 0;
     }
 
     console.log(pudDetails);

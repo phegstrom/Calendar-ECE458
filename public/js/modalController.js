@@ -189,7 +189,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         $rootScope.setEventData(tempCalendar, owningCalendar.evType, true, true);
 
         var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
-        owningCalendar.events.push(calEvent);
+        owningCalendar.events.push(dBEvent);
         $rootScope.events.push(calEvent);
       }).
       error(function(data, status, headers, config) {

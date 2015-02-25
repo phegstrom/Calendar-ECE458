@@ -415,6 +415,8 @@ block content
             br
             input(type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="/^[1-9][0-9]*$/")
             br
+          input(type="checkbox", ng-model="pudDetails.willAlertRepeat")
+          div(ng-show="pudDetails.willAlertRepeat")
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createPudForm.$invalid", ng-click="sendPudData(pudDetails)") Save

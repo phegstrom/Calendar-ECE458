@@ -117,7 +117,6 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }
 
     if(eventDetails.isPUD) {
-      console.log('WE DID IT TEAM');
       eventDetails.evType='pud';
     }
     else {
@@ -330,6 +329,9 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     pudDetails.time = parseInt(pudDetails.timeString);
     if(pudDetails.willRepeat) {
       pudDetails.interval = parseInt(pudDetails.intervalString);
+    }
+    else {
+      pudDetails.interval = 0;
     }
 
     console.log(pudDetails);

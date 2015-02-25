@@ -33,7 +33,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   $scope.displayOwnerCalendar = function(calendar) {
     $scope.text = 'N/A';
     $scope.selector = 5;
-
+    console.log(calendar);
     $scope.selectedCalendar = calendar;
   }
 
@@ -72,9 +72,13 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
   // add users to modify users list
   $scope.addModUser = function() {
-    console.log({modList: $scope.modUserList});
-    $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: $scope.modUserList}).
+    var modList = angular.copy($scope.modUserList);
+    console.log($scope.modUserList);
+    $http.put('/calendar/modList/add/' + $scope.selectedCalendar._id, {modList: modList}).
     success(function(data, status, headers, config) {
+      $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
+      console.log(angular.fromJson(data));
+      //console.log($scope.selectedCalendar);
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
@@ -84,20 +88,22 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   }
 
   $scope.addModUsertoList = function() {
-    var newModUserId = angular.copy($scope.inputModUserId);
+    var newModUserEmail = angular.copy($scope.inputModUserEmail);
     if($scope.modUserList) {
-      $scope.modUserList.push(newModUserId);
+      $scope.modUserList.push(newModUserEmail);
     }
     else {
-      $scope.modUserList = [newModUserId];
+      $scope.modUserList = [newModUserEmail];
     }
-    $scope.inputModUserId = '';
+    $scope.inputModUserEmail = '';
   }
 
   // delete users from modify users list
-  $scope.removeModUser = function(modUserID) {
-    $http.put('/calendar/modList/remove/' + $scope.selectedCalendar._id, {modList: [modUserID]}).
+  $scope.removeModUser = function(modUserEmail) {
+    $http.put('/calendar/modList/remove/' + $scope.selectedCalendar._id, {modList: [modUserEmail]}).
     success(function(data, status, headers, config) {
+
+      $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
@@ -233,14 +239,14 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);
-    console.log($scope.selectedCalendar);
 
     $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
-      $scope.newRule._id = angular.fromJson(data)._id;
+      $scope.selectedCalendar.rules.push(angular.copy(angular.fromJson(data)));
       $scope.displayOwnerCalendar($scope.selectedCalendar);
-      $scope.selectedCalendar.rules.push(angular.copy($scope.newRule));
       $scope.newRule = {};
+      $scope.userGroupDisplay = [];
+      //console.log($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to create rule.');
@@ -248,8 +254,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
   }
 
   $scope.deleteRule = function(ruleId) {
-    console.log(ruleId);
-    console.log($scope.selectedCalendar);
+    //console.log($scope.selectedCalendar);
     $http.delete('/rule/'+ ruleId + '/' + $scope.selectedCalendar._id).
     success(function(data, status, headers, config) {
 

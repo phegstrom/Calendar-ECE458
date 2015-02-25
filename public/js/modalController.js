@@ -37,7 +37,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   $scope.deleteSelectedEvent = function() {
     var selectedEventId = $rootScope.selectedEvent._id;
-    var eventRequestId = undefined;
+    var eventRequestId = $rootScope.selectedEvent.requestID;
 
     $http.delete('/event/'+$rootScope.selectedEvent._id).
     success(function(data, status, headers, config) {
@@ -53,15 +53,15 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       }
 
       for(var calEventIndex = 0; calEventIndex < calendarEventList.length; calEventIndex++) {
-        if(calendarEventList[i]._id == selectedEventId) {
+        if(calendarEventList[calEventIndex]._id == selectedEventId) {
           calendarEventList.splice(calEventIndex, 1);
           break;
         }
       }
 
-      if(eventRequest != undefined) {
+      if(eventRequestId) {
         for(var requestIndex=0; requestIndex < $rootScope.ownRequests.length; requestIndex++) {
-          if(eventRequest._id == $rootScope.ownRequests[requestIndex]._id) {
+          if(eventRequestId == $rootScope.ownRequests[requestIndex]._id) {
             $rootScope.ownRequests.splice(requestIndex, 1);
             break;
           }
@@ -117,6 +117,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }
 
     if(eventDetails.isPUD) {
+      console.log('WE DID IT TEAM');
       eventDetails.evType='pud';
     }
     else {
@@ -185,7 +186,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
           name: owningCalendar.name,
           _id: owningCalendar._id
         };
-        $rootScope.setEventData(tempCalendar, 'info', true, true);
+        $rootScope.setEventData(tempCalendar, owningCalendar.evType, true, true);
 
         var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
         owningCalendar.events.push(calEvent);

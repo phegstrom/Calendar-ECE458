@@ -24,10 +24,14 @@ router.post('/', function(req, res, next) {
 
 	newEvent.repeats = req.body.repeats;
 
-	if (req.body.eType == undefined) 
-		newEvent.evType = 'regular';
+	console.log(req.body.evType);
+
+	if (req.body.evType) 
+		newEvent.evType = req.body.evType;
 	else 
-		newEvent.evType = req.body.eType;
+		newEvent.evType = 'regular';
+
+	console.log(req.body);
 
 	console.log("EVENT CREATED");
 	console.log(newEvent);
@@ -137,10 +141,10 @@ router.put('/:eventId', function(req, res, next) {
 	 	ev.end = req.body.end;
 	 	ev.calendar = req.body.calendar;
 
-	 	if (req.body.eType == undefined) 
+	 	if (req.body.evType == undefined) 
 			ev.evType = 'regular';
 		else 
-			ev.evType = req.body.eType;
+			ev.evType = req.body.evType;
 
  		if(req.body.alerts == undefined)
  			ev.alerts = new Alert();

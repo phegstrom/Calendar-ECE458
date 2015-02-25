@@ -161,7 +161,8 @@ app.run(function($rootScope, $q, $http, $modal) {
       $http.get('/event/pud/' + $rootScope.selectedEvent._id).
       success(function(data, status, headers, config) {
         var resData = angular.fromJson(data);
-        $rootScope.selectedRequest.pudDetails = resData.display;
+        console.log(resData);
+        $rootScope.selectedEvent.pudDetails = resData.display;
       });
     }
 
@@ -195,6 +196,8 @@ app.run(function($rootScope, $q, $http, $modal) {
 
   $rootScope.editPud = function(pud) {
     $rootScope.pudDetails = angular.copy(pud);
+    $rootScope.pudDetails.timeString = new String($rootScope.pudDetails.time);
+    $rootScope.pudDetails.intervalString = new String($rootScope.pudDetails.interval);
     $rootScope.displayCreatePudModal();
   }
 
@@ -217,6 +220,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
       $rootScope.myCalendars.forEach(function(element, index, array) {
         element.grouping = 'Owned Calendar';
+        element.evType = 'success';
         $rootScope.setEventData(element, "success", true, true);
       });
 
@@ -231,6 +235,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
       $rootScope.modCalendars.forEach(function(element, index, array) {
         element.grouping = 'Modifiable Calendar';
+        element.evType = 'info';
         $rootScope.setEventData(element, "info", true, true);
       });
 
@@ -246,6 +251,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
       $rootScope.viewCalendars.forEach(function(element, index, array) {
         element.grouping = 'Viewable Calendar';
+        element.evType = 'warning';
         $rootScope.setEventData(element, "warning", true, false);
       });
 
@@ -261,6 +267,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
       $rootScope.viewBusyCalendars.forEach(function(element, index, array) {
         element.grouping = 'Busy Calendar';
+        element.evType = 'important';
         $rootScope.setEventData(element, "important", false, false);
       });
 

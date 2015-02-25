@@ -49,6 +49,9 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       var calendarData = angular.fromJson(data);
       $scope.inputCalendarName = '';
       $scope.displayCalendars();
+
+      calendarData.evType='success';
+      calendarData.grouping='Owned Calendar';
       $scope.$parent.addCalendar(calendarData);
     }).
     error(function(data, status, headers, config) {

@@ -231,7 +231,6 @@ app.run(function($rootScope, $q, $http, $modal) {
         element.evType = 'success';
         $rootScope.setEventData(element, "success", true, true);
       });
-
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve owned calendars.');

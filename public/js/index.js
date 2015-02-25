@@ -151,6 +151,12 @@ app.run(function($rootScope, $q, $http, $modal) {
       $rootScope.selectedEvent = event;
     }
 
+    if($rootScope.selectedEvent.canView) {}
+    else {
+      $rootScope.selectedEvent.canViewEvent = true;
+      $rootScope.selectedEvent.canEditEvent = false;
+    }
+
     //Populate request details if owner of request
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
 

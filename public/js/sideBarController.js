@@ -320,7 +320,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
         console.log(pudIdContainer);
 
-        $http.put('/pud/reorder/', pudIdContainer).
+        $http.put('/pud/user/reorder', pudIdContainer).
         success(function(data, status, headers, config) {
           swap($rootScope.pudList, oldPudIndex, oldPudIndex + movement);
         }).

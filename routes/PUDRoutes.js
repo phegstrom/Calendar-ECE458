@@ -127,6 +127,7 @@ router.get('/evType', function (req, res, next) {
 
 // edits a PUD given a pud ID
 router.put('/:pudId', function (req, res, next) {
+	console.log("RANT THIS");
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
 		pud.description = req.body.description;
 		pud.time = req.body.time;
@@ -138,17 +139,23 @@ router.put('/:pudId', function (req, res, next) {
 
 
 // handles reordering of priorities
-router.put('/reorder', function (req, res, next) {
+router.put('/user/reorder', function (req, res, next) {
+
 	console.log("here");
 	console.log(req.body.PUDs);
 
-	
-	User.findById(req.session.user._id, function (err, user) {
+	// var uid = req.session.user._id;
+	var uid = "54ecb2cfb2c037650e91f53b";
+
+	User.findOne({_id: uid}, function (err, user) {
+		if (err) next(err);
 		user.PUDs = req.body.PUDs;
 		user.save(function (err, saved) {
-			res.send(saved);
+			res.send(saved.PUDs);
 		});
 	});
+
+
 });
 
 // completes a PUD , might remove depending if there is repeat set

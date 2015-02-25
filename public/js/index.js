@@ -159,6 +159,12 @@ app.run(function($rootScope, $q, $http, $modal) {
     //Populate request details if owner of request
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
 
+    if($rootScope.selectedRequest) {}
+    else {
+      $rootScope.selectedRequest = $rootScope.getOtherRequest($rootScope.selectedEvent.requestID);
+    }
+
+
     //Populate PUD value if it exists
     if($rootScope.selectedEvent.evType == 'pud') {
       $http.get('/event/pud/' + $rootScope.selectedEvent._id).

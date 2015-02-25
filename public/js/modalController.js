@@ -263,8 +263,25 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     $http.put('/request/addUsers/'+$rootScope.selectedEvent._id, addUsersRequest).
     success(function(data, status, headers, config) {
       var changedRequest = angular.fromJson(data);
-      //Find the request
-      //foundRequest=changedRequest
+      var foundOwnRequest = false;
+      for(var reqIndex=0; reqIndex < $rootScope.ownRequests.length; reqIndex++) {
+        if($rootScope.ownRequests[reqIndex]._id == changedRequest._id) {
+          $rootScope.ownRequests[reqIndex] = changedRequest._id;
+          foundOwnRequest = true;
+        }
+      }
+
+      //Don't update if the request is not yours
+      for(var reqIndex=0; reqIndex < $rootScope.otherRequests.length; reqIndex++) {
+          if($rootScope.otherRequests[reqIndex]._id == changedRequest._id) {
+            $rootScope.otherRequests[reqIndex] = changedRequest._id;
+            foundOwnRequest = true;
+          }
+        }
+
+      if(!foundOwnRequest) {
+        $rootScope.ownRequests.push(changedRequest);
+      }
     }).
     error(function(data, status, headers, config) {
       console.log('Could not invite users to event.');

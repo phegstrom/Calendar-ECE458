@@ -35,13 +35,15 @@ block content
             button.btn.btn-primary(ng-class="{active: selector == 2 || selector == 3 || selector == 5}", ng-click="displayCalendars()") Calendars
             button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayPUDEvents()") Tasks
             button.btn.btn-primary(ng-class="{active: selector == 6}", ng-click="displayInvites()") Invites
+          | &nbsp;
+          button.btn.btn-danger(href, ng-click="createNewEvent()", style="width:30px;height:30px;text-align:center;padding:6px 0;line-height:1.42;border-radius:15px;")
+            span(class="glyphicon glyphicon-plus")
           #userGroupWindow(ng-show="selector == 0")
             br
-            form(name="createGroupForm")
-              input(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
+            form.navbar-form(style="padding: 0", name="createGroupForm")
+              input.form-control(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
               | &nbsp;
-              button.btn.btn-primary(ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
-            hr
+              button.btn.btn-primary(type="submit", ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
             h4 User Groups
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="group in userGroups")
@@ -49,25 +51,26 @@ block content
                 a(href, ng-click="deleteUserGroup(group._id)")
                   span(class="glyphicon glyphicon-remove")
           #userListWindow(ng-show="selector == 1")
+            br
+            form.navbar-form(style="padding: 0", name="addUserForm")
+              input.form-control(type="text", ng-model="inputUserEmail", placeholder="User Email", list="emails", required)
+              | &nbsp;
+              button.btn.btn-primary(type="submit", ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
+              | {{ text }}
             h4 {{ selectedUserGroup.name }}
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in selectedUserGroup.users")
                 | {{ user.email + " " }}
                 a(href, ng-click="deleteUserFromGroup(user.email)")
                   span(class="glyphicon glyphicon-remove")
-             form(name="addUserForm")
-              input(type="text", ng-model="inputUserEmail", placeholder="User Email", list="emails", required)
-              | &nbsp;
-              button.btn.btn-primary(ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
-              br
-              | {{ text }}
+             
 
           #calendarInfo(ng-show="selector == 2")
             br
-            form(name="createCalendarForm")
-              input(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
+            form.navbar-form(style="padding: 0", name="createCalendarForm")
+              input.form-control(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
               | &nbsp;
-              button.btn.btn-primary(ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
+              button.btn.btn-primary(type="submit", ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
             h4 My Calendars
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="calendar in myCalendars")
@@ -129,7 +132,7 @@ block content
                 a(href, ng-click="removeModUser(getUserEmail(modUser))")
                   span(class="glyphicon glyphicon-remove")
             hr
-            form(name="addRuleForm")
+            form.navbar-form(style="padding: 0", name="addRuleForm")
               label Rule Type
               | &nbsp;
               select(ng-model="newRule.ruleType")
@@ -165,6 +168,9 @@ block content
           #PUDEvents(ng-show="selector == 4")
             br
             h4 To-Do
+              | &nbsp;
+              a(href, ng-click="createPudEvent()")
+                span(class="glyphicon glyphicon-plus")
             ul(style="padding-left: 0")
               li(style="list-style-type: none; padding-left: 10px", ng-repeat="pud in pudList")
                 a(href, ng-click="completePud(pud)")
@@ -178,11 +184,9 @@ block content
                   span.glyphicon.glyphicon-arrow-up
                 a(href, ng-click="movePud(pud, 'down')")
                   span.glyphicon.glyphicon-arrow-down
-            a.btn.btn-primary(href, ng-click="createPudEvent()") New Task
-            | &nbsp;
-            a.btn.btn-primary(href, ng-click="createNewEvent()") Create Event
           
           #eventInvites(ng-show="selector == 6")
+            br
             h4 Sent Invitations
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="request in ownRequests")

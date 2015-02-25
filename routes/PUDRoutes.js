@@ -136,7 +136,6 @@ router.put('/:pudId', function (req, res, next) {
 	});
 });
 
-
 // handles reordering of priorities
 router.put('/user/reorder', function (req, res, next) {
 
@@ -154,8 +153,6 @@ router.put('/user/reorder', function (req, res, next) {
 			res.send(saved.PUDs);
 		});
 	});
-
-
 });
 
 // completes a PUD , might remove depending if there is repeat set
@@ -182,7 +179,6 @@ router.post('/:pudId', function (req, res, next) {
 				res.send('PUD Removed');
 			});
 		}
-		
 	});
 });
 

@@ -447,7 +447,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       editNum: eventIndex
     };
 
-    $http.put('/request/' + route + 'Edit/' + request._id,editNum).
+    $http.put('/request/' + route + 'Edit/' + request._id, editNum).
     success(function(data, status, headers, config) {
       $rootScope.ownRequests[requestIndex].edits.splice(eventIndex, 1);
     }).

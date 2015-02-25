@@ -4,6 +4,7 @@ var router      = express.Router();
 var Event       = require('../models/Event');
 var Alert 		= require('../models/Alert');
 var User 		= require('../models/User');
+var PUD 		= require('../models/PUD');
 
 
 // email we created to use in sending alerts to users
@@ -77,13 +78,25 @@ function updatePUDAlert(pudId, alertId) {
 	console.log("updating PUD Alert info...");
 	PUD.findOne({_id: pudId}, function (err, pud) {
 		if (err) next (err);
-
-		if (pud.myAlertInterval == 0) {
+        console.log(pud.alertInterval);
+		if (pud.alertInterval == 0) {
             Alert.findOneAndRemove({_id: alertId}, function (err) {
             	if (err) next(err);
+            	console.log("removing PUD alert");
             });	
 		} else {
 			Alert.findOne({_id: alertId}, function (err, alert) {
+				console.log("updating PUD Alert time based on interval...");
+				var tempDate = alert.time;
+				alert.time = null;
+
+				// tempDate.setDate(tempDate.getDate() + pud.alertInterval);
+				tempDate.setMinutes(tempDate.getMinutes() + pud.alertInterval);
+				alert.time = tempDate;
+
+				alert.save(function (err, saved) {
+					if (err) next(err);
+				});
 			
 			});
 		}

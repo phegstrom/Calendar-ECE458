@@ -35,7 +35,7 @@ router.post('/', function(req, res, next) {
 
 // adding user to calendar modList and calendar to users' modLists
 router.put('/modList/add/:calId', function (req, res, next) {
-	User.find({email: req.body.modList}, function (err, users) {
+	User.find({email: {$in: req.body.modList}}, function (err, users) {
 		if (err) next(err);
 
 		users.forEach(function (user) {

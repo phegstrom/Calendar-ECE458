@@ -76,7 +76,6 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $http.get('/pud').
     success(function(data, status, headers, config) {
-      console.log(data);
       $rootScope.pudList = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
@@ -149,19 +148,28 @@ app.run(function($rootScope, $q, $http, $modal) {
     else if(event) {
       //DBEvent
       $rootScope.selectedEvent = event;
-      $rootScope.selectedEvent.canEditEvent = false;
+    }
+
+    if($rootScope.selectedEvent.canViewEvent) {}
+    else {
       $rootScope.selectedEvent.canViewEvent = true;
+      $rootScope.selectedEvent.canEditEvent = false;
     }
 
     //Populate request details if owner of request
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
+
+    if($rootScope.selectedRequest) {}
+    else {
+      $rootScope.selectedRequest = $rootScope.getOtherRequest($rootScope.selectedEvent.requestID);
+    }
+
 
     //Populate PUD value if it exists
     if($rootScope.selectedEvent.evType == 'pud') {
       $http.get('/event/pud/' + $rootScope.selectedEvent._id).
       success(function(data, status, headers, config) {
         var resData = angular.fromJson(data);
-        console.log(resData);
         $rootScope.selectedEvent.pudDetails = resData.display;
       });
     }
@@ -418,8 +426,8 @@ app.run(function($rootScope, $q, $http, $modal) {
 
   $rootScope.deleteCalendar = function(calendarId) {
     for(var i=0; i < $rootScope.events.length; i++) {
-      console.log($rootScope.events[i].parentData.calendar);
-      while( i < $rootScope.events.length && $rootScope.events[i].parentData.calendar == calendarId) {
+      console.log($rootScope.events[i].parentData.calendarId);
+      while( i < $rootScope.events.length && $rootScope.events[i].parentData.calendarId == calendarId) {
         $rootScope.events.splice(i, 1);
       }
     }

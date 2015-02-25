@@ -2,7 +2,9 @@ var express = require('express');
 var User 		= require('../models/User');
 var PUD 		= require('../models/PUD');
 var Event 		= require('../models/Event');
+var Alert		= require('../models/Alert');
 var router 		= express.Router();
+
 
 
 // creates a PUD associated with logged in user
@@ -14,11 +16,18 @@ router.post('/createPUD', function (req, res, next) {
 	myD = new Date();
 	newPUD.myDate = myD;
 	newPUD.repeatInterval = req.body.interval;
-	newPUD.alertInterval = req.body.alertInterval;
+	console.log("alert interval: " + req.body.alertInterv);
 
+	newPUD.alertInterval = req.body.alertInterv;
+
+	console.log("New alert interval: " + newPUD.alertInterv);
 	// create Alert objects
-	if (req.body.alert != undefined)
-		createAlert(req.body.alert, newPUD, req);
+
+	if (req.body.alert != undefined) {
+		var aId = createAlert(req.body.alert, newPUD, req);
+		newPUD.alert = aId;
+	}
+		
 
 	// for POSTman
 	var uid = req.session.user._id;
@@ -31,7 +40,7 @@ router.post('/createPUD', function (req, res, next) {
 					if (err) next(err);
 					var toRet = saved.toJSON();
 					toRet.time = saved.time;
-					console.log(toRet);
+					// console.log(toRet);
 					res.send(toRet);
 		});
 	});
@@ -40,17 +49,23 @@ router.post('/createPUD', function (req, res, next) {
 function createAlert(alertObj, pud, req) {
 	var uid = req.session.user._id;
 	var uEmail = req.session.user.email;
-	var myAlert = new Alert({time: alertObj[0].time, 
-							   method: alertObj[0].method, 
+	console.log(alertObj);
+	console.log("HERE");
+	console.log(pud);
+	var myAlert = new Alert({time: alertObj.time, 
+							   method: alertObj.method, 
 							   owner: uid,
 							   ownerEmail: uEmail,
-								myEvent: null,
-								myPUD: pud_id});
+								// myEvent: null,
+								myPUD: pud._id});
 
 	console.log("created alert for PUD:");
 	myAlert.save(function (err, saved) {
+		if (err) next(err);
 		console.log(myAlert);	
 	});
+
+	return alertId;
 
 }
 
@@ -62,26 +77,27 @@ router.get('/', function (req, res, next) {
 	var uid = req.session.user._id;
 	// var uid = '54d25e88f98e0e3cf81bc051';
 
-	User.findOne({_id: uid}).exec(function (err, user) {
+	User.findOne({_id: uid}, 'PUDs')
+		.populate('PUDs')
+		.exec(function (err, user) {
 			if(err) next(err);
-
-			PUD.find({_id: {$in: user.PUDs}/*, myDate: {$lt: Date.now()}*/}).exec(function (err, puds){
-				if (err) next(err);
-				var toRet = convertToHours(puds);
-				// for (var i = 0; i < puds.length; i++) {
-				// 	var obj = puds[i].toJSON();
-				// 	obj.time = puds[i].time;
-				// 	toRet.push(obj);
-				// }
-				res.send(toRet);
+			var pudArr = [];
+			var currDate = Date.now();
+			user.PUDs.forEach(function (pud) {
+				if(pud.myDate <= currDate)
+					pudArr.push(pud);
 			});
-			
+
+			var toRet = convertToHours(pudArr);
+			res.send(toRet);
+
 		});
 });
 
 // returns an array of pud objects, but with time property converted
 function convertToHours(puds) {
 	var toRet = [];
+
 	for (var i = 0; i < puds.length; i++) {
 		var obj = puds[i].toJSON();
 		obj.time = puds[i].time;
@@ -133,7 +149,6 @@ router.get('/test', function (req, res, next) {
 
 // for testing only
 router.get('/evType', function (req, res, next) {
-
 	var pid = '54e3da3d377962b61a3ff7d5';
 	Event.findOne({_id: pid}, function (err, ev) {
 
@@ -144,7 +159,6 @@ router.get('/evType', function (req, res, next) {
 	});
 
 });
-
 
 // edits a PUD given a pud ID
 router.put('/:pudId', function (req, res, next) {
@@ -171,7 +185,7 @@ router.put('/user/reorder', function (req, res, next) {
 		if (err) next(err);
 		console.log(user.PUDs);
 		user.PUDs = req.body.PUDs;
-		console.log(user.PUDs);
+		// console.log(user.PUDs);
 		user.save(function (err, saved) {
 			res.send(saved.PUDs);
 		});
@@ -186,19 +200,19 @@ router.post('/:pudId', function (req, res, next) {
 	var uid = req.session.user._id;
 	// var uid = '54d25e88f98e0e3cf81bc051';
 
-
-
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
-		console.log("interval: " + pud.myInterval);
-		if (pud.myInterval != null) {
-			var currDate = pud.myDate;
-			console.log("previous date: " + currDate);
-			currDate.setDate(pud.myDate.getDate() + pud.myInterval);
-			console.log("new date: " + currDate);
+		// console.log("interval: " + pud.repeatInterval);
+		if (pud.repeatInterval != null) {
+			var tempDate = pud.myDate;
+			pud.myDate = null;
+			// tempDate.setDate(tempDate.getDate() + pud.repeatInterval);
+			tempDate.setMinutes(tempDate.getMinutes() + pud.repeatInterval);
+			pud.myDate = tempDate;
+
 			pud.save(function (err, saved) {
 				if (err) next(err);
 				res.send(saved);
-			})
+			});
 		} else {
 			User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
 				pud.remove();
@@ -207,8 +221,6 @@ router.post('/:pudId', function (req, res, next) {
 		}
 		
 	});
-
-
 });
 
 

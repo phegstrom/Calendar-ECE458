@@ -8,7 +8,7 @@ var AlertSchema = new Schema({
 	owner: {type: Schema.Types.ObjectId, ref: 'User'},
 	ownerEmail: String,
 	myEvent: {type: Schema.Types.ObjectId, ref: 'Event'},
-	myPUD: {type: Schema.Types.ObjectId, ref: 'PUD', default: null}
+	myPUD: {type: Schema.Types.ObjectId, ref: 'PUD'}
 }, {collection: collectionName});
 
 module.exports = mongoose.model('Alert', AlertSchema);

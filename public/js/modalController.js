@@ -117,7 +117,6 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }
 
     if(eventDetails.isPUD) {
-      console.log('WE DID IT TEAM');
       eventDetails.evType='pud';
     }
     else {
@@ -331,6 +330,17 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     if(pudDetails.willRepeat) {
       pudDetails.interval = parseInt(pudDetails.intervalString);
     }
+    else {
+      pudDetails.interval = 0;
+    }
+
+    if($rootScope.isValidTime(pudDetails.alertTime)) {
+      pudDetails.alert = {
+        time: pudDetails.alertTime,
+        method: 'email'
+      };
+      pudDetails.alertInterval = parseInt(pudDetails.alertRepeatString);
+    }
 
     console.log(pudDetails);
 
@@ -356,7 +366,6 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       success(function(data, status, headers, config) {
         console.log(data);
         var newPud = angular.fromJson(data);
-        newPud.time /= $rootScope.HOUR;
         
         $rootScope.pudList.push(newPud);
       }).

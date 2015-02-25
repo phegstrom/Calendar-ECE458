@@ -150,6 +150,7 @@ router.put('/user/reorder', function (req, res, next) {
 	User.findOne({_id: uid}, function (err, user) {
 		if (err) next(err);
 		user.PUDs = req.body.PUDs;
+		console.log(user.PUDs);
 		user.save(function (err, saved) {
 			res.send(saved.PUDs);
 		});

@@ -359,6 +359,9 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       };
       pudDetails.alertInterval = parseInt(pudDetails.alertRepeatString);
     }
+    else {
+      pudDetails.alertInterval = 0;
+    }
 
     console.log(pudDetails);
 

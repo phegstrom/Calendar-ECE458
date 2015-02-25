@@ -307,21 +307,29 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
 
       if(oldPudIndex + movement >= 0 && oldPudIndex + movement < $rootScope.pudList.length) {
         var pudIds = [];
+        var pudNames = [];
 
         for(var pudIndex=0; pudIndex < $rootScope.pudList.length; pudIndex++) {
           pudIds.push($rootScope.pudList[pudIndex]._id);
+          pudNames.push($rootScope.pudList[pudIndex].description);
         }
 
+        console.log(pudNames);
+        console.log(pudIds);
+
         swap(pudIds, oldPudIndex, oldPudIndex + movement);
+        swap(pudNames, oldPudIndex, oldPudIndex + movement);
 
         var pudIdContainer = {
           PUDs: pudIds
         };
 
-        console.log(pudIdContainer);
+        console.log(pudNames);
+        console.log(pudIds);
 
         $http.put('/pud/user/reorder', pudIdContainer).
         success(function(data, status, headers, config) {
+          console.log(data);
           swap($rootScope.pudList, oldPudIndex, oldPudIndex + movement);
         }).
         error(function(data, status, headers, config) {

@@ -133,19 +133,23 @@
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item answer
+\item A special feature of javascript in general is that it is asynchronous. To deal with this asynchronous nature of the code, callback functions are used. However, multiple callback functions with callback functions (also known as callback hell) makes it harder to find bugs and/or simply read the code. I researched the use of promises alongside mongoDB and Mongoose. After researching, I then tested the promise implementation--accessing the database with a promise and utilizing the exposed promise API. Minor kinks were worked out, but Peter and I were able to clean up some of our code with promises from then on.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item answer
+\item At times, router methods we wrote did not behave properly, and by that I mean that certain errors were thrown to the console. Different HTTP error codes made up the majority of these errors, so I had to interpret what the server was telling me in order to both find the problem and determine what the best solution would be. One example of this that comes to mind was a server 500 response we were getting from issuing a PUT to the {\tt /pud/reorder} endpoint. After analyzing more console outputs, I was able to find that the Express router treats {\tt /pud/reorder} and {\tt /pud/:pudID} (which is a query parameter) as the same, so both routes were being run. 
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item answer
+\item One new component I designed in the back-end was the PUD. We, as a group, wanted to integrate the PUD into the overall project and specific events without much change to existing code. With that in mind, I made the PUD a separate document type in our database, BUT it shared some of the pre-existing functionality we had developed for alerts and repeats. I was able to reuse a lot of code by using the ‘populate’ as well as the Alert schema to handle such things. An interesting requirement for the PUD was that you could set a time interval (i.e. weekly for the repeat), yet, once the PUD was marked complete, you wouldn’t want it to immediately show up in the list of outstanding PUDs. This was solved by editing the “GET /pud” method to check the {\tt createdDate} for each PUD. 
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
+\begin{enumerate} [$\cdot$]
+\item As I stated in the previous design document we submitted, javascripts asynchronous nature continued to prove difficult at times. Specifically, problems arose when we began writing more functions both in our route files and in our schema files rather than rewriting code all over the place. Each time we made a call to the database, the value would have to be returned to a callback function, so as we segregated our code more and more, we continued to have to abide by the callback rules of javascript, slowing our development speed tremendously at times.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item answer
+\item Peter and I worked very together on the backend, and, as a whole, I thought our group worked much better together than we did through the first evolution. I was able to work on new features concurrently with the rest of the group, meeting occasionally to make sure there were no design misunderstandings or any small typo-like bugs that would cause integration problems down the development path.
 \end{enumerate}
 \end{enumerate}
 
@@ -161,6 +165,10 @@
 \item answer
 \end{enumerate}
 \item {\bf Designing System Components}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
 \begin{enumerate} [$\cdot$]
 \item answer
 \end{enumerate}
@@ -185,6 +193,10 @@
 \begin{enumerate} [$\cdot$]
 \item answer
 \end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
 \item answer
@@ -203,6 +215,10 @@
 \item answer
 \end{enumerate}
 \item {\bf Designing System Components}
+\begin{enumerate} [$\cdot$]
+\item answer
+\end{enumerate}
+\item {\bf Dealing with Realistic Contraints}
 \begin{enumerate} [$\cdot$]
 \item answer
 \end{enumerate}

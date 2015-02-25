@@ -47,6 +47,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     $http.post('/calendar', {name: calendarNameInput}).
     success(function(data, status, headers, config) {
       var calendarData = angular.fromJson(data);
+      console.log(angular.fromJson(data));
       $scope.inputCalendarName = '';
       $scope.displayCalendars();
 

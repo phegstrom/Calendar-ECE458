@@ -36,12 +36,16 @@ UserSchema.methods.getBestPUD = function (alottedTime, cb) {
 
 	PUD.find({_id: {$in: this.PUDs}}).exec(function (err, puds) {
 		if (err) next(err);
+		var didBreak = false;
 		for (var i = 0; i < puds.length; i++) {
 			if (puds[i].time <= alottedTime) {
 				cb(puds[i]);
+				didBreak = true;
+				break;
 			}
 		}
-		cb(null);
+		if(!didBreak)
+			cb(null);
 	});
 
 };

@@ -4,8 +4,10 @@ var router      = express.Router();
 var Event       = require('../models/Event');
 var Alert 		= require('../models/Alert');
 var User 		= require('../models/User');
+var PUD 		= require('../models/PUD');
 
 
+// email we created to use in sending alerts to users
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -15,20 +17,7 @@ var transporter = nodemailer.createTransport({
 });
 
 
-// router.get('/myTest', function(req, res, next) {
-// 	var d0 = new Date();
-// 	var d1 = new Date();
-// 	d1.setMinutes(d1.getMinutes() + 5);
-// 	d0ms = d0.getTime();
-// 	d1ms = d1.getTime();
-// 	console.log(d0ms);
-// 	console.log(d1ms);
-// 	var diff = d1ms - d0ms;
-// 	console.log(diff);
-// 	diff = diff / 1000 / 60 / 60;
-// 	res.send(200, diff);
-// });
-
+// this repeats the intervalFunction, sending emails
 setInterval(intervalFunction, 1000 * 60);
 
 // send mail with defined transport object
@@ -44,44 +33,74 @@ function intervalFunction() {
 	// console.log(upperBound);
 	// console.log(now);
 	// Alert.findOne({_id: '54d1f1a799bf6b887dbcdf7c'})
-	Alert.findOne({time: {$gte: lowerBound, $lt: upperBound}})
-		.populate('myEvent')
-		.exec(function (err, alert) {
-			if (err) next(err);
-			// console.log(alert);
-			if(alert) {
-				User.findOne({_id: alert.owner})
-					.exec( function (err, user) {
+	Alert.findOne({time: {$gte: lowerBound, $lt: upperBound}}).populate('myEvent myPUD').exec(function (err, alert) {
+		if (err) next(err);
+		var htmlString;
 
-				var htmlString = createEventEmail(alert);
-	          	var mailOptions = setOptions(htmlString, user.email);
+		if(alert) {
 
-		      console.log("sending email...");
-		      // console.log(htmlString);
-		      // console.log(mailOptions);
-		      //console.log(event_t);
+			if (alert.myEvent != null) {
+				htmlString = createEventEmail(alert);
 
-		       if (alert) {
-		          transporter.sendMail(mailOptions, function(error, info) {
-		                if (error) {
-		                    console.log(error);
-		                } else {
-		                    console.log('Message sent: ' + info.response);
-		                }
-		                Event.findOneAndUpdate({_id: alert.myEvent._id}, {$pull: {alerts: alert._id}}, function (err, num, raw) {
-		                	if (err) next(err);
-		                	// console.log('Alert deleted from event object');
-		                });
-		                Alert.findOneAndRemove({_id: alert._id}, function (err) {
-		                	if (err) next(err);
-		                	// console.log('deleted alert object');		                	
-		                });
-		            });
-		        }
-		       // res.redirect('/');
+				// delete the alert in the event
+                Event.findOneAndUpdate({_id: alert.myEvent._id}, {$pull: {alerts: alert._id}}, function (err, num, raw) {
+                	if (err) next(err);
+                });
+                Alert.findOneAndRemove({_id: alert._id}, function (err) {
+                	if (err) next(err);
+                });		
+
+			} else if (alert.myPUD != null) { 
+				htmlString = createPUDEmail(alert);
+				updatePUDAlert(alert.myPUD, alert._id);
+			}
+
+          	var mailOptions = setOptions(htmlString, alert.ownerEmail);
+
+			console.log("sending email...");
+
+	      
+          	transporter.sendMail(mailOptions, function(error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Message sent: ' + info.response);
+                }
+
+            });
+
+		}
+
+	});
+}
+
+function updatePUDAlert(pudId, alertId) {
+	console.log("updating PUD Alert info...");
+	PUD.findOne({_id: pudId}, function (err, pud) {
+		if (err) next (err);
+        console.log(pud.alertInterval);
+		if (pud.alertInterval == 0) {
+            Alert.findOneAndRemove({_id: alertId}, function (err) {
+            	if (err) next(err);
+            	console.log("removing PUD alert");
+            });	
+		} else {
+			Alert.findOne({_id: alertId}, function (err, alert) {
+				console.log("updating PUD Alert time based on interval...");
+				var tempDate = alert.time;
+				alert.time = null;
+
+				// tempDate.setDate(tempDate.getDate() + pud.alertInterval);
+				tempDate.setMinutes(tempDate.getMinutes() + pud.alertInterval);
+				alert.time = tempDate;
+
+				alert.save(function (err, saved) {
+					if (err) next(err);
+				});
+			
 			});
 		}
-		});
+	});
 }
 
 // takes in Alert populated with Event object
@@ -104,6 +123,16 @@ function createEventEmail(alert) {
              ' at ' + alert.time.toTimeString() + ' <br>';             
     toRet += '<b>Current Time: </b>' + date.toTimeString();
 
+
+    return toRet;
+}
+
+function createPUDEmail(alert) {
+	var date = new Date();
+    var toRet = '';
+    toRet += '<b>PUD Name: </b>';
+    toRet += alert.myPUD.description + ' <br> <br>';           
+    toRet += '<b>This message was sent at: </b>' + date.toTimeString();
 
     return toRet;
 }

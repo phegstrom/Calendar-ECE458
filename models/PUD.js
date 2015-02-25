@@ -6,9 +6,10 @@ var collectionName = 'pudC';
 var PUDSchema = new Schema({
 	description: String,
 	myDate: {type: Date},
-	// length of time in milliseconds
-	time: {type: Number, get: toHours, set: toMilli},
-	repeatInterval: Number
+	time: {type: Number, get: toHours, set: toMilli}, // stored in ms
+	repeatInterval: Number, // days BUT SHOULD CHANGE TO MINUTES
+	alertInterval: Number, // minutes,
+	alert: {type: Schema.Types.ObjectId, ref: 'Alert', default: null},
 }, {collection: collectionName});
 
 function toHours(n) {

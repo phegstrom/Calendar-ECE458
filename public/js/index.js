@@ -76,7 +76,6 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $http.get('/pud').
     success(function(data, status, headers, config) {
-      console.log(data);
       $rootScope.pudList = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
@@ -151,15 +150,26 @@ app.run(function($rootScope, $q, $http, $modal) {
       $rootScope.selectedEvent = event;
     }
 
+    if($rootScope.selectedEvent.canViewEvent) {}
+    else {
+      $rootScope.selectedEvent.canViewEvent = true;
+      $rootScope.selectedEvent.canEditEvent = false;
+    }
+
     //Populate request details if owner of request
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
+
+    if($rootScope.selectedRequest) {}
+    else {
+      $rootScope.selectedRequest = $rootScope.getOtherRequest($rootScope.selectedEvent.requestID);
+    }
+
 
     //Populate PUD value if it exists
     if($rootScope.selectedEvent.evType == 'pud') {
       $http.get('/event/pud/' + $rootScope.selectedEvent._id).
       success(function(data, status, headers, config) {
         var resData = angular.fromJson(data);
-        console.log(resData);
         $rootScope.selectedEvent.pudDetails = resData.display;
       });
     }

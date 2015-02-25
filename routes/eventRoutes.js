@@ -37,6 +37,7 @@ router.post('/', function(req, res, next) {
 	console.log(newEvent);
 
 	newEvent.creator = req.session.user._id;
+
 	//for use with POSTman
 	//newEvent.creator = req.body.creator;
 
@@ -64,6 +65,7 @@ router.post('/', function(req, res, next) {
 function createAlertSchemas(objArray, ev, req) {
 	var toRet = [];
 	var userId = req.session.user._id;
+	var uEmail = req.session.user.email;
 	// for postman
 	//var userId = "54d06afb55d013111eea5759";
 	var count = objArray.length;
@@ -74,7 +76,8 @@ function createAlertSchemas(objArray, ev, req) {
 	
 	for (var i = 0; i < objArray.length; i++) {
 		var alertObj = new Alert({time: objArray[0].time, 
-							   method: objArray[0].method, 
+							   method: objArray[0].method,
+							   ownerEmail: uEmail, 
 							   owner: userId,
 								myEvent: ev._id});
 
@@ -92,28 +95,25 @@ router.get('/pud/:eventId', function (req, res, next) {
 	var pid = req.params.eventId;
 	console.log("BEFORE");
 
+	console.log(req.count);
+
 	Event.findOne({_id: pid}).exec(function (err, ev) {
 		if (err) next(err);
 
-		req.count = 0; // so wouldn't run twice!!
 		ev.getPUD(function (pud) {
-
 
 			var nullString = "Not sufficient amount of time to complete any of your PUD's";
 			//console.log(pud.description);
-			console.log("PRINT");
-
 
 			if (pud != null) {
 				var toRet = {pudId: "", display: ""};
-				req.count++; 
 				var time = pud.time;
 				// var pudString = 'PUD: ' + pud.description + ' ('+time+' hours)';
 				toRet.display = pud.description + ' ('+time+' hours)';
 				toRet.pudId = pud._id;
 				res.send(toRet);
-			} 
-			else if (req.count == 0) {
+			}
+			else {
 				res.send(nullString);
 			}
 

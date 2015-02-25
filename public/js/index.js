@@ -418,8 +418,8 @@ app.run(function($rootScope, $q, $http, $modal) {
 
   $rootScope.deleteCalendar = function(calendarId) {
     for(var i=0; i < $rootScope.events.length; i++) {
-      console.log($rootScope.events[i].parentData.calendar);
-      while( i < $rootScope.events.length && $rootScope.events[i].parentData.calendar == calendarId) {
+      console.log($rootScope.events[i].parentData.calendarId);
+      while( i < $rootScope.events.length && $rootScope.events[i].parentData.calendarId == calendarId) {
         $rootScope.events.splice(i, 1);
       }
     }

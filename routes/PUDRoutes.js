@@ -20,7 +20,7 @@ router.post('/createPUD', function (req, res, next) {
 
 	newPUD.alertInterval = req.body.alertInterv;
 
-	console.log("New alert interval: " + newPUD.alertInterv);
+	console.log("New alert interval: " + newPUD.alertInterval);
 	// create Alert objects
 
 	if (req.body.alert != undefined) {
@@ -65,7 +65,7 @@ function createAlert(alertObj, pud, req) {
 		console.log(myAlert);	
 	});
 
-	return alertId;
+	return myAlert._id;
 
 }
 

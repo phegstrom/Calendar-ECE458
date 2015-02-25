@@ -105,9 +105,9 @@
 
 
 {\large\sc Parker Hegstrom} {\large (eph4)} \\
-{\large\sc Peter Yom} {\large (eph4)} \\
-{\large\sc Wayne You} {\large (eph4)} \\
-{\large\sc Brandon Chao} {\large (eph4)} \\
+{\large\sc Peter Yom} {\large (pky3)} \\
+{\large\sc Wayne You} {\large (wxy)} \\
+{\large\sc Brandon Chao} {\large (bc105)} \\
 
 
 \end{center}
@@ -115,7 +115,9 @@
 
 \vspace{0.2in}
 
-\abstract{This project is the second evolution of the soCal Calendar project for ECE 458: Engineering Software for Maintainability.  The ultimate goal is to create a calendar application usable by anyone and provides the functionality required to create and share calendars or specific events to other users in the system.  For the second evolution, the requirements were to add event invitation, request acceptance, and present-until-done (PUD) events.}
+\begin{abstract}
+This project is the second evolution of the soCal Calendar project for ECE 458: Engineering Software for Maintainability.  The ultimate goal is to create a calendar application usable by anyone and provides the functionality required to create and share calendars or specific events to other users in the system.  For the second evolution, the requirements were to add event invitation, request acceptance, and present-until-done (PUD) events.
+\end{abstract}
 
 \tableofcontents
 
@@ -125,7 +127,7 @@
 
 \section{Overall Design}
 
-The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members code. The figure below shows a high level diagram of how we decided to design our calendar web application.
+The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
 
 \begin{figure}[htb]
 \centering
@@ -138,7 +140,7 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 
 \noindent At the beginning of evolution two, our group spent four days simply refactoring and making large design change decisions. The back-end did not undergo much broad change, but the front end implemented a new type of calendar (see Front End Section for further analysis on this). Our modular design has been engineered in such a way that any front end client service can use our backend service. Because of this, development on the backend did not have to stop and integration of the new front end was seamless.\\
 
-\noindent The following sections further discuss design choices and implications of those design choices for both our front end and back end teams. 
+\noindent The following sections further discuss design choices and implications of those design choices for both our front end and back end teams. \\
 
 \section{Back End Design and Analysis}
 \subsection{New Features}
@@ -161,7 +163,7 @@ Our previous design worked well for what it was intended to do.  Everything was 
 
 Our previous design had event sharing on a calendar granularity.  For example, one event was fixed to one calendar, but the entire calendar could be shared with another user.  Unfortunately, the new evolution required us to be able to share and invite single individual events.  In order to fulfill this requirement, we had to redesign our event schema and how calendars store events.  It was not a painful fix, but it was definitely took some redesigning and rethinking of our calendar's functionality.\\
 
-\noindent Our previous design also worked around our lack of understanding of deepPopulate and promises.  There were several areas with multiple levels of nested callbacks and re-routing in order to work around our problems.  However, in this evolution, we learned how to properly deepPopulate and to utilize promises.  These new developments helped clean up our code, decrease development time, and gave us incredible flexibility and control over our mongoose queries, how we package and populate data, and the overall flow of our code.
+\noindent Our previous design also worked around our lack of understanding of deepPopulate and promises.  There were several areas with multiple levels of nested callbacks and re-routing in order to work around our problems.  However, in this evolution, we learned how to properly deepPopulate and to utilize promises.  These new developments helped clean up our code, decrease development time, and gave us incredible flexibility and control over our mongoose queries, how we package and populate data, and the overall flow of our code.\\
 
 \section{Front End Design and Analysis}
 
@@ -173,7 +175,7 @@ Our previous design had event sharing on a calendar granularity.  For example, o
 
 \noindent The rest of the code changes involved refactoring large functions, organizing the code more logically, implementing modals for UI experience, providing more auto-filled inputs, and caching data locally. The lingering problems in the design after these changes are the overuse of \$rootScope (a global scope for Angular) and the increasing size of our modal controller. The first problem is due in part to the scoping of Angular. If we wish to pass a value from one scope to another, it is impossible without passing it through the root scope. However, the root scope does not actually have knowledge of any of its child scopes, so the data passed must be stored in a global scope in order to transfer. The other problem of the scope of the modal controller can be fixed by decomposing the controller since the constituent parts are very loosely connected.\\
 
-\noindent The choice of caching and updating the data locally in conjunction with database updates has come with some benefits and some detriments. For user experience and future use, keeping and updating the data locally drastically reduces the amount of GET requests sent and parsed to maintain data consistency. However, this comes at the cost of increasing the code considerably for the client. Instead of requesting and re-displaying all of the data, the data on local copies must be manually updated to ensure that the user sees values consistent with the database. This will add to development time in the future.\\~\\
+\noindent The choice of caching and updating the data locally in conjunction with database updates has come with some benefits and some detriments. For user experience and future use, keeping and updating the data locally drastically reduces the amount of GET requests sent and parsed to maintain data consistency. However, this comes at the cost of increasing the code considerably for the client. Instead of requesting and re-displaying all of the data, the data on local copies must be manually updated to ensure that the user sees values consistent with the database. This will add to development time in the future.\\
 
 \noindent Finally, the Jade template for our single-page site has been growing considerably. Almost all of the relevant HTML for the calendar page is within a single file. If possible, the created modals may need to be moved into their own HTML files, and the sidebars should be converted into UI routes for Angular to better organize the HTML. As it is now, future development will become harder the more we are required to sift through the file for details.\\
 

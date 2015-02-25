@@ -66,7 +66,6 @@ function createAlert(alertObj, pud, req) {
 	});
 
 	return alertId;
-
 }
 
 
@@ -206,12 +205,27 @@ router.post('/:pudId', function (req, res, next) {
 			tempDate.setMinutes(tempDate.getMinutes() + pud.repeatInterval);
 			pud.myDate = tempDate;
 
+			if(pud.alert != undefined) {
+				Alert.findOne({_id: pud.alert}, function (err, pudAlert) {
+					vart tempTime = pudAlert.time;
+					pud.time = null;
+					// tempTime.setDate(tempTiime.getDate() + pud.repeatInterval);
+					tempTime.setMinutes(tempTiime.getMinutes() + pud.repeatInterval);
+					pudAlert.time = tempTime;
+					pudAlert.save();
+				});
+			}
+
 			pud.save(function (err, saved) {
 				if (err) next(err);
 				res.send(saved);
 			});
 		} else {
 			User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
+				if(pud.alert != undefined) {
+					Alert.findOneAndRemove({_id: pud.alert});
+				}
+
 				pud.remove();
 				res.send('PUD Removed');
 			});
@@ -229,7 +243,10 @@ router.delete('/:pudId', function (req, res, next) {
 	User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
 		// do logic here to create new PUD if there is a repeat
 
-		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, num) {
+		PUD.findOneAndRemove({_id: req.params.pudId}, function (err, pud) {
+			if(pud.alert != undefined) {
+				Alert.findOneAndRemove({_id: pud.alert});
+			}
 			if (err) next(err);
 			res.send('PUD Destroyed');
 		});

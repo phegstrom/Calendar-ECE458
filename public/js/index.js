@@ -455,7 +455,6 @@ app.run(function($rootScope, $q, $http, $modal) {
         return $rootScope.userList[userIndex].email;
       }
     }
-
     return 'Unknown User';
   }
 

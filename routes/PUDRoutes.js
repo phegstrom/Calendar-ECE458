@@ -151,6 +151,7 @@ router.put('/user/reorder', function (req, res, next) {
 		if (err) next(err);
 		console.log(user.PUDs);
 		user.PUDs = req.body.PUDs;
+		console.log(user.PUDs);
 		user.save(function (err, saved) {
 			res.send(saved.PUDs);
 		});

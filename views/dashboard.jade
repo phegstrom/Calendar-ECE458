@@ -118,13 +118,13 @@ block content
                     | {{ group.name }}
                 | Users 
                 ul(style='list-style-type: none; padding-left: 10px;')
-                  li(ng-repeat="userId in rule.assocUsers")
-                    | {{ getUserEmail(userId) }}
+                  li(ng-repeat="user in rule.assocUsers")
+                    {{ user.email }}
             b Users with Modify 
             ul(style='list-style-type: none; padding-left: 10px;')
               li(ng-repeat="modUser in selectedCalendar.modList")
-                | {{ getUserEmail(modUser) + " " }}
-                a(href, ng-click="removeModUser(modUser._id)")
+                {{ getUserEmail(modUser) + " " }}
+                a(href, ng-click="removeModUser(getUserEmail(modUser))")
                   span(class="glyphicon glyphicon-remove")
             hr
             form(name="addRuleForm")
@@ -152,11 +152,11 @@ block content
               button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
             hr
             form(name="addModUserForm")
-              input(type="text", ng-model="inputModUserId", list="emails")
+              input(type="text", ng-model="inputModUserEmail", list="emails")
               | &nbsp;
               button.btn(ng-click="addModUsertoList()") Add User with Modify
-              ul
-                li(ng-repeat="modUserId in modUserList") {{ modUserId }}
+              ul(style='list-style-type: none; padding-left: 10px;')
+                li(ng-repeat="modUserEmail in modUserList") {{ modUserEmail }}
               button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
             br
 

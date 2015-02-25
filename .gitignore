@@ -36,6 +36,8 @@ bower_components
 # MongoDB Data? (using the data folder in this folder for the database)
 data
 
->>>>>>> 5d271eff5dcd64102744ee45dbd15fbe7c68c0ee
+# LaTeX
+*.aux
+
 # Debug log from npm
 npm-debug.log

@@ -356,7 +356,6 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       success(function(data, status, headers, config) {
         console.log(data);
         var newPud = angular.fromJson(data);
-        newPud.time /= $rootScope.HOUR;
         
         $rootScope.pudList.push(newPud);
       }).

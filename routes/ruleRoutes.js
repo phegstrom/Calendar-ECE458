@@ -14,7 +14,7 @@ router.post('/:calendId', function (req, res, next) {
 	// now add rule stuff for individual users, 
 	// first create array of ids
 	var emailToIDArray = [];
-	User.find({email: req.body.userIds}, function (err, users) {
+	User.find({email: {$in: req.body.userIds}}, function (err, users) {
 		if (err) next(err);
 		users.forEach(function (user) {
 			emailToIDArray.push(user._id);

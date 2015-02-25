@@ -171,7 +171,7 @@ block content
               | &nbsp;
               a(href, ng-click="createPudEvent()")
                 span(class="glyphicon glyphicon-plus")
-            ul(style="padding-left: 0")
+            ul(style='list-style-type: none; padding-left: 10px;')
               li(style="list-style-type: none; padding-left: 10px", ng-repeat="pud in pudList")
                 a(href, ng-click="completePud(pud)")
                   span.glyphicon.glyphicon-check
@@ -193,7 +193,7 @@ block content
                 //request.eventID is an event object, not an ID, naming is due to database storage
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
                 if('request.edits.length > 0')
-                  ul
+                  ul(style='list-style-type: none; padding-left: 10px;')
                     li(ng-repeat="editEvent in request.edits")
                       a(href, ng-click="displayEventDetails(editEvent)") {{ editEvent.editor }}
                       a(href, ng-click="respondToRequestEdit(request, editEvent, 'approve')")
@@ -221,43 +221,44 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4#myModalLabel.modal-title Create Event
       .modal-body
-        form(name="eventForm")
-          label Event Name
+        form.navbar-form(style="padding: 0; display: table;", name="eventForm")
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Event Name
+            //br
+            input.form-control(style="display:table-cell;", type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
           br
-          input(type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Description
+            //br
+            textarea.form-control(style="display:table-cell;", rows="4", cols="50", ng-model="eventDetails.description", placeholder="Description")
           br
-
-          label Description
-          br
-          textarea(rows="8", cols="50", ng-model="eventDetails.description", placeholder="Description")
-          br
-
-          label Location
-          br
-          input(type="text", ng-model="eventDetails.location", placeholder="Location")
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Location
+            //br
+            input.form-control(style="display:table-cell;", type="text", ng-model="eventDetails.location", placeholder="Location")
           br
           //
             label All Day?
             input(type="checkbox", ng-model="eventDetails.isAllDay")
-
-          label Start Time
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Start Time
+            //br
+            input.form-control(style="display:table-cell;", type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
           br
-          input(type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
-          br
-          
-          label End Time
-          br
-          input(type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+          p(style="display:table-row;")
+            label(style="display:table-cell;") End Time
+            //br
+            input.form-control(style="display:table-cell;", type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
           br
 
           //Currently this naively assumes the date in alertTime is valid
-          label Add Alert
-          br
-          input(type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
-          br
-          button.btn(type="button", ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
-          br
-          ul
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Add Alert
+            //br
+            input.form-control(style="display:table-cell;", type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+            | &nbsp;
+            button.btn(type="button", ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
+          ul(style='list-style-type: none; padding-left: 10px;')
            li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
              a(href ng-click="removeAlert(time)")
               span(class="glyphicon glyphicon-remove")
@@ -270,32 +271,29 @@ block content
           br
           div(ng-hide="!eventDetails.willRepeat")
             label Repeat Mode
-            br
-            select(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
+            select.form-control(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
               option Number
               option End Date
             br
             div(ng-hide="eventDetails.repeatMode != 'Number'")
               label Repeat Count
               br
-              input(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
+              input.form-control(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
               br
             div(ng-hide="eventDetails.repeatMode != 'End Date'")
               label End Date
               br
-              input(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+              input.form-control(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
               br
             div(ng-repeat="day in daysOfTheWeek")
               label {{ day.name }} &nbsp;
               input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
-          br
-          label Containing Calendar
-          br
-          select(ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
-          br
-          input(type="text", ng-model="selectedEvent._id", ng-hide="true")
-          br
-          btn.btn.btn-primary(ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Containing Calendar
+            | &nbsp;
+            select.form-control(style="display:table-cell;", ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
+          input.form-control(type="text", ng-model="selectedEvent._id", ng-hide="true")
+          btn.btn.btn-primary(type="submit", ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
     
     script(type="text/ng-template" id="eventDetailsModal.html" )
       .modal-header
@@ -324,7 +322,7 @@ block content
             div(ng-show="selectedEvent.canViewEvent")
               div(ng-hide="selectedEvent.alerts == null")
                 b Alerts
-                ul
+                ul(style='list-style-type: none; padding-left: 10px;')
                   li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
               div(ng-hide="selectedEvent.willRepeat == null")
                 h4 Repeats?
@@ -358,18 +356,28 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4#myModalLabel.modal-title Invite Users to {{ selectedEvent.name }}
       .modal-body
-        form(name="UserInvite")
-          textarea(rows="2", cols="40", ng-model="requestDetails.description", placeholder="Invite Description")
+        form.navbar-form(style="padding: 0; display: table;", name="UserInvite")
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Description
+            textarea.form-control(style="display: table-cell;", rows="2", cols="40", ng-model="requestDetails.description", placeholder="Invite Description")
           br
-          select(ng-model="selectedGroup", ng-options="group.name for group in userGroups")
-          br
-          button.btn(ng-click="addUserGroupToRequest()") Add User Group
-          ul
-            li(ng-repeat="userGroup in requestDetails.userGroups") {{ userGroup.name }}
-          input(type="text", ng-model="userEmail", list="emails")
-          button.btn(ng-click="addUserToRequest()") Add User
-          ul
-            li(ng-repeat="user in requestDetails.userList") {{ user }}
+          p(style="display: table-row;")
+            label(style="display: table-cell;") User Groups
+            | &nbsp;
+            select.form-control(style="display:table-cell;", ng-model="selectedGroup", ng-options="group.name for group in userGroups")
+            | &nbsp;
+            button.btn(ng-click="addUserGroupToRequest()") Add User Group
+            p(style='display: table-cell;')
+            ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
+              li(ng-repeat="userGroup in requestDetails.userGroups") {{ userGroup.name }}
+          p(style="display: table-row;")
+            Label(style="display: table-cell;") Users
+            input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
+            | &nbsp;
+            button.btn(ng-click="addUserToRequest()") Add User
+            p(style='display: table-cell;')
+            ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
+              li(ng-repeat="user in requestDetails.userList") {{ user }}
         .btn-group
           button.btn.btn-primary(ng-click="sendUserInvites()") Send Invites
 
@@ -391,13 +399,13 @@ block content
           select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
           br
           button.btn(ng-click="addUserGroupToRule()") Add User Group
-          ul
+          ul(style='list-style-type: none; padding-left: 10px;')
             li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
           label User Email
           br
           input(type="text", ng-model="userEmail", list="emails")
           button.btn(ng-click="addUserEmailToRule()") Add User Email
-          ul
+          ul(style='list-style-type: none; padding-left: 10px;')
             li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
           button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
     script(type="text/ng-template" id="createPudModal.html")
@@ -405,32 +413,32 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4.modal-title Create/Edit To-Do Task
       .modal-body
-        form(name="createPudForm")
-          label Task
+        form.navbar-form(style="display: table; padding: 0", name="createPudForm")
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Task
+            textarea.form-control(style="display: table-cell;", rows="2", cols="40", ng-model="pudDetails.description", placeholder="Task Description", required)
           br
-          textarea(rows="2", cols="40", ng-model="pudDetails.description", placeholder="Task Description", required)
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Hours Allocated
+            | &nbsp;
+            input.form-control(style="display: table-cell;", type="text", placeholder="e.g. 2", ng-model="pudDetails.timeString", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
           br
-          label Hours Allocated
-          br
-          input(type="text", placeholder="e.g. 2", ng-model="pudDetails.timeString", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
-          br
+          
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Alert Time
+            input.form-control(style="display: table-cell;", type="datetime-local", ng-model="pudDetails.alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
           label Repeat?
-          br
+          | &nbsp;
           input(type="checkbox", ng-model="pudDetails.willRepeat")
+          div(style="display: table-row;", ng-show="pudDetails.willRepeat")
+            label(style="display: table-cell;") Days Between Repeats
+            | &nbsp;
+            input.form-control(style="display: table-cell;", type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="/^[0-9]*.?[0-9]*$/")
           br
-          div(ng-show="pudDetails.willRepeat")
-            label Days Between Repeats
-            br
-            input(type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="/^[0-9]*.?[0-9]*$/")
-            br
-          label Alert Time
-          br
-          input(type="datetime-local", ng-model="pudDetails.alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
-          br
-          div(ng-show="isValidTime(pudDetails.alertTime)")
-            label Days Between Alert Repeats
-            br
-            input(type="text", placeholder="0 for no repeats", ng-model="pudDetails.alertRepeatString", ng-pattern="/^[0-9]*.?[0-9]*$/")
+          div(style="display: table-row;", ng-show="isValidTime(pudDetails.alertTime)")
+            label(style="display: table-cell;") Days Between Alert Repeats
+            | &nbsp;
+            input.form-control(style="display: table-cell;", type="text", placeholder="0 for no repeats", ng-model="pudDetails.alertRepeatString", ng-pattern="/^[0-9]*.?[0-9]*$/")
             br
         br
         .btn-group

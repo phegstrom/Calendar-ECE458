@@ -27,7 +27,7 @@ router.post('/createPUD', function (req, res, next) {
 					if (err) next(err);
 					var toRet = saved.toJSON();
 					toRet.time = saved.time;
-					console.log(toRet);
+					// console.log(toRet);
 					res.send(toRet);
 		});
 	});
@@ -41,26 +41,28 @@ router.get('/', function (req, res, next) {
 	var uid = req.session.user._id;
 	// var uid = '54d25e88f98e0e3cf81bc051';
 
-	User.findOne({_id: uid}).exec(function (err, user) {
+	User.findOne({_id: uid}, 'PUDs')
+		.populate('PUDs')
+		.exec(function (err, user) {
 			if(err) next(err);
+			var pudArr = [];
+			var currDate = Date.now();
 
-			PUD.find({_id: {$in: user.PUDs}, myDate: {$lt: Date.now()}}).exec(function (err, puds){
-				if (err) next(err);
-				var toRet = convertToHours(puds);
-				// for (var i = 0; i < puds.length; i++) {
-				// 	var obj = puds[i].toJSON();
-				// 	obj.time = puds[i].time;
-				// 	toRet.push(obj);
-				// }
-				res.send(toRet);
+			user.PUDs.forEach(function (pud) {
+				if(pud.myDate <= currDate)
+					pudArr.push(pud);
 			});
-			
+
+			var toRet = convertToHours(pudArr);
+			res.send(toRet);
+
 		});
 });
 
 // returns an array of pud objects, but with time property converted
 function convertToHours(puds) {
 	var toRet = [];
+
 	for (var i = 0; i < puds.length; i++) {
 		var obj = puds[i].toJSON();
 		obj.time = puds[i].time;
@@ -112,7 +114,6 @@ router.get('/test', function (req, res, next) {
 
 // for testing only
 router.get('/evType', function (req, res, next) {
-
 	var pid = '54e3da3d377962b61a3ff7d5';
 	Event.findOne({_id: pid}, function (err, ev) {
 
@@ -124,10 +125,8 @@ router.get('/evType', function (req, res, next) {
 
 });
 
-
 // edits a PUD given a pud ID
 router.put('/:pudId', function (req, res, next) {
-	console.log("RANT THIS");
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
 		pud.description = req.body.description;
 		pud.time = req.body.time;
@@ -141,8 +140,8 @@ router.put('/:pudId', function (req, res, next) {
 // handles reordering of priorities
 router.put('/user/reorder', function (req, res, next) {
 
-	console.log("here");
-	console.log(req.body.PUDs);
+	// console.log("here");
+	// console.log(req.body.PUDs);
 
 	var uid = req.session.user._id;
 	// var uid = "54ecb2cfb2c037650e91f53b";
@@ -150,7 +149,7 @@ router.put('/user/reorder', function (req, res, next) {
 	User.findOne({_id: uid}, function (err, user) {
 		if (err) next(err);
 		user.PUDs = req.body.PUDs;
-		console.log(user.PUDs);
+		// console.log(user.PUDs);
 		user.save(function (err, saved) {
 			res.send(saved.PUDs);
 		});
@@ -165,15 +164,14 @@ router.post('/:pudId', function (req, res, next) {
 	var uid = req.session.user._id;
 	// var uid = '54d25e88f98e0e3cf81bc051';
 
-
-
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
-		console.log("interval: " + pud.myInterval);
-		if (pud.myInterval != null) {
-			var currDate = pud.myDate;
-			console.log("previous date: " + currDate);
-			currDate.setDate(pud.myDate.getDate() + pud.myInterval);
-			console.log("new date: " + currDate);
+		// console.log("interval: " + pud.repeatInterval);
+		if (pud.repeatInterval != null) {
+			var tempDate = pud.myDate;
+			pud.myDate = null;
+			tempDate.setDate(tempDate.getDate() + pud.repeatInterval);
+			pud.myDate = tempDate;
+
 			pud.save(function (err, saved) {
 				if (err) next(err);
 				res.send(saved);
@@ -186,8 +184,6 @@ router.post('/:pudId', function (req, res, next) {
 		}
 		
 	});
-
-
 });
 
 

@@ -11,10 +11,14 @@ router.post('/createPUD', function (req, res, next) {
 
 	newPUD.description = req.body.description;
 	newPUD.time = req.body.time;
-	// newPUD.myDate = Date.now();
 	myD = new Date();
 	newPUD.myDate = myD;
 	newPUD.repeatInterval = req.body.interval;
+	newPUD.alertInterval = req.body.alertInterval;
+
+	// create Alert objects
+	if (req.body.alert != undefined)
+		createAlert(req.body.alert, newPUD, req);
 
 	// for POSTman
 	var uid = req.session.user._id;
@@ -33,6 +37,23 @@ router.post('/createPUD', function (req, res, next) {
 	});
 });
 
+function createAlert(alertObj, pud, req) {
+	var uid = req.session.user._id;
+	var uEmail = req.session.user.email;
+	var myAlert = new Alert({time: alertObj[0].time, 
+							   method: alertObj[0].method, 
+							   owner: uid,
+							   ownerEmail: uEmail,
+								myEvent: null,
+								myPUD: pud_id});
+
+	console.log("created alert for PUD:");
+	myAlert.save(function (err, saved) {
+		console.log(myAlert);	
+	});
+
+}
+
 
 
 // Returns list of PUDS associated with user that aren't in future
@@ -44,7 +65,7 @@ router.get('/', function (req, res, next) {
 	User.findOne({_id: uid}).exec(function (err, user) {
 			if(err) next(err);
 
-			PUD.find({_id: {$in: user.PUDs}, myDate: {$lt: Date.now()}}).exec(function (err, puds){
+			PUD.find({_id: {$in: user.PUDs}/*, myDate: {$lt: Date.now()}*/}).exec(function (err, puds){
 				if (err) next(err);
 				var toRet = convertToHours(puds);
 				// for (var i = 0; i < puds.length; i++) {
@@ -127,7 +148,6 @@ router.get('/evType', function (req, res, next) {
 
 // edits a PUD given a pud ID
 router.put('/:pudId', function (req, res, next) {
-	console.log("RANT THIS");
 	PUD.findOne({_id: req.params.pudId}, function (err, pud) {
 		pud.description = req.body.description;
 		pud.time = req.body.time;
@@ -142,7 +162,7 @@ router.put('/:pudId', function (req, res, next) {
 router.put('/user/reorder', function (req, res, next) {
 
 	// console.log("here");
-	console.log(req.body.PUDs);
+	// console.log(req.body.PUDs);
 
 	var uid = req.session.user._id;
 	// var uid = "54ecb2cfb2c037650e91f53b";

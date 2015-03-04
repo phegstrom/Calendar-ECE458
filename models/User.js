@@ -17,6 +17,7 @@ var UserSchema = new Schema({
 	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
 	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
 	PUDs: [{type: Schema.Types.ObjectId, ref: 'PUD'}],
+	SSEvents: [{type: Schema.Types.ObjectId, ref: 'SlotSignUp'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 

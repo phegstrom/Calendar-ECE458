@@ -20,8 +20,8 @@ router.get('/', function (req, res, next) {
 // create a SlotSignUp
 router.post('/', function (req, res, next) {
 
-	// var uid = req.session.user._id;
-	var uid = "54ecb2cfb2c037650e91f53b";
+	var uid = req.session.user._id;
+	// var uid = "54ecb2cfb2c037650e91f53b";
 
 	var ssu = new SlotSignUp();
 
@@ -48,8 +48,8 @@ router.post('/', function (req, res, next) {
 // delete a SlotSignUp
 router.delete('/:ssuId', function (req, res, next) {
 
-	// var uid = req.session.user._id;
-	var uid = "54ecb2cfb2c037650e91f53b";
+	var uid = req.session.user._id;
+	// var uid = "54ecb2cfb2c037650e91f53b";
 
 	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
 		User.findOneAndUpdate({_id: uid}, {$pull: {SSEvents: ssu._id}}, function (err, numAffected) {

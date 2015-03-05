@@ -33,21 +33,25 @@ UserSchema.statics.convertToIds = function (emails) {
 
 // called from Event Schema, returns in cb highest priority PUD
 UserSchema.methods.getBestPUD = function (alottedTime, cb) {
+	var pudArray = this.PUDs;
 
-	PUD.find({_id: {$in: this.PUDs}}).exec(function (err, puds) {
+	this.model('User').findOne({_id: this._id}).populate('PUDs').exec(function (err, user) {
+		// console.log(user);
 		if (err) next(err);
 		var didBreak = false;
-		for (var i = 0; i < puds.length; i++) {
-			if (puds[i].time <= alottedTime) {
-				cb(puds[i]);
+		var pudArray = user.PUDs;
+		for (var i = 0; i < pudArray.length; i++) {
+			if (pudArray[i].time <= alottedTime) {
+				cb(pudArray[i]);
 				didBreak = true;
 				break;
 			}
 		}
-		if(!didBreak)
-			cb(null);
-	});
 
+		if (!didBreak)
+			cb(null);
+		
+	});
 };
 
 module.exports = mongoose.model('User', UserSchema);

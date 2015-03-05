@@ -21,7 +21,6 @@ router.get('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
 
 	var uid = req.session.user._id;
-	// var uid = "54ecb2cfb2c037650e91f53b";
 
 	var ssu = new SlotSignUp();
 
@@ -31,8 +30,8 @@ router.post('/', function (req, res, next) {
 	ssu.minDuration = req.body.evMinDuration;
 	ssu.maxDuration = req.body.evMaxDuration;
 
-	// ssu.freeBlocks = req.body.evFreeBlocks;
-	ssu.freeBlocks = [{start: new Date(), end: new Date()}];
+	ssu.freeBlocks = req.body.evFreeBlocks;
+	// ssu.freeBlocks = [{start: new Date(), end: new Date()}];
 
 	ssu.save(function (err, saved) {
 		if (err) next(err);
@@ -49,7 +48,6 @@ router.post('/', function (req, res, next) {
 router.delete('/:ssuId', function (req, res, next) {
 
 	var uid = req.session.user._id;
-	// var uid = "54ecb2cfb2c037650e91f53b";
 
 	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
 		User.findOneAndUpdate({_id: uid}, {$pull: {SSEvents: ssu._id}}, function (err, numAffected) {

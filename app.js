@@ -127,7 +127,6 @@ app.use('/ssu', postMANTest, ssuRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {
-  console.log("here");
   req.session = {user: {_id: "54ecb2cfb2c037650e91f53b"}};
   next();
 }

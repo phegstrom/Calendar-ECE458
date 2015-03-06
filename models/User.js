@@ -3,6 +3,7 @@ var mongoose = require('mongoose'),
     passportLocalMongoose = require('passport-local-mongoose');
     collectionName = "usersC";
     PUD = require('./PUD');
+   	_ = require('underscore');
 
 var deepPopulate = require('mongoose-deep-populate');
 
@@ -44,7 +45,7 @@ UserSchema.statics.toIds = function (emails, cb) {
 UserSchema.statics.toEmails = function (ids, cb) {
 	var toRet = [];
 	this.find({_id: {$in: ids}}, 'email', function (err, ret) {
-		roRet = _.pluck(ret, 'email');
+		toRet = _.pluck(ret, 'email');
 		cb(err, toRet);
 	});
 }

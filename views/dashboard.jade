@@ -386,9 +386,9 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4#myModalLabel.modal-title Add Rule to {{ selectedCalendar.name }}
       .modal-body
-        form(name="addRuleForm")
+        form.navbar-form(style="padding: 0", name="addRuleForm")
           label Rule Type
-          br
+          | &nbsp;
           select(ng-model="newRule.ruleType")
             option(value="canView") Can View
             option(value="canViewBusy") Can View Busy
@@ -396,18 +396,20 @@ block content
           br
           label User Group
           br
-          select(ng-model="userGroupId", ng-options="group.name for group in userGroups")
-          br
+          select(ng-model="userGroup", ng-options="group.name for group in userGroups")
+          | &nbsp;
           button.btn(ng-click="addUserGroupToRule()") Add User Group
           ul(style='list-style-type: none; padding-left: 10px;')
-            li(ng-repeat="userGroupId in newRule.userGroupIds") {{ userGroupId }}
+            li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
           label User Email
           br
           input(type="text", ng-model="userEmail", list="emails")
+          | &nbsp;
           button.btn(ng-click="addUserEmailToRule()") Add User Email
           ul(style='list-style-type: none; padding-left: 10px;')
-            li(ng-repeat="userEmail in newRule.userEmails") {{ userId }}
+            li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
           button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
+    
     script(type="text/ng-template" id="createPudModal.html")
       .modal-header
         button.close(type='button', ng-click="cancel()") &times;
@@ -446,6 +448,7 @@ block content
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}
+
     script(type='text/javascript', src='/js/underscore-min.js')
     script(type='text/javascript', src='/js/angular.js')
     script(type='text/javascript', src='/js/moment.js')

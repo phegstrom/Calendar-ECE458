@@ -52,25 +52,7 @@ app.controller('addRuleModalController', function($scope, $http, $modalInstance,
     error(function(data, status, headers, config) {
       console.log('Failed to create rule.');
     });
-  }
-
-  $scope.deleteRule = function(ruleId) {
-    //console.log(modalService.selectedCalendar);
-    $http.delete('/rule/'+ ruleId + '/' + modalService.selectedCalendar._id).
-    success(function(data, status, headers, config) {
-
-      for(var deleteRuleIndex = 0; deleteRuleIndex < modalService.selectedCalendar.rules.length; deleteRuleIndex++) {
-        if(modalService.selectedCalendar.rules[deleteRuleIndex]._id == ruleId) {
-          modalService.selectedCalendar.rules.splice(deleteRuleIndex, 1);
-          break;
-        }
-      }
-
-      modalService.displayOwnerCalendar(modalService.selectedCalendar);
-    }).
-    error(function(data, status, headers, config) {
-      console.log('Failed to delete rule.');
-    });
+    $scope.cancel();
   }
 
 });

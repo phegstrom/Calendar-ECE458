@@ -21,6 +21,26 @@ app.controller('sideBarController', function($scope, $http, $rootScope, modalSer
 
     $scope.selectedUserGroup = userGroup;
   }
+  // RULES ROUTES (just delete since rest are in the other controller)
+  $scope.deleteRule = function(ruleId) {
+    //console.log($scope.selectedCalendar);
+    $http.delete('/rule/'+ ruleId + '/' + $scope.selectedCalendar._id).
+    success(function(data, status, headers, config) {
+
+      for(var deleteRuleIndex = 0; deleteRuleIndex < $scope.selectedCalendar.rules.length; deleteRuleIndex++) {
+        if($scope.selectedCalendar.rules[deleteRuleIndex]._id == ruleId) {
+          $scope.selectedCalendar.rules.splice(deleteRuleIndex, 1);
+          break;
+        }
+      }
+      modalService.selectedCalendar = $scope.selectedCalendar;
+      $scope.displayOwnerCalendar($scope.selectedCalendar);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to delete rule.');
+    });
+  }
+
 
   // CALENDAR ROUTES
   // display contents of single calendar

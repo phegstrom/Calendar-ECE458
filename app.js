@@ -123,7 +123,8 @@ app.use('/usergroup', requireLogin, usergroupRoutes);
 app.use('/alert', alertRoutes);
 app.use('/pud', requireLogin, PUDRoutes);
 app.use('/request', requireLogin, requestRoutes);
-app.use('/ssu', postMANTest, ssuRoutes);
+// app.use('/ssu', postMANTest, ssuRoutes);
+app.use('/ssu', requireLogin, ssuRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {

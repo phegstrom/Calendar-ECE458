@@ -4,7 +4,7 @@ var collectionName = 'slotSignUpsC';
 var deepPopulate = require('mongoose-deep-populate');
 
 var SlotSignUpSchema = new Schema({
-	creator: {type: Schema.ObjectId, ref: 'User'},
+	creator: {type: Schema.Types.ObjectId, ref: 'User'},
 	name: String,
 	description: String,
 	minDuration: Number, // minutes
@@ -13,15 +13,11 @@ var SlotSignUpSchema = new Schema({
 		start: Date,
 		end: Date
 	}],
-	busyBlocks: [{ // note not in increments of minDuration
-		start: Date,
-		end: Date,
-		userEmail: String 
-	}],
 	attendees: [{
 		userEmail: String,
-		numTaken: Number
+		slots: [{type: Schema.Types.ObjectId, ref: 'Slot'}]
 	}]
+
 }, {collection: collectionName});
 
 

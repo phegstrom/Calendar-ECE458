@@ -4,16 +4,16 @@ var SlotSignUp = require('../models/SlotSignUp');
 
 var router 		= express.Router();
 
-// return array of SSEvents for a logged in user
+// return array of createdSSEvents for a logged in user
 router.get('/', function (req, res, next) {
 
 	var uid = req.session.user._id;
 
-	User.findOne({_id: uid}, 'SSEvents')
-		.populate('SSEvents')
+	User.findOne({_id: uid}, 'createdSSEvents')
+		.populate('createdSSEvents')
 		.exec (function (err, user) {
 			if (err) next(err);				
-			res.send(user.SSEvents);
+			res.send(user.createdSSEvents);
 	});
 });
 
@@ -36,7 +36,7 @@ router.post('/', function (req, res, next) {
 	ssu.save(function (err, saved) {
 		if (err) next(err);
 
-		User.findOneAndUpdate({_id: uid}, {$push: {SSEvents: saved._id}}, function (err, numAffected) {
+		User.findOneAndUpdate({_id: uid}, {$push: {createdSSEvents: saved._id}}, function (err, numAffected) {
 			res.send(saved);
 		});
 
@@ -50,7 +50,7 @@ router.delete('/:ssuId', function (req, res, next) {
 	var uid = req.session.user._id;
 
 	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
-		User.findOneAndUpdate({_id: uid}, {$pull: {SSEvents: ssu._id}}, function (err, numAffected) {
+		User.findOneAndUpdate({_id: uid}, {$pull: {createdSSEvents: ssu._id}}, function (err, numAffected) {
 			ssu.remove();
 			res.send('slot sign up event deleted!');
 		})

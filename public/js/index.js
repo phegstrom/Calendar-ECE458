@@ -1,5 +1,20 @@
 //Angular code
 var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar', 'ui.bootstrap']);
+
+app.service('modalService', function() {
+
+  var selectedCalendar;
+
+  var displayOwnerCalendar;
+
+// Variables that need to be shared between the 2 controllers
+  // SELECTED CALENDAR
+  // displayOwnerCalendar function
+
+
+});
+
+
 app.run(function($rootScope, $q, $http, $modal) {
 
   //Store a week in milliseconds
@@ -191,7 +206,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayAddRuleModal = function() {
     $modal.open({
         templateUrl: 'addRuleModal.html',
-        controller: 'sideBarController'
+        controller: 'addRuleModalController'
       });
   }
 

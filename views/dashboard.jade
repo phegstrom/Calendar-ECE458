@@ -132,6 +132,8 @@ block content
                 a(href, ng-click="removeModUser(getUserEmail(modUser))")
                   span(class="glyphicon glyphicon-remove")
             hr
+            buton.btn.btn-primary(ng-click="displayAddRuleModal()") ADD RULE MODAL
+            hr
             form.navbar-form(style="padding: 0", name="addRuleForm")
               label Rule Type
               | &nbsp;
@@ -387,28 +389,28 @@ block content
         h4#myModalLabel.modal-title Add Rule to {{ selectedCalendar.name }}
       .modal-body
         form.navbar-form(style="padding: 0", name="addRuleForm")
-          label Rule Type
-          | &nbsp;
-          select(ng-model="newRule.ruleType")
-            option(value="canView") Can View
-            option(value="canViewBusy") Can View Busy
-            option(value="canNotView") Cannot View
-          br
-          label User Group
-          br
-          select(ng-model="userGroup", ng-options="group.name for group in userGroups")
-          | &nbsp;
-          button.btn(ng-click="addUserGroupToRule()") Add User Group
-          ul(style='list-style-type: none; padding-left: 10px;')
-            li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
-          label User Email
-          br
-          input(type="text", ng-model="userEmail", list="emails")
-          | &nbsp;
-          button.btn(ng-click="addUserEmailToRule()") Add User Email
-          ul(style='list-style-type: none; padding-left: 10px;')
-            li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
-          button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
+        label Rule Type
+        | &nbsp;
+        select(ng-model="newRule.ruleType")
+          option(value="canView") Can View
+          option(value="canViewBusy") Can View Busy
+          option(value="canNotView") Cannot View
+        br
+        label User Group
+        br
+        select(ng-model="userGroup", ng-options="group.name for group in userGroups")
+        | &nbsp;
+        button.btn(ng-click="addUserGroupToRule()") Add User Group
+        ul(style='list-style-type: none; padding-left: 10px;')
+          li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
+        label User Email
+        br
+        input(type="text", ng-model="userEmail", list="emails")
+        | &nbsp;
+        button.btn(ng-click="addUserEmailToRule()") Add User Email
+        ul(style='list-style-type: none; padding-left: 10px;')
+          li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
+        button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
     
     script(type="text/ng-template" id="createPudModal.html")
       .modal-header
@@ -459,3 +461,4 @@ block content
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/modalController.js')
     script(type='text/javascript', src='/js/sideBarController.js')
+    script(type='text/javascript', src='/js/addRuleModalController.js')

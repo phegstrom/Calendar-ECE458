@@ -1,8 +1,9 @@
-app.controller('sideBarController', function($scope, $http, $rootScope) {
+app.controller('sideBarController', function($scope, $http, $rootScope, modalService) {
   $scope.title = 'Select an Option';
   $scope.text = 'N/A';
   $scope.selector = -1;
-  $scope.newRule = {};
+
+  this.modalService = modalService;
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
@@ -28,6 +29,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     $scope.selector = 3;
 
     $scope.selectedCalendar = calendar;
+    modalService.selectedCalendar = calendar;
   }
   // display contents of a single calendar you are owner of
   $scope.displayOwnerCalendar = function(calendar) {
@@ -35,7 +37,10 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     $scope.selector = 5;
     console.log(calendar);
     $scope.selectedCalendar = calendar;
+    modalService.selectedCalendar = calendar;
   }
+
+  modalService.displayOwnerCalendar = $scope.displayOwnerCalendar;
 
   $scope.displayCalendars = function() {
     $scope.text = '';
@@ -80,6 +85,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
       $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
       console.log(angular.fromJson(data));
       //console.log($scope.selectedCalendar);
+      modalService.selectedCalendar = $scope.selectedCalendar;
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
@@ -105,6 +111,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     success(function(data, status, headers, config) {
 
       $scope.selectedCalendar.modList = angular.copy(angular.fromJson(data));
+      modalService.selectedCalendar = $scope.selectedCalendar;
       $scope.displayOwnerCalendar($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
@@ -205,71 +212,6 @@ app.controller('sideBarController', function($scope, $http, $rootScope) {
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to delete user.\n' + data;
-    });
-  }
-
-  // RULES ROUTES
-  $scope.addUserEmailToRule = function() {
-    var newUserEmail = angular.copy($scope.userEmail);
-    if($scope.newRule.userIds) {
-      $scope.newRule.userIds.push(newUserEmail);
-    }
-    else {
-      $scope.newRule.userIds = [newUserEmail];
-    }
-    $scope.userEmail = '';
-  }
-
-  $scope.addUserGroupToRule = function() {
-    var newGroupId = angular.copy($scope.userGroup._id);
-    if($scope.newRule.userGroupIds) {
-      $scope.userGroupDisplay.push($scope.userGroup.name);
-      $scope.newRule.userGroupIds.push(newGroupId);
-    }
-    else {
-      $scope.userGroupDisplay = [$scope.userGroup.name];
-      $scope.newRule.userGroupIds = [newGroupId];
-    }
-    $scope.userGroup = {};
-  }
-
-  $scope.addRule = function() {
-    if (typeof $scope.newRule.userGroupIds === "undefined") {
-      $scope.newRule.userGroupIds = [];
-    } else if (typeof $scope.newRule.userIds === "undefined") {
-      $scope.newRule.userIds = [];
-    }
-    console.log($scope.newRule);
-
-    $http.post('/rule/'+ $scope.selectedCalendar._id, $scope.newRule).
-    success(function(data, status, headers, config) {
-      $scope.selectedCalendar.rules.push(angular.copy(angular.fromJson(data)));
-      $scope.displayOwnerCalendar($scope.selectedCalendar);
-      $scope.newRule = {};
-      $scope.userGroupDisplay = [];
-      //console.log($scope.selectedCalendar);
-    }).
-    error(function(data, status, headers, config) {
-      console.log('Failed to create rule.');
-    });
-  }
-
-  $scope.deleteRule = function(ruleId) {
-    //console.log($scope.selectedCalendar);
-    $http.delete('/rule/'+ ruleId + '/' + $scope.selectedCalendar._id).
-    success(function(data, status, headers, config) {
-
-      for(var deleteRuleIndex = 0; deleteRuleIndex < $scope.selectedCalendar.rules.length; deleteRuleIndex++) {
-        if($scope.selectedCalendar.rules[deleteRuleIndex]._id == ruleId) {
-          $scope.selectedCalendar.rules.splice(deleteRuleIndex, 1);
-          break;
-        }
-      }
-
-      $scope.displayOwnerCalendar($scope.selectedCalendar);
-    }).
-    error(function(data, status, headers, config) {
-      console.log('Failed to delete rule.');
     });
   }
 

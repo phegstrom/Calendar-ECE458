@@ -6,7 +6,7 @@ var deepPopulate = require('mongoose-deep-populate');
 var SlotSchema = new Schema({
 	useremail: String,
 	SSU: {type: Schema.Types.ObjectId, ref: 'SlotSignUp'},
-	basicBlocks: Number,
+	basicBlocksNumber: Number,
 	start: Date,
 	end: Date
 }, {collection: collectionName});

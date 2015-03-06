@@ -15,7 +15,7 @@ var SlotSignUpSchema = new Schema({
 	}],
 	attendees: [{
 		userEmail: String,
-		slots: [{type: Schema.ObjectId, ref: 'Slot'}]
+		slots: [{type: Schema.Types.ObjectId, ref: 'Slot'}]
 	}]
 
 }, {collection: collectionName});

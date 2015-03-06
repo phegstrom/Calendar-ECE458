@@ -1,14 +1,14 @@
 app.controller('addRuleModalController', function($scope, $http, $modalInstance, $rootScope, modalService) {
+  
+  $scope.selectedCalendar = modalService.selectedCalendar;
 
   $scope.newRule = {};
-
-  this.modalService = modalService;
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
   };
 
-// RULE ROUTES
+  // RULE ROUTES
   $scope.addUserEmailToRule = function() {
     var newUserEmail = angular.copy($scope.userEmail);
     if($scope.newRule.userIds) {
@@ -47,11 +47,12 @@ app.controller('addRuleModalController', function($scope, $http, $modalInstance,
       modalService.displayOwnerCalendar(modalService.selectedCalendar);
       $scope.newRule = {};
       $scope.userGroupDisplay = [];
-      //console.log(modalService.selectedCalendar);
+      //console.log($scope.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to create rule.');
     });
+
     $scope.cancel();
   }
 

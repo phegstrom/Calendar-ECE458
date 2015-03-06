@@ -4,14 +4,8 @@ var app = angular.module('calendarApp', ['angular.filter', 'mwl.calendar', 'ui.b
 app.service('modalService', function() {
 
   var selectedCalendar;
-
   var displayOwnerCalendar;
-
-// Variables that need to be shared between the 2 controllers
-  // SELECTED CALENDAR
-  // displayOwnerCalendar function
-
-
+  
 });
 
 

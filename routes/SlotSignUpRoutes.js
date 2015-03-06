@@ -1,5 +1,6 @@
 var express = require('express');
 var User = require('../models/User');
+var Slot = require('../models/Slot');
 var SlotSignUp = require('../models/SlotSignUp');
 
 var router 		= express.Router();
@@ -30,8 +31,14 @@ router.post('/', function (req, res, next) {
 	ssu.minDuration = req.body.evMinDuration;
 	ssu.maxDuration = req.body.evMaxDuration;
 
-	ssu.freeBlocks = req.body.evFreeBlocks;
-	// ssu.freeBlocks = [{start: new Date(), end: new Date()}];
+	// ssu.freeBlocks = req.body.evFreeBlocks;
+	var date1 = new Date();
+	var date2 = new Date();
+	date2.setMinutes(date2.getMinutes() + 45);
+
+	ssu.freeBlocks = [{start: date1, end: date2}];
+
+	// for each attendee email received, add info
 
 	ssu.save(function (err, saved) {
 		if (err) next(err);
@@ -57,6 +64,63 @@ router.delete('/:ssuId', function (req, res, next) {
 	});
 
 });
+
+router.get('/test/:date', function (req, res, next) {
+	var date1 = new Date(req.params.date);
+	var date2 = new Date(req.params.date);
+	date2.setMinutes(date2.getMinutes() + 15);
+	console.log("date1: " + date1);
+	console.log("date2: " + date2);
+
+
+
+	res.send(req.params.date);
+});
+
+router.put('/signUp/:ssuId', function (req, res, next) {
+	//ssuId from a User's SSEvents
+	//will receive a start and end time
+	//remove freeBlocks from SlotSignUp
+	//do something...create a Slot object, add to User's Slot, etc
+
+	//req.body.start, req.body.end
+	var startDate = new Date(req.body.start);
+	var endDate = new Date(req.body.end);
+
+	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
+		ssu.takeFreeBlocks(startDate, endDate);
+
+		User.findOne({_id: req.session.user._id}, function (err, user) {
+			var newSlot = new Slot();
+			newSlot.useremail = req.session.user.email;
+			newSlot.SSU = ssu._id;
+			newSlot.start = startDate;
+			newSlot.end = endDate;
+			newSlot.basicBlocks = ((startDate - endDate)/60000) / ssu.minDuration;
+			user.mySlots.push(newSlot);
+
+			ssu.attendees.forEach(function (attendee) {
+				if(attendee.userEmail == req.session.user.email) {
+					attendee.slots.push(newSlots._id);
+				}
+			});
+
+			newSlot.save();
+			user.save();
+		});
+
+		ssu.save();
+
+		res.send(ssu);
+	});
+
+});
+
+
+
+
+
+
 
 
 

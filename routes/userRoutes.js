@@ -2,6 +2,7 @@ var express = require('express');
 var User 		= require('../models/User');
 var router 		= express.Router();
 var async = require('async');
+var _ = require('underscore');
 
 
 router.get('/', function (req, res, next) {
@@ -10,19 +11,34 @@ router.get('/', function (req, res, next) {
 
 router.get('/test', function (req, res, next) {
 	console.log("testing waterfall...");
+	var a = [2,3,4];
+	var b = [1,2,3];
 
-	async.waterfall([
-		function (next) {
-			User.findOne({_id: req.session.user._id}, function (err, u) {
-				next(err, u);	
-			});
-		},
-		function (firstResult, next) {
-			PUD.findOne({_id: firstResult.PUDs[0]}, next);
-		},
-		function (result) {
-			res.send(result.myDate);
-		}]);
+	var d1 = new Date();
+	var d2 = new Date();
+	d2.setMinutes(d2.getMinutes() + 10);
+	// d2 += 2;
+
+	var arr = [{start: d2.toString()}, {start: d1.toString()}];
+	console.log((d1 - d2));
+	res.send(_.sortBy(arr, 'start'));
+
+	console.log(_.union([],b));
+	// User.find({_id: req.session.user._id}, 'email', function (err, email) {
+	// 	res.send(email);
+	// });
+	// async.waterfall([
+	// 	function (next) {
+	// 		User.findOne({_id: req.session.user._id}, function (err, u) {
+	// 			next(err, u);	
+	// 		});
+	// 	},
+	// 	function (firstResult, next) {
+	// 		PUD.findOne({_id: firstResult.PUDs[0]}, next);
+	// 	},
+	// 	function (result) {
+	// 		res.send(result.myDate);
+	// 	}]);
 
 });
 

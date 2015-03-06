@@ -73,9 +73,12 @@ router.post('/', function (req, res, next) {
 		},
 		function (ids, next) {
 			User.toEmails(ids, function (err, emails) {
+				console.log("here");
+				console.log(emails);
 				emails.forEach(function (email) {
 					ssu.attendees.push({userEmail: email, slots: []});
 				});
+				console.log(ssu.attendees);
 				next();
 			});
 		},
@@ -84,17 +87,20 @@ router.post('/', function (req, res, next) {
 			for (var i = 0; i < result.length; i++) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});
 			}
+
+
+			ssu.save(function (err, saved) {
+				if (err) next(err);
+
+				User.findOneAndUpdate({_id: uid}, {$push: {createdSSEvents: saved._id}}, function (err, numAffected) {
+					res.send(saved);
+				});
+
+			});
+
 		}
 	]);
 
-	ssu.save(function (err, saved) {
-		if (err) next(err);
-
-		User.findOneAndUpdate({_id: uid}, {$push: {createdSSEvents: saved._id}}, function (err, numAffected) {
-			res.send(saved);
-		});
-
-	});
 
 });
 

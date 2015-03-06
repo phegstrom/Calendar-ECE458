@@ -26,6 +26,29 @@ var SlotSignUpSchema = new Schema({
 
 }, {collection: collectionName});
 
+SlotSignUpSchema.methods.takeFreeBlocks = function (startDate, endDate) {
+	var start = new Date(startDate);
+	var end = new Date(endDate);
+	for (var i = 0; i < this.freeBlocks.length; i++) {
+		var currBlock = this.freeBlocks[i];
+		if(currBlock.start <= start && currBlock.end >= end) {
+			this.freeBlocks.splice(i, 1);
+
+			if(currBlock.end != end) {
+				this.freeBlocks.splice(i, 0, {start: end, end: currBlock.end});
+			}
+			if(currBlock.start != start) {
+				this.freeBlocks.splice(i, 0, {start: currBlock.start, end: start});
+			}
+		}
+	}
+
+	this.save();
+};
+
+SlotSignUpSchema.methods.addFreeBlocks = function () {
+
+};
 
 SlotSignUpSchema.plugin(deepPopulate);
 
@@ -81,7 +104,5 @@ SlotSignUpSchema.methods.createFreeBlocksAndUpdate = function (slot, cb) {
 	});
 
 };
-
-
 
 module.exports = mongoose.model('SlotSignUp', SlotSignUpSchema);

@@ -76,7 +76,7 @@ passport.deserializeUser(User.deserializeUser());
 var dbString = 'mongodb://heroku_app34927807:t5nfn8tkm70nlfkgngbb61k1ht@ds051960.mongolab.com:51960/heroku_app34927807';
 // developm112ent error handler
 // will print stacktrace
-console.log(app.get('env'));
+
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);

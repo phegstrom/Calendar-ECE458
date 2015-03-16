@@ -70,10 +70,13 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+// first dbString is nodejitsu...
+// var dbString = 'mongodb://nodejitsu:28d2f50724f0f90b91e33914338b14c3@troup.mongohq.com:10063/nodejitsudb4576003544';
 
-var dbString = 'mongodb://nodejitsu:28d2f50724f0f90b91e33914338b14c3@troup.mongohq.com:10063/nodejitsudb4576003544';
+var dbString = 'mongodb://heroku_app34927807:t5nfn8tkm70nlfkgngbb61k1ht@ds051960.mongolab.com:51960/heroku_app34927807';
 // developm112ent error handler
 // will print stacktrace
+console.log(app.get('env'));
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
@@ -81,6 +84,7 @@ if (app.get('env') === 'development') {
             message: err.message,
             error: err
         });
+        console.log(app.get('env'));
     });
     dbString = 'mongodb://localhost/Calendar';
 }

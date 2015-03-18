@@ -216,6 +216,8 @@ block content
             label(style="display:table-cell;") Start Time
             //br
             input.form-control(style="display:table-cell;", type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+            | &nbsp;
+            button.btn.btn-primary(ng-click="displayFindFreeTimeModal()") Find Free Times
           br
           p(style="display:table-row;")
             label(style="display:table-cell;") End Time
@@ -229,7 +231,7 @@ block content
             //br
             input.form-control(style="display:table-cell;", type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
             | &nbsp;
-            button.btn(type="button", ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
+            button.btn(ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
           ul
            li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
              a(href ng-click="removeAlert(time)")
@@ -382,7 +384,7 @@ block content
           li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
         button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
 
-    script(type="text/ng-template" id="addUsersModal.html")
+    script(type="text/ng-template" id="addUserModal.html")
       .modal-header
         button.close(type='button', ng-click="cancel()") &times;
         h4#myModalLabel.modal-title Add Users with Modify to {{ selectedCalendar.name }}
@@ -395,6 +397,13 @@ block content
             li(ng-repeat="modUserEmail in modUserList") {{ modUserEmail }}
           button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
     
+    script(type="text/ng-template" id="findFreeTimeModal.html")
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4.modal-title Find Free Times
+      .modal-body
+        | hello
+
     script(type="text/ng-template" id="createPudModal.html")
       .modal-header
         button.close(type='button', ng-click="cancel()") &times;
@@ -445,5 +454,5 @@ block content
     script(type='text/javascript', src='/js/modalController.js')
     script(type='text/javascript', src='/js/sideBarController.js')
     script(type='text/javascript', src='/js/addRuleModalController.js')
-    script(type='text/javascript', src='/js/addUsersModalController.js')
+    script(type='text/javascript', src='/js/addUserModalController.js')
 

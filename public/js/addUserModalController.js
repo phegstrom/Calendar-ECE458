@@ -1,4 +1,4 @@
-app.controller('addUsersModalController', function($scope, $http, $modalInstance, $rootScope, modalService) {
+app.controller('addUserModalController', function($scope, $http, $modalInstance, $rootScope, modalService) {
 
   $scope.selectedCalendar = modalService.selectedCalendar;
 

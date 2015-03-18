@@ -204,10 +204,17 @@ app.run(function($rootScope, $q, $http, $modal) {
       });
   }
 
+  $rootScope.displayFindFreeTimeModal = function() {
+    $modal.open({
+      templateUrl: 'findFreeTimeModal.html',
+      controller: 'modalController'
+    });
+  }
+
   $rootScope.displayAddUsersModal = function() {
     $modal.open({
-      templateUrl: 'addUsersModal.html',
-      controller: 'addUsersModalController'
+      templateUrl: 'addUserModal.html',
+      controller: 'addUserModalController'
     });
   }
 

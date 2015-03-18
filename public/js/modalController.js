@@ -397,4 +397,24 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
     $scope.cancel();
   }
+
+  // FIND FREE TIME SLOT ROUTES
+  $scope.findFreeTimeSlots = function() {
+
+
+
+
+
+    $http.post('/fts/requestTimes', findTimeDetails).
+    success(function(data, status, headers, config) {
+
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to find free times.');
+    });
+    
+    // POPULATE SCOPE STUFF IN EVENT CREATION FORM TIMES
+    $scope.cancel();
+  }
+
 });

@@ -132,16 +132,9 @@ block content
                 a(href, ng-click="removeModUser(getUserEmail(modUser))")
                   span(class="glyphicon glyphicon-remove")
             hr
-            buton.btn.btn-primary(ng-click="displayAddRuleModal()") Add Rule
-            hr
-            form(name="addModUserForm")
-              input(type="text", ng-model="inputModUserEmail", list="emails")
-              | &nbsp;
-              button.btn(ng-click="addModUsertoList()") Add User with Modify
-              ul(style='list-style-type: none; padding-left: 10px;')
-                li(ng-repeat="modUserEmail in modUserList") {{ modUserEmail }}
-              button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
-            br
+            button.btn.btn-primary(ng-click="displayAddRuleModal()") Add Rule
+            | &nbsp;
+            button.btn.btn-primary(ng-click="displayAddUsersModal()") Add Users with Modify
 
           #PUDEvents(ng-show="selector == 4")
             br
@@ -308,7 +301,7 @@ block content
                   div(ng-show="selectedEvent.willRepeat")
                     p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
                     p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
-            h2(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
+            h3(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
           .col-md-6
             div(ng-show="selectedRequest")
               p
@@ -387,6 +380,19 @@ block content
         ul(style='list-style-type: none; padding-left: 10px;')
           li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
         button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
+
+    script(type="text/ng-template" id="addUsersModal.html")
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title Add Users with Modify to {{ selectedCalendar.name }}
+      .modal-body
+        form.navbar-form(style="padding: 0", name="addModUserForm")
+          input(type="text", ng-model="inputModUserEmail", list="emails")
+          | &nbsp;
+          button.btn(ng-click="addModUsertoList()") Add User
+          ul(style='list-style-type: none; padding-left: 10px;')
+            li(ng-repeat="modUserEmail in modUserList") {{ modUserEmail }}
+          button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify
     
     script(type="text/ng-template" id="createPudModal.html")
       .modal-header
@@ -438,3 +444,5 @@ block content
     script(type='text/javascript', src='/js/modalController.js')
     script(type='text/javascript', src='/js/sideBarController.js')
     script(type='text/javascript', src='/js/addRuleModalController.js')
+    script(type='text/javascript', src='/js/addUsersModalController.js')
+

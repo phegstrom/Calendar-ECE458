@@ -204,6 +204,13 @@ app.run(function($rootScope, $q, $http, $modal) {
       });
   }
 
+  $rootScope.displayAddUsersModal = function() {
+    $modal.open({
+      templateUrl: 'addUsersModal.html',
+      controller: 'addUsersModalController'
+    });
+  }
+
   $rootScope.displayInviteUserModal = function() {
     $modal.open({
         templateUrl: 'inviteUserModal.html',

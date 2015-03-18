@@ -26,6 +26,7 @@ var alertRoutes = require('./routes/alertRoutes');
 var requestRoutes = require('./routes/requestRoutes');
 var PUDRoutes = require('./routes/PUDRoutes');
 var ssuRoutes = require('./routes/SlotSignUpRoutes');
+var freeTimeRoutes = require('./routes/freeTimeRoutes');
 
 var app = express();
 
@@ -127,6 +128,7 @@ app.use('/pud', requireLogin, PUDRoutes);
 app.use('/request', requireLogin, requestRoutes);
 // app.use('/ssu', postMANTest, ssuRoutes);
 app.use('/ssu', requireLogin, ssuRoutes);
+app.use('/ftr', freeTimeRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {

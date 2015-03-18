@@ -9,8 +9,7 @@ router.post('/findConflicts', function (req, res, next) {
 	// compare timeSlots to users' events with merge compare algo
 	var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
 
-	
-
+	res.send(timeSlots);		
 });
 
 module.exports = router;

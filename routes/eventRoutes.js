@@ -24,8 +24,6 @@ router.post('/', function(req, res, next) {
 
 	newEvent.repeats = req.body.repeats;
 
-	console.log(req.body.evType);
-
 	if (req.body.evType) 
 		newEvent.evType = req.body.evType;
 	else 

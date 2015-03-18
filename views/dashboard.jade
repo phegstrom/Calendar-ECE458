@@ -361,28 +361,28 @@ block content
         h4#myModalLabel.modal-title Add Rule to {{ selectedCalendar.name }}
       .modal-body
         form.navbar-form(name="addRuleForm")
-        label Rule Type
-        | &nbsp;
-        select(ng-model="newRule.ruleType")
-          option(value="canView") Can View
-          option(value="canViewBusy") Can View Busy
-          option(value="canNotView") Cannot View
-        br
-        label User Group
-        br
-        select(ng-model="userGroup", ng-options="group.name for group in userGroups")
-        | &nbsp;
-        button.btn(ng-click="addUserGroupToRule()") Add User Group
-        ul
-          li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
-        label User Email
-        br
-        input(type="text", ng-model="userEmail", list="emails")
-        | &nbsp;
-        button.btn(ng-click="addUserEmailToRule()") Add User Email
-        ul
-          li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
-        button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
+          label Rule Type
+          | &nbsp;
+          select(ng-model="newRule.ruleType")
+            option(value="canView") Can View
+            option(value="canViewBusy") Can View Busy
+            option(value="canNotView") Cannot View
+          br
+          label User Group
+          br
+          select(ng-model="userGroup", ng-options="group.name for group in userGroups")
+          | &nbsp;
+          button.btn(ng-click="addUserGroupToRule()") Add User Group
+          ul
+            li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
+          label User Email
+          br
+          input(type="text", ng-model="userEmail", list="emails")
+          | &nbsp;
+          button.btn(ng-click="addUserEmailToRule()") Add User Email
+          ul
+            li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
+          button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule
 
     script(type="text/ng-template" id="addUserModal.html")
       .modal-header
@@ -402,7 +402,24 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4.modal-title Find Free Times
       .modal-body
-        | hello
+          form.navbar-form(name="findFreeTimeForm")
+            label User Group
+            br
+            select(ng-model="userGroup", ng-options="group.name for group in userGroups")
+            | &nbsp;
+            button.btn(ng-click="addUserGroupToFreeRequest()") Add User Group
+            ul
+              li(ng-repeat="displayGroup in freeUserGroupDisplay") {{ displayGroup }}
+            label User Email
+            br
+            input(type="text", ng-model="freeUserEmail", list="emails")
+            | &nbsp;
+            button.btn(ng-click="addFreeUserToList()") Add User
+            ul
+              li(ng-repeat="userEmail in freeTimeDetails.userIds") {{ userEmail }}
+
+            button.btn.btn-primary(ng-disabled="findFreeTimeForm.$invalid", ng-click="findFreeTimes()") Find Free Times
+          
 
     script(type="text/ng-template" id="createPudModal.html")
       .modal-header

@@ -17,6 +17,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   ];
   $scope.requestDetails = {};
 
+  $scope.freeTimeDetails = {};
+
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
   };
@@ -401,20 +403,51 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   // FIND FREE TIME SLOT ROUTES
   $scope.findFreeTimeSlots = function() {
 
+    // one time or recurring?
+    // time range if recurring
+    // time slot size
+    // time ranges
 
 
 
-
-    $http.post('/fts/requestTimes', findTimeDetails).
+    $http.put('/fts/requestTimes', freeTimeDetails).
     success(function(data, status, headers, config) {
 
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to find free times.');
     });
-    
-    // POPULATE SCOPE STUFF IN EVENT CREATION FORM TIMES
+
+    // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FORM TIMES
     $scope.cancel();
+  }
+
+  $scope.addUserGroupToFreeRequest = function() {
+    var newGroupId = angular.copy($scope.userGroup._id);
+    if($scope.freeTimeDetails.userGroupIds) {
+      if($scope.freeTimeDetails.userGroupIds.indexOf(newGroupId) == -1) {
+        $scope.freeUserGroupDisplay.push($scope.userGroup.name);
+        $scope.freeTimeDetails.userGroupIds.push(newGroupId);
+      }
+    }
+    else {
+      $scope.freeUserGroupDisplay = [$scope.userGroup.name];
+      $scope.freeTimeDetails.userGroupIds = [newGroupId];
+    }
+    $scope.userGroup = {};
+  }
+
+  $scope.addFreeUserToList = function() {
+    var newFreeUserEmail = angular.copy($scope.freeUserEmail);
+    if($scope.freeTimeDetails.userIds) {
+      if($scope.freeTimeDetails.userIds.indexOf(newFreeUserEmail) == -1){
+        $scope.freeTimeDetails.userIds.push(newFreeUserEmail);
+      }
+    }
+    else {
+      $scope.freeTimeDetails.userIds = [newFreeUserEmail];
+    }
+    $scope.freeUserEmail = '';
   }
 
 });

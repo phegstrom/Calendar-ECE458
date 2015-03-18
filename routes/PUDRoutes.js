@@ -222,6 +222,7 @@ router.post('/:pudId', function (req, res, next) {
 				res.send(saved);
 			});
 		} else {
+			//remove
 			User.findOneAndUpdate({_id: uid}, {$pull: {PUDs: req.params.pudId}}, function (err, num) {
 				if(pud.alert != undefined) {
 					Alert.findOneAndRemove({_id: pud.alert}, function (err) {

@@ -3,6 +3,7 @@ var mongoose = require('mongoose'),
     passportLocalMongoose = require('passport-local-mongoose');
     collectionName = "usersC";
     PUD = require('./PUD');
+   	_ = require('underscore');
 
 var deepPopulate = require('mongoose-deep-populate');
 
@@ -14,10 +15,12 @@ var UserSchema = new Schema({
 	canView: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	canViewBusy: [{type: Schema.Types.ObjectId, ref: 'Calendar'}],
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
-	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
-	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}],
+	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}], // ev requests sent to me
+	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}], 
 	PUDs: [{type: Schema.Types.ObjectId, ref: 'PUD'}],
-	SSEvents: [{type: Schema.Types.ObjectId, ref: 'SlotSignUp'}],
+	createdSSEvents: [{type: Schema.Types.ObjectId, ref: 'SlotSignUp'}],
+	SSEvents: [{type: Schema.Types.ObjectId, ref: 'SlotSignUp'}], // ssu requests sent to me
+	mySlots: [{type: Schema.Types.ObjectId, ref: 'Slot'}],
 	dateCreated: {type: Date, default: Date.now}
 }, {collection: collectionName});
 
@@ -31,6 +34,21 @@ UserSchema.plugin(deepPopulate);
 UserSchema.statics.convertToIds = function (emails) {
 	return this.find({email: {$in: emails}}, '_id').exec();
 };
+
+UserSchema.statics.toIds = function (emails, cb) {
+	this.find({email: {$in: emails}}, '_id', function (err, ids) {
+		cb(err, ids);
+	});
+}
+
+// returns array of emails
+UserSchema.statics.toEmails = function (ids, cb) {
+	var toRet = [];
+	this.find({_id: {$in: ids}}, 'email', function (err, ret) {
+		toRet = _.pluck(ret, 'email');
+		cb(err, toRet);
+	});
+}
 
 // called from Event Schema, returns in cb highest priority PUD
 UserSchema.methods.getBestPUD = function (alottedTime, cb) {
@@ -54,5 +72,6 @@ UserSchema.methods.getBestPUD = function (alottedTime, cb) {
 		
 	});
 };
+
 
 module.exports = mongoose.model('User', UserSchema);

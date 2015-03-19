@@ -11,6 +11,7 @@ router.post('/findConflicts', function (req, res, next) {
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
 	var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
+	var userEventMap = {};
 
 	async.waterfall([
 
@@ -26,12 +27,38 @@ router.post('/findConflicts', function (req, res, next) {
 			});			
 		},
 		function (allIds, next) {
-			// allIds contains all user Ids associated with the req
+			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
+				next(err, allIds, user);
+			});	
+		},
+		function (allIds, user, next) {
+			var canViews = _.union(user.modCalId, user.canView);
+			Calendar.find({_id: {$in: canViews}}).populate('events').exec(function (err, cals) {
+				cals.forEach(function (cal) {
+					var ev = getEventArrayObject('canView');
+
+					if (_.indexOf(allIds, cal.owner) != -1) {
+						if (!userEventMap[cal.owner]) {					
+							userEventMap[cal.owner] = [ev];
+						} else {
+							userEventMap[cal.owner].push(ev);
+						}
+					}
+
+				});
+			});
 		}
 
 		]);
-	
 
 });
+
+//TODO, write  below method, write next function
+
+var getEventArrayObject = function (type) {
+
+};
+
+
 
 module.exports = router;

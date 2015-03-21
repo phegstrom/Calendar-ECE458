@@ -231,4 +231,4 @@ router.get('/getAll', function (req, res, next) {
 	});
 });
 
-module.exports = router
+module.exports = router;

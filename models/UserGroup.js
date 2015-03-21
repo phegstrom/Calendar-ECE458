@@ -11,7 +11,7 @@ var UserGroupSchema = new Schema({
 
 UserGroupSchema.plugin(deepPopulate);
 
-// returns array of all users (unique list)
+// returns array of all user ids (unique list)
 // cb (err, uidArray)
 UserGroupSchema.statics.getUserIds = function (ugroupIdArray, cb) {
 	var uidArray = [];

@@ -132,7 +132,7 @@ app.use('/ftr', freeTimeRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {
-  req.session = {user: {_id: "54fa1613f4aeec855017e1e0", email: "bbb"}};
+  req.session = {user: {_id: "54ecb2cfb2c037650e91f53b", email: "parker.hegstrom@gmail.com"}};
   next();
 }
 

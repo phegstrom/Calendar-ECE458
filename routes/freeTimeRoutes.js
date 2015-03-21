@@ -14,20 +14,23 @@ router.put('/findConflicts', function (req, res, next) {
 	// timeSlots must be sorted on increasing end times
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
-	var conflicts = [];
-	var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
+	var conflictSummary = initializeConflictSummary(req.body.timeSlots);
+	// var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
 	var userEventMap = {};
 
 	async.waterfall([
 
 		function (next) {
 			UserGroup.getUserIds(req.body.userGroupIds, function (err, ids) {
+				// console.log('ugroupids: ' + ids);
 				next(err, ids);
 			});
 		},
 		function (ids, next) {
 			User.toIds(req.body.userEmails, function (err, uids) {
+				uids = _.pluck(uids, '_id');
 				ids = _.union(ids, uids);
+				// console.log('UNION: '+ ids);
 				next(err, ids);
 			});			
 		},
@@ -35,8 +38,8 @@ router.put('/findConflicts', function (req, res, next) {
 			// console.log('heresss');
 			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
 				userEventMap = initializeUserEventMap(allIds);
-				console.log('ALL IDS OBTAINED');
-				console.log(allIds);
+				// console.log('ALL IDS OBTAINED');
+				// console.log(allIds);
 				next(err, allIds, user);
 			});	
 		}, // THIS IS WEHRE IT BREAKS
@@ -65,20 +68,26 @@ router.put('/findConflicts', function (req, res, next) {
 					// merge new array with old one
 					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
 				});
-				next(err, eventArray);
+				next(err, userEventMap);
 			});
 		},
-		function (allEvents) {
+		function (allEvents, next) {
 			var keys = _.allKeys(allEvents);
-			console.log("allEvents: " + allEvents);
+			var conflicts = [];
 
 			keys.forEach(function (key) {
-				var events = allEvents[key];
-				var bool = true, timeP = 0, evP = 0;
+				var events = _.sortBy(allEvents[key], 'start');
+				var bool = true, timeP = 0, evP = 0;				
+
 				while(bool) {
-					if(events[evP].start < timeSlots[timeP].end) {
-						if(events[evP].start > timeSlots[timeP].start || events[evP].end > timeSlots[timeP].start) {
-							conflicts.push(events[evP]);
+					var evStart	= events[evP].start;
+					var evEnd	= events[evP].end;
+					var tiStart	= conflictSummary[timeP].timeSlot.start;
+					var tiEnd	= conflictSummary[timeP].timeSlot.end;
+
+					if(evStart < tiEnd) {
+						if(evStart > tiStart || evEnd > tiStart) {
+							conflictSummary[timeP].conflicts.push(events[evP]);
 						}
 
 						evP++;
@@ -86,7 +95,7 @@ router.put('/findConflicts', function (req, res, next) {
 						timeP++;
 					}
 
-					if(timeP >= timeSlots.length || evP >= events.length) {
+					if(timeP >= conflictSummary.length || evP >= events.length) {
 						bool = false;
 					}
 				}
@@ -94,11 +103,26 @@ router.put('/findConflicts', function (req, res, next) {
 			next();
 		},		
 		function () {
-			res.send(userEventMap);
+			res.send(conflictSummary);
 		}
 		]);
 
 });
+
+var initializeConflictSummary = function (times) {
+	var initialized = [];
+	var timeSlots = _.sortBy(times, 'endTime');
+
+	for(var i = 0; i < timeSlots.length; i++) {
+		var tiStart	= new Date(timeSlots[i].start);
+		var tiEnd	= new Date(timeSlots[i].end);
+
+		var obj = {timeSlot: {start: tiStart, end: tiEnd}, conflicts: []};
+		initialized.push(obj);
+	}
+
+	return initialized;
+}
 
 // initialializes the map: {userd1: [evObjects], userId2: [], etc};
 var initializeUserEventMap = function (Ids) {
@@ -115,7 +139,6 @@ var getEventArrayObject = function (cal, typeString) {
 	var toRet = [];
 	cal.events.forEach(function (ev) {
 		var evWithRepeats = expandEvent(ev, typeString); // returns an array
-		// console.log('with repeat: + ' + evWithRepeats);
 		toRet = _.union(toRet, evWithRepeats);		
 	});
 	return toRet;

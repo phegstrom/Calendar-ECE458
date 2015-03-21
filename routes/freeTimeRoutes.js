@@ -21,12 +21,15 @@ router.put('/findConflicts', function (req, res, next) {
 
 		function (next) {
 			UserGroup.getUserIds(req.body.userGroupIds, function (err, ids) {
+				console.log('ugorupids: ' + ids);
 				next(err, ids);
 			});
 		},
 		function (ids, next) {
 			User.toIds(req.body.userEmails, function (err, uids) {
+				uids = _.pluck(uids, '_id');
 				ids = _.union(ids, uids);
+				console.log('UNION: '+ ids);
 				next(err, ids);
 			});			
 		},
@@ -89,7 +92,6 @@ var getEventArrayObject = function (cal, typeString) {
 	var toRet = [];
 	cal.events.forEach(function (ev) {
 		var evWithRepeats = expandEvent(ev, typeString); // returns an array
-		console.log('with repeat: + ' + evWithRepeats);
 		toRet = _.union(toRet, evWithRepeats);		
 	});
 	return toRet;

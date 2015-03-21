@@ -40,27 +40,31 @@ router.put('/findConflicts', function (req, res, next) {
 			});	
 		}, // THIS IS WEHRE IT BREAKS
 		function (allIds, user, next) { // create eventmap
+			console.log("mod: " + user.modCalId);
+			console.log("canview: " + user.canView);
 			var canViewCalIds = _.union(user.modCalId, user.canView);
+			console.log('merged: ' + canViewCalIds);
 			Calendar.find({_id: {$in: canViewCalIds}}).populate('events').exec(function (err, cals) {
 				cals.forEach(function (cal) {
-					var eventArray = getEventArrayObject(CAN_VIEW_STRING);
+					var eventArray = getEventArrayObject(cal, CAN_VIEW_STRING);
 
 					// merge new array with old one
-					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
-					next(err, allIds, user);
+					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);				
 				});
+				next(err, allIds, user)
 			});
 		},
 		function (allIds, user, next) { // now get busy view events
 			var calIds = user.canViewBusy;
 			Calendar.find({_id: {$in: calIds}}).populate('events').exec(function (err, cals) {
 				cals.forEach(function (cal) {
-					var eventArray = getEventArrayObject(CANNOT_VIEW_STRING);
+					var eventArray = getEventArrayObject(cal, CANNOT_VIEW_STRING);
 
 					// merge new array with old one
 					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
-					next();
+					
 				});
+				next();
 			});
 		},
 		function () {
@@ -83,11 +87,12 @@ var initializeUserEventMap = function (Ids) {
 
 var getEventArrayObject = function (cal, typeString) {
 	var toRet = [];
-	cal = cal.toJSON();
 	cal.events.forEach(function (ev) {
 		var evWithRepeats = expandEvent(ev, typeString); // returns an array
-		toRet = _.union(toRet, evWithRepeats);
+		console.log('with repeat: + ' + evWithRepeats);
+		toRet = _.union(toRet, evWithRepeats);		
 	});
+	return toRet;
 };
 
 var expandEvent = function (ev, typeString) {

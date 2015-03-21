@@ -128,13 +128,20 @@ app.use('/pud', requireLogin, PUDRoutes);
 app.use('/request', requireLogin, requestRoutes);
 // app.use('/ssu', postMANTest, ssuRoutes);
 app.use('/ssu', requireLogin, ssuRoutes);
-app.use('/ftr', freeTimeRoutes);
+// app.use('/ftr', postMANTest, freeTimeRoutes);
+app.use('/ftr', peterPostMANTest, freeTimeRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {
   req.session = {user: {_id: "54ecb2cfb2c037650e91f53b", email: "parker.hegstrom@gmail.com"}};
   next();
 }
+
+function peterPostMANTest(req, res, next) {
+  req.session = {user: {_id: "54fa160df4aeec855017e1de", email: "aaa"}};
+  next();
+}
+
 
 function requireLogin (req, res, next) {
   if (!req.user) {

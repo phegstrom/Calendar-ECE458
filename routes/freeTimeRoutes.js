@@ -32,7 +32,7 @@ router.put('/findConflicts', function (req, res, next) {
 			});			
 		},
 		function (allIds, next) {
-			console.log('heresss');
+			// console.log('heresss');
 			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
 				userEventMap = initializeUserEventMap(allIds);
 				console.log('ALL IDS OBTAINED');
@@ -41,10 +41,13 @@ router.put('/findConflicts', function (req, res, next) {
 			});	
 		}, // THIS IS WEHRE IT BREAKS
 		function (allIds, user, next) { // create eventmap
+			// console.log("mod: " + user.modCalId);
+			// console.log("canview: " + user.canView);
 			var canViewCalIds = _.union(user.modCalId, user.canView);
+			// console.log('merged: ' + canViewCalIds);
 			Calendar.find({_id: {$in: canViewCalIds}}).populate('events').exec(function (err, cals) {
 				cals.forEach(function (cal) {
-					var eventArray = getEventArrayObject(CAN_VIEW_STRING);
+					var eventArray = getEventArrayObject(cal, CAN_VIEW_STRING);
 
 					// merge new array with old one
 					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
@@ -55,43 +58,41 @@ router.put('/findConflicts', function (req, res, next) {
 		function (allIds, user, next) { // now get busy view events
 			var calIds = user.canViewBusy;
 			Calendar.find({_id: {$in: calIds}}).populate('events').exec(function (err, cals) {
+				var eventArray = [];
 				cals.forEach(function (cal) {
-					var eventArray = getEventArrayObject(CANNOT_VIEW_STRING);
+					eventArray = getEventArrayObject(cal, CANNOT_VIEW_STRING);
 
 					// merge new array with old one
 					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
 				});
-				next();
+				next(err, eventArray);
 			});
 		},
-		// function (allEvents) {
-		// 	//key: userID
-		// 	//value has type, start, end
+		function (allEvents) {
+			var keys = _.allKeys(allEvents);
+			console.log("allEvents: " + allEvents);
 
-		// 	// values? whatever it's called
+			keys.forEach(function (key) {
+				var events = allEvents[key];
+				var bool = true, timeP = 0, evP = 0;
+				while(bool) {
+					if(events[evP].start < timeSlots[timeP].end) {
+						if(events[evP].start > timeSlots[timeP].start || events[evP].end > timeSlots[timeP].start) {
+							conflicts.push(events[evP]);
+						}
 
-		// 	var keys = _.allKeys(allEvents);
+						evP++;
+					} else {
+						timeP++;
+					}
 
-		// 	keys.forEach(function (key) {
-		// 		var events = allEvents[key];
-		// 		var bool = 1, timeP = 0, evP = 0;
-		// 		while(bool) {
-		// 			if(events[evP].start < timeSlots[timeP].end) {
-		// 				if(events[evP].start > timeSlots[timeP].start || events[evP].end > timeSlots[timeP].start) {
-		// 					conflicts.push(events[evP]);
-		// 				}
-
-		// 				evP++;
-		// 			} else {
-		// 				timeP++;
-		// 			}
-
-		// 			if(timeP >= timeSlots.length || evP >= events.length) {
-		// 				bool = 0;
-		// 			}
-		// 		}
-		// 	});
-		// },		
+					if(timeP >= timeSlots.length || evP >= events.length) {
+						bool = false;
+					}
+				}
+			});
+			next();
+		},		
 		function () {
 			res.send(userEventMap);
 		}
@@ -112,11 +113,12 @@ var initializeUserEventMap = function (Ids) {
 
 var getEventArrayObject = function (cal, typeString) {
 	var toRet = [];
-	cal = cal.toJSON();
 	cal.events.forEach(function (ev) {
 		var evWithRepeats = expandEvent(ev, typeString); // returns an array
-		toRet = _.union(toRet, evWithRepeats);
+		// console.log('with repeat: + ' + evWithRepeats);
+		toRet = _.union(toRet, evWithRepeats);		
 	});
+	return toRet;
 };
 
 var expandEvent = function (ev, typeString) {
@@ -142,6 +144,10 @@ var expandEvent = function (ev, typeString) {
 router.post('/test/test', function (req, res, next) {
 	var allEvents = req.body.allEvents;
 	var conflicts = [];
+
+	var test = "2015-03-23T06:04:16-04:00";
+	var dateTest = new Date(test);
+	console.log("dateTest: " + dateTest);
 
 	var timeSlots = [{start: "1", end: "3"}, {start: "5", end: "6"}, {start: "8", end: "10"}];
 

@@ -428,6 +428,20 @@ app.controller('sideBarController', function($scope, $http, $rootScope, modalSer
       }
   }
 
+  //TEMP CRAP HERE THAT NEEDS TO MOVE TO MODAL IN A BIT MAN
+  $scope.deleteSignUpEvent = function(signupEvent) {
+    $http.delete('/ssu/'+signupEvent._id).
+    success(function(data, status, headers, config) {
+      var signupIndex = $rootScope.slotSignupsCreated.indexOf(signupEvent);
+      if(signupIndex>=0) {
+        $rootScope.slotSignupsCreated.splice(signupIndex, 1);
+      }
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to delete signup event.');
+    });
+  }
+
   //Initialization
   populateUserGroups();
 });

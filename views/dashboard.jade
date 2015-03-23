@@ -125,11 +125,11 @@ block content
                 | Users 
                 ul
                   li(ng-repeat="user in rule.assocUsers")
-                    {{ user.email }}
+                  | {{ user.email }}
             b Users with Modify 
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
-                {{ getUserEmail(modUser) + " " }}
+                | {{ getUserEmail(modUser) + " " }}
                 a(href, ng-click="removeModUser(getUserEmail(modUser))")
                   span(class="glyphicon glyphicon-remove")
             hr
@@ -159,7 +159,7 @@ block content
           
           #eventInvites(ng-show="selector == 6")
             br
-            h4 Sent Invitations
+            h4 Sent Event Invitations
             ul
               li(ng-repeat="request in ownRequests")
                 //request.eventID is an event object, not an ID, naming is due to database storage
@@ -172,7 +172,14 @@ block content
                         span.glyphicon.glyphicon-ok
                       a(href, ng-click="respondToRequestEdit(request, editEvent, 'deny')")
                         span.glyphicon.glyphicon-remove
-            h4 Received Invitations
+            h4 Sent Sign-Up Requests
+            ul
+              li(ng-repeat="signupEvent in slotSignupsCreated")
+                a(href, ng-click="displaySsuDetails(signupEvent)") {{ signupEvent.name }}
+                a(href, ng-click="deleteSignUpEvent(signupEvent)")
+                  span.glyphicon.glyphicon-remove
+            button.btn.btn-primary(ng-click="displayCreateSsuModal()") Create Sign-Up
+            h4 Received Event Invitations
             ul
               li(ng-repeat="request in pendingRequests")
                 a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
@@ -186,6 +193,10 @@ block content
                     button.btn.btn-primary(ng-disabled="requestCalendar == undefined", ng-click="acceptRequest(request, requestCalendar)") Accept
                     button.btn.btn-warning(ng-click="declineRequest(request)") Decline
                     button.btn.btn-danger(ng-click="ignoreRequest(request)") Remove
+            h4 Received Sign-Up Requests
+            ul
+              li(ng-repeat="signupRequest in slotSignupsIncoming")
+                a(href, ng-click="") {{signupRequest.name}}
 
 
     script(type="text/ng-template" id="createEventModal.html" )
@@ -340,7 +351,7 @@ block content
             | &nbsp;
             select.form-control(style="display:table-cell;", ng-model="selectedGroup", ng-options="group.name for group in userGroups")
             | &nbsp;
-            button.btn(ng-click="addUserGroupToRequest()") Add User Group
+            button.btn(ng-click="addUserGroupToRequest(requestDetails)") Add User Group
             p(style='display: table-cell;')
             ul
               li(ng-repeat="userGroup in requestDetails.userGroups") {{ userGroup.name }}
@@ -348,7 +359,7 @@ block content
             Label(style="display: table-cell;") Users
             input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
             | &nbsp;
-            button.btn(ng-click="addUserToRequest()") Add User
+            button.btn(ng-click="addUserToRequest(requestDetails)") Add User
             p(style='display: table-cell;')
             ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in requestDetails.userList") {{ user }}
@@ -456,6 +467,98 @@ block content
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createPudForm.$invalid", ng-click="sendPudData(pudDetails)") Save
+
+    script(type="text/ng-template" id="ssuDetailsModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title() {{ selectedSsu.name }}
+      .modal-body
+        .row
+          .col-md-6
+            p(ng-show="selectedSsu.description")
+              b Description 
+              | {{ selectedSsu.description }}
+            p
+              b Free Time Slots
+              ul
+                li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
+            
+          .col-md-6
+            p
+              b 
+                | Invited Users
+              p(ng-repeat="user in selectedSsu.attendees")
+                | {{ user.userEmail }}
+                ul
+                  li(ng-repeat="slot in user.slots")
+                  | {{ convertDates(slot.start, slot.end) }}
+        .row
+          hr
+          | &nbsp;
+          .btn-group
+            button.btn.btn-danger.btn-sm(ng-click="deleteSignUpEvent(selectedSsu)") Delete Sign-Up Event
+
+    script(type="text/ng-template" id="createSsuModal.html")
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4.modal-title Create Sign-Up Event
+      .modal-body
+        form.navbar-form(style="display: table;", name="createSsuForm")
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Name
+            textarea.form-control(style="display: table-cell;", rows="1", cols="40", ng-model="ssuDetails.evName", placeholder="Event Name", required)
+          br
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Description
+            textarea.form-control(style="display: table-cell;", rows="2", cols="40", ng-model="ssuDetails.evDescription", placeholder="Event Description")
+          br
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Sign-up Minimum Slot Time
+            | &nbsp;
+            input.form-control(style="display: table-cell;", type="text", placeholder="in minutes", ng-model="ssuDetails.evMinDuration", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
+          br
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Sign-up Maximum Slot Time
+            | &nbsp;
+            input.form-control(style="display: table-cell;", type="text", placeholder="in minutes & multiple of minimum", ng-model="ssuDetails.evMaxDuration", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
+          br
+          p(style="display: table-row;")
+            label(style="display: table-cell;") Max Sign-ups per User
+            | &nbsp;
+            input.form-control(style="display: table-cell;", type="text", placeholder="e.g. 2 for two slots", ng-model="ssuDetails.evMaxPerUser", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
+          br
+          p(style="display: table-row;")
+            label(style="display: table-cell;") User Groups
+            | &nbsp;
+            select.form-control(style="display:table-cell;", ng-model="selectedGroup", ng-options="group.name for group in userGroups")
+            | &nbsp;
+            button.btn(ng-click="addUserGroupToRequest(ssuDetails)") Add User Group
+            p(style='display: table-cell;')
+            ul
+              li(ng-repeat="userGroup in ssuDetails.userGroups") {{ userGroup.name }}
+          p(style="display: table-row;")
+            Label(style="display: table-cell;") Users
+            input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
+            | &nbsp;
+            button.btn(ng-click="addUserToRequest(ssuDetails)") Add User
+            p(style='display: table-cell;')
+            ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
+              li(ng-repeat="user in ssuDetails.userList") {{ user }}
+          
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Sign-up Section Start Time
+            input.form-control(style="display:table-cell;", type="datetime-local", ng-model="ssuDetails.sectionStart", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+          p(style="display:table-row;")
+            label(style="display:table-cell;") Sign-up Section End Time
+            input.form-control(style="display:table-cell;", type="datetime-local", ng-model="ssuDetails.sectionEnd", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+          button.btn(ng-click="addSectionToSsu(ssuDetails.sectionStart, ssuDetails.sectionEnd)") Add Sign-up Section
+          p(style="display:table-row;")
+            {{ssuDetails.sectionErrorText}}
+          ul
+            li(ng-repeat="section in ssuDetails.sections") {{section.start.toLocaleString()}} to {{section.end.toLocaleString()}}
+        br
+        .btn-group
+          button.btn.btn-primary(ng-disabled="createSsuForm.$invalid", ng-click="sendSsuData(ssuDetails)") Create Event
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

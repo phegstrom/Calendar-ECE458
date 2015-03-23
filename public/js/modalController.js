@@ -1,4 +1,7 @@
 app.controller('modalController', function($scope, $http, $modalInstance, $rootScope) {
+
+  var MINUTE = 1000*60; //ms * sec
+
   $scope.daysOfTheWeek = [
     {name: 'Sunday',
       number: 0},
@@ -18,6 +21,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   $scope.requestDetails = {};
 
   $scope.freeTimeDetails = {};
+
+  $scope.ssuDetails = {};
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
@@ -291,40 +296,40 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     $scope.cancel();
   }
 
-  $scope.addUserGroupToRequest = function() {
+  $scope.addUserGroupToRequest = function(details) {
     var selectedGroup = $scope.selectedGroup;
-    if($scope.requestDetails.userGroups) {
-      if($scope.requestDetails.userGroups.indexOf(selectedGroup) == -1) {
-        $scope.requestDetails.userGroups.push(selectedGroup);
+    if(details.userGroups) {
+      if(details.userGroups.indexOf(selectedGroup) == -1) {
+        details.userGroups.push(selectedGroup);
       }
     }
     else {
-      $scope.requestDetails.userGroups = [selectedGroup];
+      details.userGroups = [selectedGroup];
     }
   }
 
-  $scope.removeUserGroupFromRequest = function(userGroup) {
-    var groupIndex = $scope.requestDetails.userGroups.indexOf(userGroup);
+  $scope.removeUserGroupFromRequest = function(userGroup, details) {
+    var groupIndex = details.userGroups.indexOf(userGroup);
     if(groupIndex != -1) {
-      $scope.requestDetails.userGroups.splice(groupIndex, 1);
+      details.userGroups.splice(groupIndex, 1);
     }
   }
 
-  $scope.addUserToRequest = function() {
+  $scope.addUserToRequest = function(details) {
     var newUser = $scope.userEmail;
-    if($scope.requestDetails.userList) {
-      if($scope.requestDetails.userList.indexOf(newUser) == -1) {
-        $scope.requestDetails.userList.push(newUser);
+    if(details.userList) {
+      if(details.userList.indexOf(newUser) == -1) {
+        details.userList.push(newUser);
       }
     }
     else {
-      $scope.requestDetails.userList = [newUser];
+      details.userList = [newUser];
     }
   }
-  $scope.removeUserFromRequest  = function(userEmail) {
-    var userIndex = $scope.requestDetails.userList.indexOf(userEmail);
+  $scope.removeUserFromRequest  = function(userEmail, details) {
+    var userIndex = details.userList.indexOf(userEmail);
     if(userIndex != -1) {
-      $scope.requestDetails.userList.splice(userIndex, 1);
+      details.userList.splice(userIndex, 1);
     }
   }
 
@@ -448,6 +453,82 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       $scope.freeTimeDetails.userIds = [newFreeUserEmail];
     }
     $scope.freeUserEmail = '';
+  }
+
+  //SSU Functions
+  $scope.addSectionToSsu = function(sectionStart, sectionEnd) {
+    if($scope.ssuDetails.sections == undefined) {
+      $scope.ssuDetails.sections = [];
+    }
+
+    var minutes = (sectionEnd - sectionStart) / MINUTE;
+
+    console.log(minutes);
+
+    if(minutes <= 0) {
+      $scope.ssuDetails.sectionErrorText = 'Start time is not before end time.';
+      return;
+    }
+    if($scope.ssuDetails.evMinDuration == undefined) {
+      $scope.ssuDetails.sectionErrorText = 'Minimum sign-up time not set.';
+      return;
+    }
+    if(minutes % $scope.ssuDetails.evMinDuration != 0) {
+      $scope.ssuDetails.sectionErrorText = 'Interval is not a multiple of the minimum sign-up time.';
+      return;
+    }
+
+    $scope.ssuDetails.sections.push({
+      start: sectionStart,
+      end: sectionEnd
+    });
+    $scope.ssuDetails.sectionErrorText = '';
+  }
+
+  $scope.sendSsuData = function(ssuDetails) {
+    //Convert sections into minimum slots, ensure that the minimum time is still valid in creation.
+    var minimumTime = ssuDetails.evMinDuration;
+
+    ssuDetails.evFreeBlocks = [];
+    ssuDetails.sections.forEach(function(section, index, array) {
+      var minutes = (section.end - section.start) / MINUTE;
+
+      if(minutes % minimumTime != 0) {
+        $scope.ssuDetails.sectionErrorText = 'A section is not a multiple of the minimum slot duration: ' + section.start.toLocaleString();
+        ssuDetails.evFreeBlocks = undefined;
+        return;
+      }
+      var dateBlockStart = new Date(section.start)
+      while(section.end - dateBlockStart > 0) {
+        var timeBlock = new Object();
+        timeBlock.start = new Date(dateBlockStart);
+        dateBlockStart = new Date(dateBlockStart.getTime() + minimumTime * MINUTE);
+        if(dateBlockStart - timeBlock.start == 0) {
+          return;
+        }
+        timeBlock.end = new Date(dateBlockStart);
+
+        ssuDetails.evFreeBlocks.push(timeBlock);
+      }
+    });
+    //Change the name of userList so the API is met
+    ssuDetails.userEmails = ssuDetails.userList;
+    //Change the name and values for userGroups so the API is met
+    ssuDetails.userGroupIds = [];
+    ssuDetails.userGroups.forEach(function(userGroup, index, array) {
+      ssuDetails.userGroupIds.push(userGroup._id);
+    });
+    //Send data
+    console.log(ssuDetails.evFreeBlocks);
+    $http.post('/ssu', ssuDetails).
+    success(function(data, status, headers, config) {
+      $rootScope.slotSignupsCreated.push(angular.fromJson(data));
+      $scope.ssuDetails = {};
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to create sign-up event.');
+      $scope.ssuDetails = {};
+    });
   }
 
 });

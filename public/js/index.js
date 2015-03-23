@@ -23,6 +23,22 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.calendarView = 'month';
   $rootScope.calendarDay = new Date();
 
+  $rootScope.getSlotSignups = function() {
+    $rootScope.slotSignupsCreated = [];
+    $rootScope.slotSignupsIncoming = [];
+    $rootScope.slotSignupsAccepted = [];
+
+    $http.get('/ssu').
+    success(function(data, status, headers, config) {
+      $rootScope.slotSignupsCreated = angular.fromJson(data);
+
+      console.log($rootScope.slotSignupsCreated);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve list of created slot signup events.');
+    });
+  }
+
   $rootScope.getAllUsers = function() {
     $rootScope.userList = [];
 
@@ -240,6 +256,23 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreatePudModal = function() {
     $modal.open({
       templateUrl: 'createPudModal.html',
+      controller: 'modalController'
+    });
+  }
+
+  $rootScope.displaySsuDetails = function(ssuEvent) {
+    $rootScope.selectedSsu = ssuEvent;
+
+    $modal.open({
+        templateUrl: 'ssuDetailsModal.html',
+        controller: 'modalController'
+      });
+    console.log($rootScope.selectedSsu);
+  }
+
+  $rootScope.displayCreateSsuModal = function() {
+    $modal.open({
+      templateUrl: 'createSsuModal.html',
       controller: 'modalController'
     });
   }
@@ -514,4 +547,5 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.getAllUsers();
   $rootScope.getRequests();
   $rootScope.getPuds();
+  $rootScope.getSlotSignups();
 });

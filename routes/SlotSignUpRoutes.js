@@ -10,8 +10,8 @@ var Slot 		= require('../models/Slot');
 // return array of createdSSEvents for a logged in user
 router.get('/', function (req, res, next) {
 
-	User.findOne({_id: req.session.user._id}, 'createdSSEvents')
-		.populate('createdSSEvents')
+	User.findOne({_id: req.session.user._id})
+		.deepPopulate('createdSSEvents.attendees')
 		.exec (function (err, user) {
 			if (err) next(err);				
 			res.send(user.createdSSEvents);
@@ -23,7 +23,7 @@ router.get('/', function (req, res, next) {
 router.get('/getIncoming', function (req, res, next) {
 
 	User.findOne({_id: req.session.user._id})
-		.populate('SSEvents').exec(function (err, user) {
+		.deepPopulate('SSEvents.attendees').exec(function (err, user) {
 			res.send(user.SSEvents);
 	});
 

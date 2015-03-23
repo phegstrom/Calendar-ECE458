@@ -173,8 +173,11 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 	//do something...create a Slot object, add to User's Slot, etc
 
 	//req.body.start, req.body.end
-	var startDate = new Date(req.body.start);
-	var endDate = new Date(req.body.end);
+	//var startDate = new Date(req.body.start);
+	//var endDate = new Date(req.body.end);
+
+	var startDate = req.body.start;
+	var endDate = req.body.end;
 
 	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
 		ssu.takeFreeBlocks(startDate, endDate);
@@ -190,7 +193,8 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 
 			ssu.attendees.forEach(function (attendee) {
 				if(attendee.userEmail == req.session.user.email) {
-					attendee.slots.push(newSlots._id);
+					console.log(newSlot);
+					attendee.slots.push(newSlot._id);
 				}
 			});
 

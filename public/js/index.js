@@ -26,7 +26,6 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.getSlotSignups = function() {
     $rootScope.slotSignupsCreated = [];
     $rootScope.slotSignupsIncoming = [];
-    $rootScope.slotSignupsAccepted = [];
 
     $http.get('/ssu').
     success(function(data, status, headers, config) {
@@ -36,6 +35,16 @@ app.run(function($rootScope, $q, $http, $modal) {
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve list of created slot signup events.');
+    });
+
+    $http.get('/ssu/getIncoming').
+    success(function(data, status, headers, config) {
+      $rootScope.slotSignupsIncoming = angular.fromJson(data);
+
+      console.log($rootScope.slotSignupsIncoming);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Could not retrieve list of incoming slot signup events.');
     });
   }
 
@@ -273,6 +282,15 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreateSsuModal = function() {
     $modal.open({
       templateUrl: 'createSsuModal.html',
+      controller: 'modalController'
+    });
+  }
+
+  $rootScope.displaySsuSignupModal = function(ssuEvent) {
+    $rootScope.selectedSsu = ssuEvent;
+
+    $modal.open({
+      templateUrl: 'ssuSignupModal.html',
       controller: 'modalController'
     });
   }

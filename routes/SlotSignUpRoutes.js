@@ -66,7 +66,10 @@ router.post('/', function (req, res, next) {
 		},
 		function (ids, next) {
 			User.toIds(req.body.userEmails, function (err, uids) {
+				uids = _.pluck(uids, '_id');
 				ssu.assocUsers = uids;
+				console.log('uids: ' + uids);
+				console.log('ids: ' + ids);
 				ids = _.union(ids, uids);
 				next(err, ids);
 			});			
@@ -76,11 +79,13 @@ router.post('/', function (req, res, next) {
 				emails.forEach(function (email) {
 					ssu.attendees.push({userEmail: email, slots: []});
 				});
-				console.log(ssu.attendees);
+				console.log('attendees: ' + ids);
 				next(err, ids);
 			});
 		},
-		function (result) {	
+		function (result, next) {	
+			console.log('Slot signup result for attendee population.');
+			console.log(result);
 			// update for all invitees	
 			for (var i = 0; i < result.length; i++) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});

@@ -27,17 +27,17 @@ var SlotSignUpSchema = new Schema({
 }, {collection: collectionName});
 
 SlotSignUpSchema.methods.takeFreeBlocks = function (startDate, endDate) {
-	var start = startDate;
-	var end = endDate;
+	var start = new Date(startDate);
+	var end = new Date(endDate);
 	for (var i = 0; i < this.freeBlocks.length; i++) {
 		var currBlock = this.freeBlocks[i];
-		if(currBlock.start <= start && currBlock.end >= end) {
+		if(currBlock.start.getTime() <= start.getTime() && currBlock.end.getTime() >= end.getTime()) {
 			this.freeBlocks.splice(i, 1);
 
-			if(currBlock.end != end) {
+			if(currBlock.end.getTime() != end.getTime()) {
 				this.freeBlocks.splice(i, 0, {start: end, end: currBlock.end});
 			}
-			if(currBlock.start != start) {
+			if(currBlock.start.getTime() != start.getTime()) {
 				this.freeBlocks.splice(i, 0, {start: currBlock.start, end: start});
 			}
 		}

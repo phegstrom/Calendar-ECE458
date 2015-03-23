@@ -289,6 +289,12 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displaySsuSignupModal = function(ssuEvent) {
     $rootScope.selectedSsu = ssuEvent;
 
+    for(var attendeeIndex = 0; attendeeIndex < ssuEvent.attendees.length; attendeeIndex++) {
+      if(ssuEvent.attendees[attendeeIndex].userEmail == $rootScope.currentUserEmail) {
+        $rootScope.selectedSsuSlots = ssuEvent.attendees[attendeeIndex].slots;
+      }
+    }
+
     $modal.open({
       templateUrl: 'ssuSignupModal.html',
       controller: 'modalController'

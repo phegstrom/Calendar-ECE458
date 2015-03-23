@@ -490,8 +490,7 @@ block content
               p(ng-repeat="user in selectedSsu.attendees")
                 | {{ user.userEmail }}
                 ul(ng-show="user.slots.length > 0")
-                  li(ng-repeat="slot in user.slots")
-                  | {{ convertDates(slot.start, slot.end) }}
+                  li(ng-repeat="slot in user.slots") {{ convertDates(slot.start, slot.end) }}
         .row
           hr
           | &nbsp;
@@ -585,10 +584,9 @@ block content
             p
               b 
                 | Slots Currently Signed Up For
-              p(ng-repeat="user in selectedSsu.attendees", ng-show="user.userEmail == currentUserEmail")
-                ul(ng-show="user.slots.length > 0")
-                  li(ng-repeat="slot in user.slots")
-                  | {{ convertDates(slot.start, slot.end) }}
+              p
+                ul(ng-show="selectedSsuSlots.length > 0")
+                  li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

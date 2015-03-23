@@ -190,7 +190,7 @@ router.delete('/:eventId', function(req, res, next) {
 
 	});
 
-	res.send("HELLO");
+	res.send("Delete complete");
 });
 
 module.exports = router;

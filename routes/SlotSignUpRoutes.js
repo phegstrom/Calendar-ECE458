@@ -51,8 +51,8 @@ router.post('/', function (req, res, next) {
 
 	// for each attendee email received, add info
 	ssu.maxPerUser = req.body.evMaxPerUser;
-	// ssu.freeBlocks = req.body.evFreeBlocks;
-	ssu.freeBlocks = [{start: new Date(), end: new Date()}];
+	ssu.freeBlocks = req.body.evFreeBlocks;
+	// ssu.freeBlocks = [{start: new Date(), end: new Date()}];
 	ssu.assocUserGroups = req.body.userGroupIds;
 	
 	var usergroupIds = [];

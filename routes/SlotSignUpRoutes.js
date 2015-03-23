@@ -173,9 +173,7 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 	//do something...create a Slot object, add to User's Slot, etc
 
 	//req.body.start, req.body.end
-	//var startDate = new Date(req.body.start);
-	//var endDate = new Date(req.body.end);
-
+	
 	var startDate = req.body.start;
 	var endDate = req.body.end;
 

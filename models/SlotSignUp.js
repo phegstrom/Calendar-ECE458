@@ -27,8 +27,8 @@ var SlotSignUpSchema = new Schema({
 }, {collection: collectionName});
 
 SlotSignUpSchema.methods.takeFreeBlocks = function (startDate, endDate) {
-	var start = new Date(startDate);
-	var end = new Date(endDate);
+	var start = startDate;
+	var end = endDate;
 	for (var i = 0; i < this.freeBlocks.length; i++) {
 		var currBlock = this.freeBlocks[i];
 		if(currBlock.start <= start && currBlock.end >= end) {

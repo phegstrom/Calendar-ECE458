@@ -18,13 +18,14 @@ router.post('/', function(req, res, next) {
 	newEvent.start = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
+	console.log("repeat 1: \n" + req.body.repeats);
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
 
+	console.log("repeat: \n" + req.body.repeats);
 	newEvent.repeats = req.body.repeats;
-
-	console.log(req.body.evType);
+	console.log("repeat from event: \n" + newEvent.repeats);
 
 	if (req.body.evType) 
 		newEvent.evType = req.body.evType;

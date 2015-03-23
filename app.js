@@ -26,6 +26,7 @@ var alertRoutes = require('./routes/alertRoutes');
 var requestRoutes = require('./routes/requestRoutes');
 var PUDRoutes = require('./routes/PUDRoutes');
 var ssuRoutes = require('./routes/SlotSignUpRoutes');
+var freeTimeRoutes = require('./routes/freeTimeRoutes');
 
 var app = express();
 
@@ -70,9 +71,7 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// first dbString is nodejitsu...
-// var dbString = 'mongodb://nodejitsu:28d2f50724f0f90b91e33914338b14c3@troup.mongohq.com:10063/nodejitsudb4576003544';
-
+// first dbString is heroku...
 var dbString = 'mongodb://heroku_app34927807:t5nfn8tkm70nlfkgngbb61k1ht@ds051960.mongolab.com:51960/heroku_app34927807';
 // developm112ent error handler
 // will print stacktrace
@@ -129,12 +128,20 @@ app.use('/pud', requireLogin, PUDRoutes);
 app.use('/request', requireLogin, requestRoutes);
 // app.use('/ssu', postMANTest, ssuRoutes);
 app.use('/ssu', requireLogin, ssuRoutes);
+// app.use('/ftr', postMANTest, freeTimeRoutes);
+app.use('/ftr', peterPostMANTest, freeTimeRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {
-  req.session = {user: {_id: "54fa1613f4aeec855017e1e0", email: "bbb"}};
+  req.session = {user: {_id: "54ecb2cfb2c037650e91f53b", email: "parker.hegstrom@gmail.com"}};
   next();
 }
+
+function peterPostMANTest(req, res, next) {
+  req.session = {user: {_id: "54fa160df4aeec855017e1de", email: "aaa"}};
+  next();
+}
+
 
 function requireLogin (req, res, next) {
   if (!req.user) {

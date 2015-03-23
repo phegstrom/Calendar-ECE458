@@ -28,7 +28,8 @@ var EventSchema = new Schema({
 	requestID: {type: Schema.Types.ObjectId, ref: 'Request', default: null},
 
 	alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
-	repeats: [{
+	repeats: [{ // either frequency or endDate will be populated,
+				// will repeat the days until endDate or for frequency
 		frequency: {type: Number, default: null},
 		endDate: {type: Date, default: null},
 		days: [{type: Date}]

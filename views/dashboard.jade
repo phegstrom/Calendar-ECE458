@@ -480,7 +480,7 @@ block content
               | {{ selectedSsu.description }}
             p
               b Free Time Slots
-              ul
+              ul(ng-show="selectedSSu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
             
           .col-md-6
@@ -489,7 +489,7 @@ block content
                 | Invited Users
               p(ng-repeat="user in selectedSsu.attendees")
                 | {{ user.userEmail }}
-                ul
+                ul(ng-show="user.slots.length > 0")
                   li(ng-repeat="slot in user.slots")
                   | {{ convertDates(slot.start, slot.end) }}
         .row

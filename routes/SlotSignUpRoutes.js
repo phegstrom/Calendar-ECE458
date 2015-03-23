@@ -73,13 +73,11 @@ router.post('/', function (req, res, next) {
 		},
 		function (ids, next) {
 			User.toEmails(ids, function (err, emails) {
-				console.log("here");
-				console.log(emails);
 				emails.forEach(function (email) {
 					ssu.attendees.push({userEmail: email, slots: []});
 				});
 				console.log(ssu.attendees);
-				next();
+				next(err, ids);
 			});
 		},
 		function (result) {	

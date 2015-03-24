@@ -509,6 +509,12 @@ block content
               b Description 
               | {{ selectedSsu.description }}
             p
+              b Maximum Sign-Up Duration 
+              | {{ selectedSsu.maxDuration + ' Minutes' }}
+            p
+              b Max Sign-Ups per Attendee 
+              | {{ selectedSsu.maxPerUser }}
+            p
               b Free Time Slots
               ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
@@ -606,6 +612,12 @@ block content
               b Description 
               | {{ selectedSsu.description }}
             p
+              b Maximum Sign-Up Duration 
+              | {{ selectedSsu.maxDuration + ' Minutes' }}
+            p
+              b Max Sign-Ups per Attendee 
+              | {{ selectedSsu.maxPerUser }}
+            p
               b Free Time Slots
               ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
@@ -613,8 +625,15 @@ block content
               label(style="display: table-cell;") Slots
               br
               select.form-control(style="display:table-cell;", ng-model="selectedBlock", ng-options="convertDates(block.start, block.end) for block in selectedSsu.freeBlocks")
+              a(href, ng-click="addTimeToSlot(selectedBlock, selectedSsu.maxDuration)")
+                span.glyphicon.glyphicon-plus
               | &nbsp;
-              button.btn(ng-click="ssuSignupForSlot(selectedBlock, selectedSsu._id)") Sign-Up
+              p(ng-show="currentTimeRange")
+                {{ convertDates(currentTimeRange.start, currentTimeRange.end) }}
+                a(href, ng-click="clearCurrentTimeRange()")
+                  span.glyphicon.glyphicon-remove
+              | &nbsp;
+              button.btn(ng-disabled="selectedSsuSlots.length >= selectedSsu.maxPerUser", ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
 
           .col-md-6
             p
@@ -623,6 +642,8 @@ block content
               p
                 ul(ng-show="selectedSsuSlots.length > 0")
                   li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+                    a(href, ng-click="cancelSignupSlot(block)")
+                      span.glyphicon.glyphicon-remove
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

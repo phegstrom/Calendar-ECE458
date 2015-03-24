@@ -34,8 +34,7 @@ var EventSchema = new Schema({
 		endDate: {type: Date, default: null},
 		days: [{type: Date}]
 	}],
-	repeatChainHead: {type: Schema.Types.ObjectId, ref: 'Event'};
-	repeatChainNextEvent: {type: Schema.Types.ObjectId, ref: 'Event'};
+	repeatChain: {type: Schema.Types.ObjectId, ref: 'RepeatChain'},	
 
 	creator: {
 		type: Schema.Types.ObjectId,

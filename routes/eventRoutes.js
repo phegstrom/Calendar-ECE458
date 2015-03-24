@@ -6,6 +6,7 @@ var Alert		= require('../models/Alert');
 var Repeat		= require('../models/Repeat');
 var Request		= require('../models/Request');
 var PUD			= require('../models/PUD');
+var RepeatChain = require('../models/RepeatChain');
 var router 		= express.Router();
 
 // post new Event
@@ -15,10 +16,13 @@ router.post('/', function(req, res, next) {
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
 	newEvent.location = req.body.location;
-	newEvent.start = req.body.start;
+	newEvent.start  = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
+
 	console.log("repeat 1: \n" + req.body.repeats);
+
+	var constructorObj = createConstructorObj(req);
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
@@ -27,20 +31,24 @@ router.post('/', function(req, res, next) {
 	newEvent.repeats = req.body.repeats;
 	console.log("repeat from event: \n" + newEvent.repeats);
 
-	if (req.body.evType) 
+	if (req.body.evType) {
 		newEvent.evType = req.body.evType;
-	else 
+		constructorObj.evType = req.body.evType;
+	}
+	else {
 		newEvent.evType = 'regular';
+		constructorObj.evType = 'regular';
+	}
 
-	console.log(req.body);
+	if (req.body.repeats) {
+		var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
+		console.log('REPEAT ARRAY \n' + repeatArray);
+	}
 
-	console.log("EVENT CREATED");
-	console.log(newEvent);
+	console.log("event created!");
 
 	newEvent.creator = req.session.user._id;
-
-	//for use with POSTman
-	//newEvent.creator = req.body.creator;
 
 	var newRequest = new Request();
 	// newRequest.info = newEvent.description;
@@ -61,6 +69,22 @@ router.post('/', function(req, res, next) {
 		res.send(ev);
 	});
 });
+
+// creates json obj to pass into event constructor
+function createConstructorObj(req) {
+	var toRet = {
+					name: req.body.name,
+					description: req.body.description,
+					location: req.body.location,
+					start: req.body.start,
+					end:req.body.end,
+					calendar: req.body.calendar,
+					repeats: req.body.repeats,	
+					creator: req.session.user._id
+				};
+
+	return toRet;				
+};
 
 // creates individual
 function createAlertSchemas(objArray, ev, req) {

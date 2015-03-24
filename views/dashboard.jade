@@ -565,6 +565,8 @@ block content
             p(style='display: table-cell;')
             ul
               li(ng-repeat="userGroup in ssuDetails.userGroups") {{ userGroup.name }}
+                a(href, ng-click="removeUserGroupFromRequest(userGroup, ssuDetails)")
+                  span.glyphicon.glyphicon-remove
           p(style="display: table-row;")
             Label(style="display: table-cell;") Users
             input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
@@ -573,6 +575,8 @@ block content
             p(style='display: table-cell;')
             ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in ssuDetails.userList") {{ user }}
+                a(href, ng-click="removeUserFromRequest(user, ssuDetails)")
+                  span.glyphicon.glyphicon-remove
           
           p(style="display:table-row;")
             label(style="display:table-cell;") Sign-up Section Start Time
@@ -585,6 +589,8 @@ block content
             {{ssuDetails.sectionErrorText}}
           ul
             li(ng-repeat="section in ssuDetails.sections") {{section.start.toLocaleString()}} to {{section.end.toLocaleString()}}
+               a(href, ng-click="removeSectionFromSsu(section)")
+                  span.glyphicon.glyphicon-remove
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createSsuForm.$invalid", ng-click="sendSsuData(ssuDetails)") Create Event

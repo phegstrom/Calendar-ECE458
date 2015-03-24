@@ -499,6 +499,15 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     $scope.ssuDetails.sectionErrorText = '';
   }
 
+  $scope.removeSectionFromSsu = function(section) {
+    var index = $scope.ssuDetails.sections.indexOf(section);
+
+    if(index > 0) {
+      $scope.ssuDetails.sections.splice(index, 1);
+    }
+    $scope.ssuDetails.sectionErrorText = '';
+  }
+
   $scope.sendSsuData = function(ssuDetails) {
     //Convert sections into minimum slots, ensure that the minimum time is still valid in creation.
     var minimumTime = ssuDetails.evMinDuration;

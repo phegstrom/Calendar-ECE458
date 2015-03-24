@@ -406,17 +406,23 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   // FIND FREE TIME SLOT ROUTES
-  $scope.findFreeTimeSlots = function() {
+  $scope.findFreeTimes = function() {
     var freeTimeDetails = $scope.freeTimeDetails;
     // time ranges
 
     if (typeof freeTimeDetails.recurrence == 'undefined') {
       $scope.freeTimeDetails.recurrence = 1;
     }
+    if (typeof freeTimeDetails.userGroupIds == 'undefined') {
+      freeTimeDetails.userGroupIds = {};
+    }
+    if (typeof freeTimeDetails.userEmails == 'undefined') {
+      freeTimeDetails.userEmails = {};
+    }
 
-    $http.put('/fts/requestTimes', freeTimeDetails).
+    $http.put('/ftr/findConflicts', freeTimeDetails).
     success(function(data, status, headers, config) {
-
+      $scope.conflictSummary = angular.fromJson(data);
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to find free times.');
@@ -424,6 +430,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
     // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FROM TIMES
     $scope.cancel();
+    $rootScope.displayConflictSummaryModal();
   }
 
   $scope.addTimeSlot = function() {

@@ -618,6 +618,16 @@ block content
                 ul(ng-show="selectedSsuSlots.length > 0")
                   li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
 
+    script(type="text/ng-template" id="conflictSummaryModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title() Conflict Summary
+      .modal-body
+        h4 Time Slot Conflicts
+        ul
+          li(ng-repeat="summary in conflictSummary") {{summary.timeSlot.start}}
+        h4 Free Times
+
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}
 

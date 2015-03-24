@@ -503,6 +503,24 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     //Convert sections into minimum slots, ensure that the minimum time is still valid in creation.
     var minimumTime = ssuDetails.evMinDuration;
 
+    if(ssuDetails.evMaxDuration % minimumTime != 0) {
+      $scope.ssuDetails.sectionErrorText = 'Maximum time is not a multiple of minimum time.';
+      return;
+    }
+    if(ssuDetails.sections == undefined) {
+      $scope.ssuDetails.sectionErrorText = 'No times were specified';
+      return;
+    }
+    if(ssuDetails.userGroups == undefined) {
+      ssuDetails.userGroups = [];
+    }
+    if(ssuDetails.userList == undefined) {
+      ssuDetails.userList = [];
+    }
+    if(ssuDetails.description == undefined) {
+      ssuDetails.description = '';
+    }
+
     ssuDetails.evFreeBlocks = [];
     ssuDetails.sections.forEach(function(section, index, array) {
       var minutes = (section.end - section.start) / MINUTE;
@@ -542,6 +560,16 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     error(function(data, status, headers, config) {
       console.log('Failed to create sign-up event.');
       $scope.ssuDetails = {};
+    });
+  }
+
+  $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
+    $http.put('/ssu/signUp/' + ssuId, selectedBlock).
+    success(function(data, status, headers, config) {
+      console.log(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to sign-up for slot.');
     });
   }
 

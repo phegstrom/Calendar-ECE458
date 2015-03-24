@@ -10,8 +10,8 @@ var Slot 		= require('../models/Slot');
 // return array of createdSSEvents for a logged in user
 router.get('/', function (req, res, next) {
 
-	User.findOne({_id: req.session.user._id}, 'createdSSEvents')
-		.populate('createdSSEvents')
+	User.findOne({_id: req.session.user._id})
+		.deepPopulate('createdSSEvents.attendees.slots')
 		.exec (function (err, user) {
 			if (err) next(err);				
 			res.send(user.createdSSEvents);
@@ -23,7 +23,7 @@ router.get('/', function (req, res, next) {
 router.get('/getIncoming', function (req, res, next) {
 
 	User.findOne({_id: req.session.user._id})
-		.populate('SSEvents').exec(function (err, user) {
+		.deepPopulate('SSEvents.attendees.slots').exec(function (err, user) {
 			res.send(user.SSEvents);
 	});
 
@@ -51,8 +51,8 @@ router.post('/', function (req, res, next) {
 
 	// for each attendee email received, add info
 	ssu.maxPerUser = req.body.evMaxPerUser;
-	// ssu.freeBlocks = req.body.evFreeBlocks;
-	ssu.freeBlocks = [{start: new Date(), end: new Date()}];
+	ssu.freeBlocks = req.body.evFreeBlocks;
+	// ssu.freeBlocks = [{start: new Date(), end: new Date()}];
 	ssu.assocUserGroups = req.body.userGroupIds;
 	
 	var usergroupIds = [];
@@ -66,23 +66,26 @@ router.post('/', function (req, res, next) {
 		},
 		function (ids, next) {
 			User.toIds(req.body.userEmails, function (err, uids) {
+				uids = _.pluck(uids, '_id');
 				ssu.assocUsers = uids;
+				console.log('uids: ' + uids);
+				console.log('ids: ' + ids);
 				ids = _.union(ids, uids);
 				next(err, ids);
 			});			
 		},
 		function (ids, next) {
 			User.toEmails(ids, function (err, emails) {
-				console.log("here");
-				console.log(emails);
 				emails.forEach(function (email) {
 					ssu.attendees.push({userEmail: email, slots: []});
 				});
-				console.log(ssu.attendees);
-				next();
+				console.log('attendees: ' + ids);
+				next(err, ids);
 			});
 		},
-		function (result) {	
+		function (result, next) {	
+			console.log('Slot signup result for attendee population.');
+			console.log(result);
 			// update for all invitees	
 			for (var i = 0; i < result.length; i++) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});
@@ -170,8 +173,9 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 	//do something...create a Slot object, add to User's Slot, etc
 
 	//req.body.start, req.body.end
-	var startDate = new Date(req.body.start);
-	var endDate = new Date(req.body.end);
+	
+	var startDate = req.body.start;
+	var endDate = req.body.end;
 
 	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
 		ssu.takeFreeBlocks(startDate, endDate);
@@ -187,17 +191,18 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 
 			ssu.attendees.forEach(function (attendee) {
 				if(attendee.userEmail == req.session.user.email) {
-					attendee.slots.push(newSlots._id);
+					attendee.slots.push(newSlot._id);
 				}
 			});
 
+			console.log(ssu);
+
 			newSlot.save();
 			user.save();
+			ssu.save();
+
+		    res.send(ssu);
 		});
-
-		ssu.save();
-
-		res.send(ssu);
 	});
 
 });

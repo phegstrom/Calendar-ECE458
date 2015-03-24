@@ -129,7 +129,8 @@ app.use('/request', requireLogin, requestRoutes);
 // app.use('/ssu', postMANTest, ssuRoutes);
 app.use('/ssu', requireLogin, ssuRoutes);
 // app.use('/ftr', postMANTest, freeTimeRoutes);
-app.use('/ftr', peterPostMANTest, freeTimeRoutes);
+// app.use('/ftr', peterPostMANTest, freeTimeRoutes);
+app.use('/ftr', requireLogin, freeTimeRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {

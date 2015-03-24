@@ -196,7 +196,7 @@ block content
             h4 Received Sign-Up Requests
             ul
               li(ng-repeat="signupRequest in slotSignupsIncoming")
-                a(href, ng-click="") {{signupRequest.name}}
+                a(href, ng-click="displaySsuSignupModal(signupRequest)") {{signupRequest.name}}
 
 
     script(type="text/ng-template" id="createEventModal.html" )
@@ -510,7 +510,7 @@ block content
               | {{ selectedSsu.description }}
             p
               b Free Time Slots
-              ul
+              ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
             
           .col-md-6
@@ -519,9 +519,8 @@ block content
                 | Invited Users
               p(ng-repeat="user in selectedSsu.attendees")
                 | {{ user.userEmail }}
-                ul
-                  li(ng-repeat="slot in user.slots")
-                  | {{ convertDates(slot.start, slot.end) }}
+                ul(ng-show="user.slots.length > 0")
+                  li(ng-repeat="slot in user.slots") {{ convertDates(slot.start, slot.end) }}
         .row
           hr
           | &nbsp;
@@ -589,6 +588,35 @@ block content
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createSsuForm.$invalid", ng-click="sendSsuData(ssuDetails)") Create Event
+
+    script(type="text/ng-template" id="ssuSignupModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title() {{ selectedSsu.name }}
+      .modal-body
+        .row
+          .col-md-6
+            p(ng-show="selectedSsu.description")
+              b Description 
+              | {{ selectedSsu.description }}
+            p
+              b Free Time Slots
+              ul(ng-show="selectedSsu.freeBlocks.length > 0")
+                li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
+            p(style="display: table-row;")
+              label(style="display: table-cell;") Slots
+              br
+              select.form-control(style="display:table-cell;", ng-model="selectedBlock", ng-options="convertDates(block.start, block.end) for block in selectedSsu.freeBlocks")
+              | &nbsp;
+              button.btn(ng-click="ssuSignupForSlot(selectedBlock, selectedSsu._id)") Sign-Up
+
+          .col-md-6
+            p
+              b 
+                | Slots Currently Signed Up For
+              p
+                ul(ng-show="selectedSsuSlots.length > 0")
+                  li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

@@ -66,7 +66,7 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (allEvents, next) {
-			var conflictSummary = initializeConflictSummary(req.body.timeSlots, req.body.recurrence);
+			var conflictSummary = initializeConflictSummary(req.body.timeSlot, req.body.recurrence);
 
 			var keys = _.allKeys(allEvents);
 			var conflicts = [];

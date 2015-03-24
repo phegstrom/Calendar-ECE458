@@ -173,6 +173,7 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 	//do something...create a Slot object, add to User's Slot, etc
 
 	//req.body.start, req.body.end
+	
 	var startDate = req.body.start;
 	var endDate = req.body.end;
 
@@ -190,17 +191,18 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 
 			ssu.attendees.forEach(function (attendee) {
 				if(attendee.userEmail == req.session.user.email) {
-					attendee.slots.push(newSlots._id);
+					attendee.slots.push(newSlot._id);
 				}
 			});
 
+			console.log(ssu);
+
 			newSlot.save();
 			user.save();
+			ssu.save();
+
+		    res.send(ssu);
 		});
-
-		ssu.save();
-
-		res.send(ssu);
 	});
 
 });

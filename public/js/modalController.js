@@ -407,13 +407,12 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   // FIND FREE TIME SLOT ROUTES
   $scope.findFreeTimeSlots = function() {
-
-    // one time or recurring?
-    // time range if recurring
-    // time slot size
+    var freeTimeDetails = $scope.freeTimeDetails;
     // time ranges
 
-
+    if (typeof freeTimeDetails.recurrence == 'undefined') {
+      $scope.freeTimeDetails.recurrence = 1;
+    }
 
     $http.put('/fts/requestTimes', freeTimeDetails).
     success(function(data, status, headers, config) {
@@ -423,8 +422,23 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       console.log('Failed to find free times.');
     });
 
-    // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FORM TIMES
+    // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FROM TIMES
     $scope.cancel();
+  }
+
+  $scope.addTimeSlot = function() {
+    var timeSlot = {};
+    timeSlot.startTime = angular.copy($scope.timeSlotStart);
+    timeSlot.endTime = angular.copy($scope.timeSlotEnd);
+
+    if($scope.freeTimeDetails.timeSlot) {
+      $scope.freeTimeDetails.timeSlot.push(timeSlot);
+    }
+    else {
+      $scope.freeTimeDetails.timeSlot = [timeSlot];
+    }
+    $scope.timeSlotStart = '';
+    $scope.timeSlotEnd = '';
   }
 
   $scope.addUserGroupToFreeRequest = function() {
@@ -485,9 +499,36 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     $scope.ssuDetails.sectionErrorText = '';
   }
 
+  $scope.removeSectionFromSsu = function(section) {
+    var index = $scope.ssuDetails.sections.indexOf(section);
+
+    if(index > 0) {
+      $scope.ssuDetails.sections.splice(index, 1);
+    }
+    $scope.ssuDetails.sectionErrorText = '';
+  }
+
   $scope.sendSsuData = function(ssuDetails) {
     //Convert sections into minimum slots, ensure that the minimum time is still valid in creation.
     var minimumTime = ssuDetails.evMinDuration;
+
+    if(ssuDetails.evMaxDuration % minimumTime != 0) {
+      $scope.ssuDetails.sectionErrorText = 'Maximum time is not a multiple of minimum time.';
+      return;
+    }
+    if(ssuDetails.sections == undefined) {
+      $scope.ssuDetails.sectionErrorText = 'No times were specified';
+      return;
+    }
+    if(ssuDetails.userGroups == undefined) {
+      ssuDetails.userGroups = [];
+    }
+    if(ssuDetails.userList == undefined) {
+      ssuDetails.userList = [];
+    }
+    if(ssuDetails.description == undefined) {
+      ssuDetails.description = '';
+    }
 
     ssuDetails.evFreeBlocks = [];
     ssuDetails.sections.forEach(function(section, index, array) {
@@ -528,6 +569,67 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     error(function(data, status, headers, config) {
       console.log('Failed to create sign-up event.');
       $scope.ssuDetails = {};
+    });
+  }
+
+  $scope.addTimeToSlot = function(timeRange, maxTime) {
+    if($scope.currentTimeRange) {
+      var newTimeRange = {};
+      timeRange.start = new Date(timeRange.start);
+      timeRange.end = new Date(timeRange.end);
+      if(timeRange.end.getTime() == $scope.currentTimeRange.start.getTime()) {
+        //Add to start
+        newTimeRange = {
+          start: new Date(timeRange.start),
+          end: new Date($scope.currentTimeRange.end)
+        }
+      }
+      else if(timeRange.start.getTime() == $scope.currentTimeRange.end.getTime()) {
+        //Add to end
+        newTimeRange = {
+          start: new Date($scope.currentTimeRange.start),
+          end: new Date(timeRange.end)
+        }
+      }
+      else {
+        return;
+      }
+
+      //Check that max time has not been violated
+      if((newTimeRange.end.getTime() - newTimeRange.start.getTime()) / MINUTE <= maxTime) {
+        $scope.currentTimeRange = newTimeRange;
+      }
+    }
+    else {
+      $scope.currentTimeRange = {
+        start: new Date(timeRange.start),
+        end: new Date(timeRange.end)
+      }
+    }
+  }
+
+  $scope.clearCurrentTimeRange = function() {
+    $scope.currentTimeRange = undefined;
+  }
+
+  $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
+    $http.put('/ssu/signUp/' + ssuId, selectedBlock).
+    success(function(data, status, headers, config) {
+      console.log(data);
+      $scope.clearCurrentTimeRange();
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to sign-up for slot.');
+    });
+  }
+
+  $scope.cancelSignupSlot = function(slot) {
+    $http.put('/ssu/cancelSlot/' + slot._id).
+    success(function(data, status, headers, config) {
+      console.log(data);
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to cancel sign-up slot.');
     });
   }
 

@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  div(ng-app="calendarApp")
+  div(ng-app="calendarApp", ng-cloak)
 
     link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
     link(rel='stylesheet', href='/css/angular-csp.css')
@@ -374,21 +374,21 @@ block content
         form.navbar-form(name="addRuleForm")
           label Rule Type
           | &nbsp;
-          select(ng-model="newRule.ruleType")
+          select.form-control(ng-model="newRule.ruleType")
             option(value="canView") Can View
             option(value="canViewBusy") Can View Busy
             option(value="canNotView") Cannot View
           br
           label User Group
           br
-          select(ng-model="userGroup", ng-options="group.name for group in userGroups")
+          select.form-control(ng-model="userGroup", ng-options="group.name for group in userGroups")
           | &nbsp;
           button.btn(ng-click="addUserGroupToRule()") Add User Group
           ul
             li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
           label User Email
           br
-          input(type="text", ng-model="userEmail", list="emails")
+          input.form-control(type="text", ng-model="userEmail", list="emails")
           | &nbsp;
           button.btn(ng-click="addUserEmailToRule()") Add User Email
           ul
@@ -401,7 +401,7 @@ block content
         h4#myModalLabel.modal-title Add Users with Modify to {{ selectedCalendar.name }}
       .modal-body
         form.navbar-form(name="addModUserForm")
-          input(type="text", ng-model="inputModUserEmail", list="emails")
+          input.form-control(type="text", ng-model="inputModUserEmail", list="emails")
           | &nbsp;
           button.btn(ng-click="addModUsertoList()") Add User
           ul
@@ -413,23 +413,53 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4.modal-title Find Free Times
       .modal-body
-          form.navbar-form(name="findFreeTimeForm")
-            label User Group
+          form.navbar-form(style="display: table;", name="findFreeTimeForm")
+            p(style="display: table-row;")
+              label(style="display: table-cell;") User Group
+              select.form-control(ng-model="userGroup", ng-options="group.name for group in userGroups")
+              | &nbsp;
+              button.btn(ng-click="addUserGroupToFreeRequest()") Add User Group
+              p(style="display: table-cell;")
+                ul
+                  li(ng-repeat="displayGroup in freeUserGroupDisplay") {{ displayGroup }}
+            p(style="display: table-row;")
+              label(style="display: table-cell;") User Email
+              input.form-control(type="text", ng-model="freeUserEmail", list="emails")
+              | &nbsp;
+              button.btn(ng-click="addFreeUserToList()") Add User
+              p(style="display: table-cell;")
+                ul
+                  li(ng-repeat="userEmail in freeTimeDetails.userIds") {{ userEmail }}
+            p(style="display: table-row;")
+              p(style="display: table-cell;")
+                label Recurring
+                | &nbsp;
+                input(type="checkbox", ng-model="isRecurring")
+              input.form-control(type="text", ng-show="isRecurring", ng-model="freeTimeDetails.recurrence", placeholder="# weeks to repeat")
+              br
+            p(style="display: table-row;")
+              label(style="display: table-cell;") Time Slot Size
+              | &nbsp;
+              input.form-control(type="text", ng-model="freeTimeDetails.slotSize", placeholder="Size in minutes", required)
             br
-            select(ng-model="userGroup", ng-options="group.name for group in userGroups")
-            | &nbsp;
-            button.btn(ng-click="addUserGroupToFreeRequest()") Add User Group
-            ul
-              li(ng-repeat="displayGroup in freeUserGroupDisplay") {{ displayGroup }}
-            label User Email
+            p(style="display: table-row;")
+              label(style="display: table-cell;") Time Slot Start
+              | &nbsp;
+              input.form-control(type="datetime-local", ng-model="timeSlotStart", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
             br
-            input(type="text", ng-model="freeUserEmail", list="emails")
-            | &nbsp;
-            button.btn(ng-click="addFreeUserToList()") Add User
-            ul
-              li(ng-repeat="userEmail in freeTimeDetails.userIds") {{ userEmail }}
-
-            button.btn.btn-primary(ng-disabled="findFreeTimeForm.$invalid", ng-click="findFreeTimes()") Find Free Times
+            p(style="display: table-row;")
+              label(style="display: table-cell;") Time Slot End
+              | &nbsp;
+              input.form-control(type="datetime-local", ng-model="timeSlotEnd", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+              | &nbsp;
+              button.btn.btn-primary(ng-click="addTimeSlot()") Add Time Slot
+            p(style="display: table-row;")
+              p(style="display: table-cell;")
+                ul
+                  li(ng-repeat="slot in freeTimeDetails.timeSlot") {{ convertDates(slot.startTime, slot.endTime) }}
+            br
+            p(style="display:table-row;")
+              button.btn.btn-primary(ng-disabled="findFreeTimeForm.$invalid", ng-click="findFreeTimes()") Find Free Times
           
 
     script(type="text/ng-template" id="createPudModal.html")
@@ -479,6 +509,12 @@ block content
               b Description 
               | {{ selectedSsu.description }}
             p
+              b Maximum Sign-Up Duration 
+              | {{ selectedSsu.maxDuration + ' Minutes' }}
+            p
+              b Max Sign-Ups per Attendee 
+              | {{ selectedSsu.maxPerUser }}
+            p
               b Free Time Slots
               ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
@@ -519,7 +555,7 @@ block content
           p(style="display: table-row;")
             label(style="display: table-cell;") Sign-up Maximum Slot Time
             | &nbsp;
-            input.form-control(style="display: table-cell;", type="text", placeholder="in minutes & multiple of minimum", ng-model="ssuDetails.evMaxDuration", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
+            input.form-control(style="display: table-cell;", type="text", placeholder="multiple of minimum", ng-model="ssuDetails.evMaxDuration", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
           br
           p(style="display: table-row;")
             label(style="display: table-cell;") Max Sign-ups per User
@@ -535,6 +571,8 @@ block content
             p(style='display: table-cell;')
             ul
               li(ng-repeat="userGroup in ssuDetails.userGroups") {{ userGroup.name }}
+                a(href, ng-click="removeUserGroupFromRequest(userGroup, ssuDetails)")
+                  span.glyphicon.glyphicon-remove
           p(style="display: table-row;")
             Label(style="display: table-cell;") Users
             input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
@@ -543,6 +581,8 @@ block content
             p(style='display: table-cell;')
             ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in ssuDetails.userList") {{ user }}
+                a(href, ng-click="removeUserFromRequest(user, ssuDetails)")
+                  span.glyphicon.glyphicon-remove
           
           p(style="display:table-row;")
             label(style="display:table-cell;") Sign-up Section Start Time
@@ -555,6 +595,8 @@ block content
             {{ssuDetails.sectionErrorText}}
           ul
             li(ng-repeat="section in ssuDetails.sections") {{section.start.toLocaleString()}} to {{section.end.toLocaleString()}}
+               a(href, ng-click="removeSectionFromSsu(section)")
+                  span.glyphicon.glyphicon-remove
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createSsuForm.$invalid", ng-click="sendSsuData(ssuDetails)") Create Event
@@ -570,6 +612,12 @@ block content
               b Description 
               | {{ selectedSsu.description }}
             p
+              b Maximum Sign-Up Duration 
+              | {{ selectedSsu.maxDuration + ' Minutes' }}
+            p
+              b Max Sign-Ups per Attendee 
+              | {{ selectedSsu.maxPerUser }}
+            p
               b Free Time Slots
               ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
@@ -577,8 +625,15 @@ block content
               label(style="display: table-cell;") Slots
               br
               select.form-control(style="display:table-cell;", ng-model="selectedBlock", ng-options="convertDates(block.start, block.end) for block in selectedSsu.freeBlocks")
+              a(href, ng-click="addTimeToSlot(selectedBlock, selectedSsu.maxDuration)")
+                span.glyphicon.glyphicon-plus
               | &nbsp;
-              button.btn(ng-click="ssuSignupForSlot(selectedBlock, selectedSsu._id)") Sign-Up
+              p(ng-show="currentTimeRange")
+                {{ convertDates(currentTimeRange.start, currentTimeRange.end) }}
+                a(href, ng-click="clearCurrentTimeRange()")
+                  span.glyphicon.glyphicon-remove
+              | &nbsp;
+              button.btn(ng-disabled="selectedSsuSlots.length >= selectedSsu.maxPerUser", ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
 
           .col-md-6
             p
@@ -587,6 +642,8 @@ block content
               p
                 ul(ng-show="selectedSsuSlots.length > 0")
                   li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+                    a(href, ng-click="cancelSignupSlot(block)")
+                      span.glyphicon.glyphicon-remove
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

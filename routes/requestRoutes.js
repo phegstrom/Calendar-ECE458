@@ -201,12 +201,9 @@ router.put('/approveEdit/:requestId', function (req, res, next) {
 		 			console.log(updatedReq);
 		 			res.send(myReq);
 		 		});
-
 		 	});
-
 		});	
 	});
-
 });
 
 router.get('/getCreated', function (req, res, next) {

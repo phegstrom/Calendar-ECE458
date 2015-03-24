@@ -407,13 +407,12 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   // FIND FREE TIME SLOT ROUTES
   $scope.findFreeTimeSlots = function() {
-
-    // one time or recurring?
-    // time range if recurring
-    // time slot size
+    var freeTimeDetails = $scope.freeTimeDetails;
     // time ranges
 
-
+    if (typeof freeTimeDetails.recurrence == 'undefined') {
+      $scope.freeTimeDetails.recurrence = 1;
+    }
 
     $http.put('/fts/requestTimes', freeTimeDetails).
     success(function(data, status, headers, config) {
@@ -423,8 +422,23 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       console.log('Failed to find free times.');
     });
 
-    // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FORM TIMES
+    // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FROM TIMES
     $scope.cancel();
+  }
+
+  $scope.addTimeSlot = function() {
+    var timeSlot = {};
+    timeSlot.startTime = angular.copy($scope.timeSlotStart);
+    timeSlot.endTime = angular.copy($scope.timeSlotEnd);
+
+    if($scope.freeTimeDetails.timeSlot) {
+      $scope.freeTimeDetails.timeSlot.push(timeSlot);
+    }
+    else {
+      $scope.freeTimeDetails.timeSlot = [timeSlot];
+    }
+    $scope.timeSlotStart = '';
+    $scope.timeSlotEnd = '';
   }
 
   $scope.addUserGroupToFreeRequest = function() {

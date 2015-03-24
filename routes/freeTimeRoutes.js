@@ -14,7 +14,7 @@ router.put('/findConflicts', function (req, res, next) {
 	// timeSlots must be sorted on increasing end times
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
-	var conflictSummary = initializeConflictSummary(req.body.timeSlots);
+	var conflictSummary = initializeConflictSummary(req.body.timeSlots, req.body.recurrence);
 	// var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
 	var userEventMap = {};
 
@@ -22,7 +22,6 @@ router.put('/findConflicts', function (req, res, next) {
 
 		function (next) {
 			UserGroup.getUserIds(req.body.userGroupIds, function (err, ids) {
-				// console.log('ugroupids: ' + ids);
 				next(err, ids);
 			});
 		},
@@ -30,24 +29,20 @@ router.put('/findConflicts', function (req, res, next) {
 			User.toIds(req.body.userEmails, function (err, uids) {
 				uids = _.pluck(uids, '_id');
 				ids = _.union(ids, uids);
-				// console.log('UNION: '+ ids);
+
 				next(err, ids);
 			});			
 		},
 		function (allIds, next) {
-			// console.log('heresss');
 			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
 				userEventMap = initializeUserEventMap(allIds);
-				// console.log('ALL IDS OBTAINED');
-				// console.log(allIds);
+
 				next(err, allIds, user);
 			});	
-		}, // THIS IS WEHRE IT BREAKS
+		},
 		function (allIds, user, next) { // create eventmap
-			// console.log("mod: " + user.modCalId);
-			// console.log("canview: " + user.canView);
 			var canViewCalIds = _.union(user.modCalId, user.canView);
-			// console.log('merged: ' + canViewCalIds);
+
 			Calendar.find({_id: {$in: canViewCalIds}}).populate('events').exec(function (err, cals) {
 				cals.forEach(function (cal) {
 					var eventArray = getEventArrayObject(cal, CAN_VIEW_STRING);
@@ -100,26 +95,94 @@ router.put('/findConflicts', function (req, res, next) {
 					}
 				}
 			});
-			next();
-		},		
+		},
 		function () {
+			for(var i = 0; i < conflictSummary.length; i++) {
+				conflictSummary[i].freeTimes = setFreeTimes(conflictSummary[i], req.body.slotSize);
+			}
 			res.send(conflictSummary);
-		}
+		},
 		]);
 
 });
 
-var initializeConflictSummary = function (times) {
-	var initialized = [];
-	var timeSlots = _.sortBy(times, 'endTime');
+router.get('/blah/blah/test', function (req, res, next) {
+	var conflictSummary = {timeSlot: {start: 1, end: 8}, conflicts: []};
+	var con1 = {start: 0, end: 2};
+	var con2 = {start: 3, end: 5};
+	var con3 = {start: 7, end: 9};
+	conflictSummary.conflicts.push(con1);
+	conflictSummary.conflicts.push(con2);
+	conflictSummary.conflicts.push(con3);
 
-	for(var i = 0; i < timeSlots.length; i++) {
-		var tiStart	= new Date(timeSlots[i].start);
-		var tiEnd	= new Date(timeSlots[i].end);
+	var freeTimes = setFreeTimes(conflictSummary, 2);
+	res.send(freeTimes);
+});
 
-		var obj = {timeSlot: {start: tiStart, end: tiEnd}, conflicts: []};
-		initialized.push(obj);
+var setFreeTimes = function (conflictSummary, slotSize) {
+	var freeTimes = [];
+	freeTimes.push({start: conflictSummary.timeSlot.start, end: conflictSummary.timeSlot.end});
+
+	for(var i = 0; i < conflictSummary.conflicts.length; i++) {
+		var start = conflictSummary.conflicts[i].start;
+		var end = conflictSummary.conflicts[i].end;
+
+		for (var j = 0; j < freeTimes.length; j++) {
+
+			if(start <= freeTimes[j].start && end > freeTimes[j].start && end < freeTimes[j].end) {
+				freeTimes[j].start = end;
+			}
+			else if(start > freeTimes[j].start && start < freeTimes[j].end && end >= freeTimes[j].end) {
+				freeTimes[j].end = start;
+			}
+			else if(start >= freeTimes[j].start && end <= freeTimes[j].end) {
+				var toAdd = {start: freeTimes[j].start, end: freeTimes[j].end};
+				freeTimes[j].start = end;
+				toAdd.end = start;
+				freeTimes.splice(j, 0, toAdd);
+				j++;
+			}
+		}
 	}
+
+	var freeTimesRet = [];
+
+	for(var s = 0; s < freeTimes.length; s++) {
+		var difference = freeTimes[s].end.getTime() - freeTimes[s].start.getTime();
+		var minutes = Math.round(difference / 60000);
+
+		if(minutes >= slotSize) {
+			freeTimesRet.push(freeTimes[s]);
+		}
+	}
+
+	return freeTimesRet;
+}
+
+// initializes the conflictSummary array
+var initializeConflictSummary = function (times, recurrence) {
+	var initialized = [];
+
+	var timeSlots = [];
+
+	for(var t = 0; t < times.length; t++) {
+		timeSlots.push(times[t]);
+
+		var tiStart = times[t].start;
+		var tiEnd	= times[t].end;
+
+		for(var r = 1; r < recurrence; r++) {
+			tiStart.setDate(tiStart.getDate() + 7);
+			tiEnd.setDate(tiEnd.getDate() + 7);
+
+			// var obj = {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], endTemp: tiEnd};
+			var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
+			timeSlots.push(obj);
+		}
+	}
+
+	var sorted = _.sortBy(timeSlots, 'endTemp');
+	var initialized = _.pluck(sorted, 'toPluck');
 
 	return initialized;
 }
@@ -163,41 +226,5 @@ var expandEvent = function (ev, typeString) {
 		}
 	}
 };
-
-router.post('/test/test', function (req, res, next) {
-	var allEvents = req.body.allEvents;
-	var conflicts = [];
-
-	var test = "2015-03-23T06:04:16-04:00";
-	var dateTest = new Date(test);
-	console.log("dateTest: " + dateTest);
-
-	var timeSlots = [{start: "1", end: "3"}, {start: "5", end: "6"}, {start: "8", end: "10"}];
-
-	var keys = _.allKeys(allEvents);
-
-	keys.forEach(function (key) {
-		var events = allEvents[key];
-		var bool = 1, timeP = 0, evP = 0;
-		while(bool) {
-			if(events[evP].start < timeSlots[timeP].end) {
-				if(events[evP].start > timeSlots[timeP].start || events[evP].end > timeSlots[timeP].start) {
-					conflicts.push(events[evP]);
-				}
-
-				evP++;
-			} else {
-				timeP++;
-			}
-
-			if(timeP >= timeSlots.length || evP >= events.length) {
-				bool = 0;
-			}
-		}
-	});
-
-	// res.send(req.body.allEvents[keys[0]]);
-	res.send(conflicts);
-});
 
 module.exports = router;

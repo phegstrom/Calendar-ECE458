@@ -14,7 +14,6 @@ router.put('/findConflicts', function (req, res, next) {
 	// timeSlots must be sorted on increasing end times
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
-	var conflictSummary = initializeConflictSummary(req.body.timeSlots, req.body.recurrence);
 	// var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
 	var userEventMap = {};
 
@@ -67,6 +66,8 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (allEvents, next) {
+			var conflictSummary = initializeConflictSummary(req.body.timeSlots, req.body.recurrence);
+
 			var keys = _.allKeys(allEvents);
 			var conflicts = [];
 

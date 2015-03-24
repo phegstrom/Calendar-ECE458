@@ -509,6 +509,12 @@ block content
               b Description 
               | {{ selectedSsu.description }}
             p
+              b Maximum Sign-Up Duration 
+              | {{ selectedSsu.maxDuration + ' Minutes' }}
+            p
+              b Max Sign-Ups per Attendee 
+              | {{ selectedSsu.maxPerUser }}
+            p
               b Free Time Slots
               ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
@@ -549,7 +555,7 @@ block content
           p(style="display: table-row;")
             label(style="display: table-cell;") Sign-up Maximum Slot Time
             | &nbsp;
-            input.form-control(style="display: table-cell;", type="text", placeholder="in minutes & multiple of minimum", ng-model="ssuDetails.evMaxDuration", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
+            input.form-control(style="display: table-cell;", type="text", placeholder="multiple of minimum", ng-model="ssuDetails.evMaxDuration", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
           br
           p(style="display: table-row;")
             label(style="display: table-cell;") Max Sign-ups per User
@@ -565,6 +571,8 @@ block content
             p(style='display: table-cell;')
             ul
               li(ng-repeat="userGroup in ssuDetails.userGroups") {{ userGroup.name }}
+                a(href, ng-click="removeUserGroupFromRequest(userGroup, ssuDetails)")
+                  span.glyphicon.glyphicon-remove
           p(style="display: table-row;")
             Label(style="display: table-cell;") Users
             input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
@@ -573,6 +581,8 @@ block content
             p(style='display: table-cell;')
             ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
               li(ng-repeat="user in ssuDetails.userList") {{ user }}
+                a(href, ng-click="removeUserFromRequest(user, ssuDetails)")
+                  span.glyphicon.glyphicon-remove
           
           p(style="display:table-row;")
             label(style="display:table-cell;") Sign-up Section Start Time
@@ -585,6 +595,8 @@ block content
             {{ssuDetails.sectionErrorText}}
           ul
             li(ng-repeat="section in ssuDetails.sections") {{section.start.toLocaleString()}} to {{section.end.toLocaleString()}}
+               a(href, ng-click="removeSectionFromSsu(section)")
+                  span.glyphicon.glyphicon-remove
         br
         .btn-group
           button.btn.btn-primary(ng-disabled="createSsuForm.$invalid", ng-click="sendSsuData(ssuDetails)") Create Event
@@ -600,6 +612,12 @@ block content
               b Description 
               | {{ selectedSsu.description }}
             p
+              b Maximum Sign-Up Duration 
+              | {{ selectedSsu.maxDuration + ' Minutes' }}
+            p
+              b Max Sign-Ups per Attendee 
+              | {{ selectedSsu.maxPerUser }}
+            p
               b Free Time Slots
               ul(ng-show="selectedSsu.freeBlocks.length > 0")
                 li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
@@ -607,8 +625,15 @@ block content
               label(style="display: table-cell;") Slots
               br
               select.form-control(style="display:table-cell;", ng-model="selectedBlock", ng-options="convertDates(block.start, block.end) for block in selectedSsu.freeBlocks")
+              a(href, ng-click="addTimeToSlot(selectedBlock, selectedSsu.maxDuration)")
+                span.glyphicon.glyphicon-plus
               | &nbsp;
-              button.btn(ng-click="ssuSignupForSlot(selectedBlock, selectedSsu._id)") Sign-Up
+              p(ng-show="currentTimeRange")
+                {{ convertDates(currentTimeRange.start, currentTimeRange.end) }}
+                a(href, ng-click="clearCurrentTimeRange()")
+                  span.glyphicon.glyphicon-remove
+              | &nbsp;
+              button.btn(ng-disabled="selectedSsuSlots.length >= selectedSsu.maxPerUser", ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
 
           .col-md-6
             p
@@ -617,6 +642,8 @@ block content
               p
                 ul(ng-show="selectedSsuSlots.length > 0")
                   li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+                    a(href, ng-click="cancelSignupSlot(block)")
+                      span.glyphicon.glyphicon-remove
 
     script(type="text/ng-template" id="conflictSummaryModal.html" )
       .modal-header

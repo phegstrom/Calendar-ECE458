@@ -77,20 +77,25 @@ SlotSignUpSchema.methods.getAllAssociatedUsers = function (cb) {
 }
 
 SlotSignUpSchema.methods.createFreeBlocksAndUpdate = function (slot, cb) {
+	console.log("slot: "+JSON.stringify(slot));
 	var numBlocks = slot.basicBlocksNumber;
 	var startDate = slot.start;
 	var fBlocksToAdd = [];
 	var counter = 0;
+
 	for (var i = 0; i < numBlocks; i++) {
 		counter++;
-		var endDate = startDate;
+		startDate = new Date(startDate);
+		var endDate = new Date(startDate);
 		endDate.setMinutes(startDate.getMinutes() + this.minDuration);
+
 		fBlocksToAdd.push({start: startDate, end: endDate});
+
+		startDate = new Date(startDate);
 		startDate.setMinutes(startDate.getMinutes() + this.minDuration);
 	}
-	console.log('freeblocks created: '+ counter);
 
-	this.freeBlocks.push(fBlocksToAdd);
+	this.freeBlocks = _.union(this.freeBlocks, fBlocksToAdd);
 	this.freeBlocks = _.sortBy(this.freeBlocks, 'start');
 
 	this.attendees.forEach(function (attendee) {

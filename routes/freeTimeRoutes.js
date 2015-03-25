@@ -16,6 +16,7 @@ router.put('/findConflicts', function (req, res, next) {
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
 	// var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
+	console.log(JSON.stringify(req.body));
 	var userEventMap = {};
 	console.log("HERERER WE PRINGINTITNITNITNITITN\n\n\n\n\n");
 	console.log(typeof req.body.userEmails[0]);
@@ -28,6 +29,7 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (ids, next) {
+			console.log(JSON.stringify(req.body.userEmails));
 			User.toIds(req.body.userEmails, function (err, uids) {
 				console.log('USER IDS FROM METHOD\n\n\n\n');
 				console.log(uids);

@@ -637,7 +637,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     $http.put('/ssu/signUp/' + ssuId, selectedBlock).
     success(function(data, status, headers, config) {
       var newSsu = angular.fromJson(data);
-      $rootScope.selectedSsu.freeBlocks = data.freeBlocks;
+      $rootScope.selectedSsu.freeBlocks = newSsu.freeBlocks;
 
 
       var newAttendee = getAttendee(newSsu, $rootScope.currentUserEmail);

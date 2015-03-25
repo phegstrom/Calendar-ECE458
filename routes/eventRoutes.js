@@ -97,6 +97,7 @@ router.post('/', function(req, res, next) {
 		newEvent.repeatChain = newRepeatChain._id;
 	}
 
+
 	console.log("event created!");
 
 	newEvent.creator = req.session.user._id;

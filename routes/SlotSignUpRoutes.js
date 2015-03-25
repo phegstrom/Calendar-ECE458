@@ -112,20 +112,24 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 	async.waterfall([
 		function (next) {
 			Slot.findOne({_id: req.params.slotId}, function (err, slot) {
-				next(slot);
+				next(err, slot);
 			});
 		},
 		function (slot, next) {
-			SlotSignUp.findOne({_id: slot._id}, function (err, ssu) {
-				ssu.createFreeBlocksAndUpdate(slot, function (err, saved) {					
-					next();
+			SlotSignUp.findOne({_id: slot.SSU}, function (err, ssu) {
+				ssu.createFreeBlocksAndUpdate(slot, function (err, saved) {
+					next(err, saved);
 				});
-			});		
+			});	
 		},
-		function (next) {	
-
+		function (saved, next) {
+			Slot.findOneAndRemove({_id: req.params.slotId}, function (err) {
+				res.send(saved);
+			});
 		}
 	]);
+
+	//return the ssu
 
 });
 
@@ -189,47 +193,24 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			newSlot.basicBlocks = ((startDate - endDate)/60000) / ssu.minDuration;
 			user.mySlots.push(newSlot);
 
-			// ssu.attendees.forEach(function (attendee) {
-			// 	console.log("##### "+attendee.userEmail + " : " + req.session.user.email);
-			// 	if(attendee.userEmail == req.session.user.email) {
-			// 		console.log("success!!!");
-
-			// 		var attendeeTemp = attendee;
-			// 		attendee = null;
-
-			// 		attendeeTemp.slots.push(newSlot._id);
-			// 		attendee = attendeeTemp;
-
-			// 		// attendee.slots.push(newSlot._id);
-			// 	}
-			// });
 			var attendeesTemp = _.clone(ssu.attendees);
 			ssu.attendees = null;
 
-			for (var i = 0; i < attendeesTemp.length; i++) {
+			for(var i = 0; i < attendeesTemp.length; i++) {
 				if(attendeesTemp[i].userEmail == req.session.user.email) {
-					attendeeTemp[i].slots.push(newSlot._id);
-					console.log("success: "+JSON.stringify(attendeeTemp[i].slots));
+					attendeesTemp[i].slots.push(newSlot._id);
 				}
 			}
 
 			ssu.attendees = attendeesTemp;
 
-			// console.log(ssu);
-
-			newSlot.save(function (err, nsSaved) {
-				user.save(function (err, uSaved) {
-					ssu.save(function (err, ssuSaved) {
-						console.log("saved: " + ssu);
-						res.send(ssu);
-					});
-				});
+			newSlot.save();
+			user.save();
+			ssu.save(function (err, ssuObj) {
+				res.send(ssu);
 			});
-
-		    // res.send(ssu);
 		});
 	});
-
 });
 
 module.exports = router;

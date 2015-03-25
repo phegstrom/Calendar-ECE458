@@ -15,6 +15,7 @@ router.put('/findConflicts', function (req, res, next) {
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
 	// var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
+	console.log(JSON.stringify(req.body));
 	var userEventMap = {};
 
 	async.waterfall([
@@ -25,6 +26,7 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (ids, next) {
+			console.log(JSON.stringify(req.body.userEmails));
 			User.toIds(req.body.userEmails, function (err, uids) {
 				uids = _.pluck(uids, '_id');
 				ids = _.union(ids, uids);
@@ -33,16 +35,16 @@ router.put('/findConflicts', function (req, res, next) {
 			});			
 		},
 		function (allIds, next) {
-			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').populate('modCalId canView canViewBusy').exec(function (err, user) {
+			console.log("allIds 0: "+allIds);			
+			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
 				userEventMap = initializeUserEventMap(allIds);
 
 				next(err, allIds, user);
 			});	
 		},
 		function (allIds, user, next) { // create eventmap
-			var modCalIdsFiltered = filterCalIds(user.modCalId, allIds);
-			var canViewIdsFiltered = filterCalIds(user.canView, allIds);
-			var canViewCalIds = _.union(modCalIdsFiltered, canViewIdsFiltered);
+			console.log("allIds 1: "+allIds);
+			var canViewCalIds = _.union(user.modCalId, user.canView);
 
 			Calendar.find({_id: {$in: canViewCalIds}}).populate('events')
 			.populate('owner')
@@ -57,7 +59,8 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (allIds, user, next) { // now get busy view events
-			var calIds = filterCalIds(user.canViewBusy, allIds);
+			console.log("allIds 2: "+allIds);
+			var calIds = user.canViewBusy;
 			Calendar.find({_id: {$in: calIds}}).populate('events')
 			.populate('owner')
 			.exec(function (err, cals) {
@@ -126,6 +129,7 @@ var filterCalIds = function (calendar, idArray) {
 
 	return toRet;
 }
+
 
 var setFreeTimes = function (conflictSummary, slotSize) {
 	var freeTimes = [];

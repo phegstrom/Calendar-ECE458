@@ -125,9 +125,6 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 			});
 		}
 	]);
-
-	//return the ssu
-
 });
 
 // delete a SlotSignUp

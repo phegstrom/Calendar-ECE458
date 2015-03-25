@@ -76,10 +76,10 @@ router.put('/findConflicts', function (req, res, next) {
 				var bool = true, timeP = 0, evP = 0;				
 
 				while(bool) {
-					var evStart	= events[evP].start;
-					var evEnd	= events[evP].end;
-					var tiStart	= conflictSummary[timeP].timeSlot.start;
-					var tiEnd	= conflictSummary[timeP].timeSlot.end;
+					var evStart	= new Date(events[evP].start);
+					var evEnd	= new Date(events[evP].end);
+					var tiStart	= new Date(conflictSummary[timeP].timeSlot.start);
+					var tiEnd	= new Date(conflictSummary[timeP].timeSlot.end);
 
 					if(evStart < tiEnd) {
 						if(evStart > tiStart || evEnd > tiStart) {
@@ -127,18 +127,20 @@ var setFreeTimes = function (conflictSummary, slotSize) {
 	freeTimes.push({start: conflictSummary.timeSlot.start, end: conflictSummary.timeSlot.end});
 
 	for(var i = 0; i < conflictSummary.conflicts.length; i++) {
-		var start = conflictSummary.conflicts[i].start;
-		var end = conflictSummary.conflicts[i].end;
+		var start = new Date(conflictSummary.conflicts[i].start);
+		var end = new Date(conflictSummary.conflicts[i].end);
 
 		for (var j = 0; j < freeTimes.length; j++) {
+			var ftStart = new Date(freeTimes[j].start);
+			var ftEnd = new Date(freeTimes[j].end);
 
-			if(start <= freeTimes[j].start && end > freeTimes[j].start && end < freeTimes[j].end) {
+			if(start <= ftStart && end > ftStart && end < ftEnd) {
 				freeTimes[j].start = end;
 			}
-			else if(start > freeTimes[j].start && start < freeTimes[j].end && end >= freeTimes[j].end) {
+			else if(start > ftStart && start < ftEnd && end >= ftEnd) {
 				freeTimes[j].end = start;
 			}
-			else if(start >= freeTimes[j].start && end <= freeTimes[j].end) {
+			else if(start >= ftStart && end <= ftEnd) {
 				var toAdd = {start: freeTimes[j].start, end: freeTimes[j].end};
 				freeTimes[j].start = end;
 				toAdd.end = start;

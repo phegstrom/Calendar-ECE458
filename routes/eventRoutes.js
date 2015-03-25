@@ -84,11 +84,11 @@ router.post('/', function(req, res, next) {
 		constructorObj.evType = 'regular';
 	}
 
-	if (req.body.repeats) {
-		var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
-		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
-		console.log('REPEAT ARRAY \n' + repeatArray);
-	}
+	// if (req.body.repeats) {
+	// 	var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+	// 	var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
+	// 	console.log('REPEAT ARRAY \n' + repeatArray);
+	// }
 
 	console.log("event created!");
 

@@ -636,12 +636,35 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
     $http.put('/ssu/signUp/' + ssuId, selectedBlock).
     success(function(data, status, headers, config) {
-      console.log(data);
+      var newSsu = angular.fromJson(data);
+      $rootScope.selectedSsu.freeBlocks = data.freeBlocks;
+
+
+      var newAttendee = getAttendee(newSsu, $rootScope.currentUserEmail);
+      console.log(newAttendee);
+
+      var newSlot = {
+        start: selectedBlock.start,
+        end: selectedBlock.end,
+        _id: newAttendee.slots[newAttendee.slots.length - 1]
+      }
+
+      var oldAttendee = getAttendee($rootScope.selectedSsu, $rootScope.currentUserEmail);
+
+      oldAttendee.slots.push(newSlot);
       $scope.clearCurrentTimeRange();
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to sign-up for slot.');
     });
+  }
+
+  var getAttendee = function(newSsu, userEmail) {
+    for(var index = 0; index < newSsu.attendees.length; index++) {
+      if(newSsu.attendees[index].userEmail == userEmail) {
+        return attendees[index];
+      }
+    }
   }
 
   $scope.cancelSignupSlot = function(slot) {

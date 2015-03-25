@@ -14,7 +14,7 @@ var RepeatChainSchema = new Schema({
 });
 
 
-// takes in repeat object, then returns [Date]
+// takes in repeat object, then returns array of Dates, [Date]
 // input: 
 	// {
 	// 	frequency: {type: Number, default: null},

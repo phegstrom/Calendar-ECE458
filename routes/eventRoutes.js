@@ -122,6 +122,8 @@ router.post('/', function(req, res, next) {
 		});			
 	} else { // we have repeated events to create
 		console.log('Creating repeat events in database...');
+
+
 		var allFunctions = [];
 		var allEvIds = [];
 
@@ -131,21 +133,24 @@ router.post('/', function(req, res, next) {
 				console.log('saved EVENT: ' + ev);
 				next(null, allEvIds, ev);
 			});
-		}
-
+		};
+		console.log('IM HERE');
 		allFunctions.push(f);
 
 		var functionArray = createFunctionArray(repeatedEventConstructors);
 		allFunctions = _.union(allFunctions, functionArray);
 
-
+		console.log('HEREEREr');
 
 		var endF = function (allEvIds, ev) {
 			Calendar.update({_id: req.body.calendar}, {$pushAll: {events: allEvIds}}, function(err, num, raw) {
 				if(err) next(err);
 				console.log('Repeat events creation complete!');
 				console.log(ev);
-				res.send(ev);
+				newRepeatChain.myEvents = allEvIds;
+				newRepeatChain.save(function (err, savedd) {
+					res.send(ev);
+				});
 			});
 		};
 
@@ -153,9 +158,8 @@ router.post('/', function(req, res, next) {
 
 		console.log('about to initailize repeat event creation...');
 		async.waterfall(allFunctions);
+
 	}
-
-
 
 });
 
@@ -327,6 +331,7 @@ router.put('/:eventId', function(req, res, next) {
 
 // delete the event, the event from the calendar, and the alerts and repeats
 router.delete('/:eventId', function(req, res, next) {
+
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
 		Calendar.update({_id: ev.calendar}, {$pull: {events: ev._id}}, function(err, num, raw) {
 
@@ -345,6 +350,22 @@ router.delete('/:eventId', function(req, res, next) {
 		Request.findByIdAndRemove({_id: mongoose.Types.ObjectId(ev.requestID)}, function (err) {
 			if (err) next(err);
 		});
+
+		if (ev.repeatChain) {
+			console.log('REPEAT CHAIN: ' + ev.repeatChain);
+			RepeatChain.findOne({_id: ev.repeatChain}, function (err, repeatChain) {
+				if (err) next(err);
+				Calendar.update({_id: ev.calendar}, {$pullAll: {events: repeatChain.myEvents}}, function(err, num, raw) {
+					console.log('NUMBER DELETED: ' + num);
+					for (var i = 0; i < repeatChain.myEvents.length; i++) {
+						Event.findByIdAndRemove({_id: repeatChain.myEvents[i]}, function(err) {
+							if(err)
+								next(err);
+						});						
+					}
+				});
+			});
+		}
 
 	});
 

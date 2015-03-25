@@ -26,7 +26,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   $scope.ssuDetails = {};
 
-  $scope.conflictSummary = ['uninitialized'];
+  $scope.conflictSummary = [];
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
@@ -186,6 +186,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       request = $http.post('/event', eventDetails).
       success(function(data, status, headers, config) {
         var dBEvent = angular.fromJson(data);
+        $rootScope.selectedEvent = dBEvent;
         console.log(dBEvent);
         console.log(eventDetails);
         var owningCalendar = $rootScope.getCalendar(eventDetails.calendar);
@@ -412,18 +413,19 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   // FIND FREE TIME SLOT ROUTES
   $scope.findFreeTimes = function() {
-    var freeTimeDetails = $scope.freeTimeDetails;
-    // time ranges
 
-    if (typeof freeTimeDetails.recurrence == 'undefined') {
-      freeTimeDetails.recurrence = 1;
+    if (typeof $scope.freeTimeDetails.recurrence == 'undefined') {
+      $scope.freeTimeDetails.recurrence = 1;
     }
-    if (typeof freeTimeDetails.userGroupIds == 'undefined') {
-      freeTimeDetails.userGroupIds = [];
+    if (typeof $scope.freeTimeDetails.userGroupIds == 'undefined') {
+      $scope.freeTimeDetails.userGroupIds = [];
     }
-    if (typeof freeTimeDetails.userEmails == 'undefined') {
-      freeTimeDetails.userEmails = [];
+    if (typeof $scope.freeTimeDetails.userEmails == 'undefined') {
+      $scope.freeTimeDetails.userEmails = [];
     }
+
+    var freeTimeDetails = $scope.freeTimeDetails;
+
     $http.put('/ftr/findConflicts', freeTimeDetails).
     success(function(data, status, headers, config) {
       $scope.conflictSummary = angular.copy(angular.fromJson(data));
@@ -488,6 +490,32 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       $scope.freeTimeDetails.userIds = [newFreeUserEmail];
     }
     $scope.freeUserEmail = '';
+  }
+
+  $scope.sendAndInviteUsers = function() {
+
+    // $async.waterfall([
+    //   function(next) {
+    //     $scope.sendEventData();
+
+    //     $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
+    //     $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+    //     next();
+    //   },
+    //   function() {
+    //     $scope.sendUserInvites();
+    //     $scope.cancel();
+    //   }
+
+    // ]);
+
+    // $scope.sendEventData();
+
+    // $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
+    // $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+
+    // $scope.sendUserInvites();
+    // $scope.cancel();
   }
 
   //SSU Functions

@@ -193,6 +193,7 @@ The way we initially design and implemented repeated events proved to be extreme
 Find free times was implemented in the frontend by simply creating new modals to allow users to submit the relevant data, view the resulting conflict summary, and create the event and easily send invite requests. These modals were created relatively easily since they are very modular in their design. However, the difficult part was sharing the data between the modals and calling functions across controllers. We achieved this by using Angular services which we will discuss in more detail below. In the first modal, users are able to choose users that they want to find free times for, the size of the block of time to find, and a list of time slots to consider. We also allow users to find free times over recurring weeks. This data is then sent to the backend which returns an object that we use to populate our next modal - the conflict summary. The conflict summary modal is located in a separate controller with the returned object being shared between the two with an Angular service. While viewing the conflict summary, users are then able to choose a suggested open time and create an event at that time. When users create an event out of a conflict summary, they now have the option of inviting everyone in the conflict summary immediately after creating the event. While implementing this, I ran into asynchronous problems which I address in my individual portion below. From here, event creation and user invites function as they did before.
 
 \subsubsection{Slot Sign Ups}
+Slot sign-ups were implemented using previous standards of creating a modal for each form and display. The user is able to create a slot-sign up event and designate any number of user groups and users to be associated. They may also add in any number of times so long as the times are multiples of the minimum time. Most of the work here was input validation since the method of adding and removing data for http transfer was already established. For attendee sign-ups, some additional work was needed to allow for sign-up times larger than a single slot that only counted for a single sign-up. This was fixed by allowing a user to create a block of time from a set of option inputs and eventually send a sign-up request to the database. The user is then able to see what times they are signed up for. Unfortunately, the owner of the sign-up event cannot see what the attendees have signed up for. This seems to be a problem with Jade, angular templating within the same file, and angular repeat. There is a nested loop required for displaying all of a user's time slots, but ng-repeat is unable to access the data from the outer loop iteration while within the template.
 
 \subsubsection{Angular Services}
 
@@ -203,6 +204,8 @@ Angular services use dependency injection to allow you to share code between you
 The inherent modularity of modals made it easy to implement new features on the frontend. We merely had to create a new modal controller and then call the backend HTTP routes out of that. Using Angular's services, we could also share data between these controllers as we needed.
 
 \subsection{Drawbacks of Our Previous Design}
+
+Angular scopes continue to create some problems when trying to debug and circumvent data passing, but the addition of using a service passed around the modals is reducing the effect of the problem. However, the continued increase in the size of our main jade template is becoming problematic. We may need to request the back-end to give us an all-purpose route to get Jade templates rendered individually for modal templates. This would allow us a fix for some of the odd Angular/Jade interactions that are causing unnecessary issues.
 
 \section{Individual Portion}
 \subsection*{Parker}
@@ -284,23 +287,23 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I ran into an issue involving slot sign-ups not actually allowing a user to sign-up for a time slot, but continuing to take the free time slots regardless. The free time would also create non-useful times when sent back, e.g. by taking up 9:00-9:20, it would return new time slots 9:00-9:00 and 9:20-9:20. I was able to print out the data that I was sending and the data recieved noting that the object recieved contained an ID for a slot being created and placed within the attendee for storage. I went into the back-end code to add in some logging so that I could see where data was being sent and saved. The first fix was relatively easy, and I was able to locate a function in the MongoDB model that attempted to remove used free time slots. I noted that two Date objects were being compared directly to determine equivalence and tested them to find out that they were not of the same type. Due to how sometimes Dates aren't Dates when they are passed in Javascript, I set some of the dates being used to actual Date objects and compared their times instead of trying to directly compare objects. This fixed the problem where the function tried to check for equivalent dates but failed due to different prototypes. The second problem was harder, and I was unable to determine the exact cause as I had not worked with much of the back-end code. The actual data was being parsed and stored properly, but during the save action for the database, the information was not persisted. Peter eventually figured out the source of the error once I had brought it up to him.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item  
+\item  I'm not sure what to say here other than I did debugging and looked at the code to debug various, minor issues. I also spent quite awhile searching for information on why Angular's repeat directive was not functioning as intended, but could not find anything definitive.
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I worked on sign-up slots. I also did various modal changes such as pulling calendar details into modals and pulling up an event details modal when a user finished creating an event.
 \end{enumerate}
 \item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item Angular and Jade do not play well, and this has prevented me from being able to use nested loops in modals. I'm hoping this can be fixed by providing a rendering route that can be given a file name to render and send for our templates in the future, but I may also need to find a way to circumvent ever needing to loop through more than one piece of information.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I would like to mention that they ran into one problem with something that I changed, and they fixed it relatively easily since it was an Angular scoping issue where I failed to move a function from one controller to another. Yes, I did have problems interacting with the team. For whatever reason, there seems to be a belief that I cannot make the rest of the team break from: that being in the same physical space makes coding infinitely better, or rather that it seems they think that I don't contribute unless they can physically see me. I did my best to work with the team during the final stretch and provided as much help as I could with debugging and implementation. That being said, the team could have perhaps not decided to keep adding new, non-required features a few hours before the deadline. In actual production, there would have been a code freeze, and we would have only been debugging and working on making sure the requirements were met instead of trying to make everything look nicer. As for everything else, we did meet up at times to discuss the API and work out details. They were also responsive over Facebook chat when we were debugging issues.
 \end{enumerate}
 \end{enumerate}
 

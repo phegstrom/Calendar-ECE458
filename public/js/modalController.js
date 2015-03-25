@@ -690,11 +690,14 @@ app.controller('modalController', function($scope, $http, $q, $modalInstance, $r
     }
   }
 
-  $scope.cancelSignupSlot = function(slot) {
+  $scope.cancelSignupSlot = function(slot, selectedSlots) {
     console.log(slot);
     $http.put('/ssu/cancelSlot/' + slot._id).
     success(function(data, status, headers, config) {
-      console.log(data);
+      var newSsu = angular.fromJson(data);
+      $rootScope.selectedSsu.freeBlocks = newSsu.freeBlocks;
+
+      selectedSlots.splice(selectedSlots.indexOf(slot), 1);
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to cancel sign-up slot.');

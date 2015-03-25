@@ -15,6 +15,7 @@ router.put('/findConflicts', function (req, res, next) {
 	// events from users sorted on increasing start times
 	// compare timeSlots to users' events with merge compare algo
 	// var timeSlots = _.sortBy(req.body.timeSlots, 'endTime');
+	console.log("THIS SHOULD PRINT");
 	var userEventMap = {};
 
 	async.waterfall([
@@ -66,7 +67,9 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (allEvents, next) {
-			var conflictSummary = initializeConflictSummary(req.body.timeSlots, req.body.recurrence);
+			console.log("intialized conflictSummary");
+			var conflictSummary = initializeConflictSummary(req.body.timeSlot, req.body.recurrence);
+			console.log(conflictSummary);
 
 			var keys = _.allKeys(allEvents);
 			var conflicts = [];
@@ -96,13 +99,17 @@ router.put('/findConflicts', function (req, res, next) {
 					}
 				}
 			});
-		},
-		function () {
+
+			console.log("\n\nconflictSummary again");
+			console.log(conflictSummary);
+
 			for(var i = 0; i < conflictSummary.length; i++) {
 				conflictSummary[i].freeTimes = setFreeTimes(conflictSummary[i], req.body.slotSize);
 			}
+
 			res.send(conflictSummary);
-		},
+			// next(null, conflictSummary);
+		}
 		]);
 
 });
@@ -167,10 +174,12 @@ var initializeConflictSummary = function (times, recurrence) {
 	var timeSlots = [];
 
 	for(var t = 0; t < times.length; t++) {
-		timeSlots.push(times[t]);
 
 		var tiStart = times[t].start;
 		var tiEnd	= times[t].end;
+
+		var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
+		timeSlots.push(obj);
 
 		for(var r = 1; r < recurrence; r++) {
 			tiStart.setDate(tiStart.getDate() + 7);
@@ -178,12 +187,18 @@ var initializeConflictSummary = function (times, recurrence) {
 
 			// var obj = {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], endTemp: tiEnd};
 			var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
+			console.log("obj: "+JSON.stringify(obj));
 			timeSlots.push(obj);
+			console.log("timeSlots: "+JSON.stringify(timeSlots));
 		}
 	}
 
 	var sorted = _.sortBy(timeSlots, 'endTemp');
+	console.log("SORTED: "+JSON.stringify(sorted));
 	var initialized = _.pluck(sorted, 'toPluck');
+
+	console.log("INITIALIZED: "+JSON.stringify(initialized));
+	console.log("\n\n\n");
 
 	return initialized;
 }

@@ -235,23 +235,23 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item While developing the algorithms to find conflicting times or slot sign up free times, I would write out simple test code with the simple javascript test tools on \texttt{w3schools.com}.  Javascript Date objects can be compared and modified like simple numbers, as they are essentially large millisecond values, so I tested my algorithms with simple numbers to save time.  After I was satisfied with my tests, I created simple test routes and tested them with PostMan with more realistic values.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item  
+\item We ran into several bugs last minute, and at one point I had to analyze and interpret a million console logs.  I inserted console logs throughout freeTimeRoutes while debugging an issue and eventually found where errors were.
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I designed the creation of the conflictSummary, the merge and compare algorithm to find conflicting events and free times, the slot sign up creation, signing up, and canceling of slots.  I designed the structure of the conflictSummary object to return to the front end.  It is essentially a map with time slots as keys and conflicting events and free times as values.  This makes it very easy for the front end to display conflict data per time slot. Compared to previous evolutions, this evolution was less about creating new structures and more about developing algorithms to process information.  For example, I wrote the algorithm to compare events with time slots to find conflicting events.  I sorted the events by start date and the time slots by end date. Then I had a pointer for each array that would increment accordingly.
 \end{enumerate}
 \item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item Javascript's asynchronous nature made development incredibly frustrating at times. At times, we needed functions to be called in a specific order but certain functions, namely anything dealing with calls to the database through Mongoose, would take too long and would complete when it was too late.  Parker and I found the answer to our problems with the async library and the waterfall function.  Waterfall takes in an array of functions and completes the functions in order one after another. This allowed us to have much more control over how our code works.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For the back-end, Parker and I met up and worked together regularly.  We had group meetings with Wayne and Brandon on occasion as well in order to catch everyone up to speed with all of the new developments.  Towards the due date of the evolution, Parker, Brandon, and I met up to finish up.  Wayne chose to work remotely despite our suggestions to work together in person.  This led to difficulties in communication and quite a few frustrating bugs. For the final evolution, we will need to collaborate and meet up as much as possible especially right before the evolution is due.
 \end{enumerate}
 \end{enumerate}
 
@@ -260,26 +260,25 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item An issue I ran into on the frontend while creating the finding free time feature was that even though I was using the same Angular controller for my conflict summary modal and my find free times modal, the scoping of the variables were not the same. In other words, I was not able to access the variables in the scope of the find free times modal from my conflict summary modal. This made it such I could not send the data between the two modals and display the information correctly. I had a hunch that this was due to the second modal not updating the scope when it was rendered which caused it to have an older version of the scope. I tested this by initializing an object and printing it out in both modals after updating it. As I suspected, the object had the new value in the first modal, but an older value in the second modal. I then experimented to see how the scoping could be updated by playing with Angular services. By creating separate controllers and testing out how to share the variables between them, I was able to create a design that had the two modals using separate controllers but with a shared scope through a service. This allowed me to pass the data between the two and display it correctly.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item  
+\item One roadblock we encountered while debugging our finding free times feature was that it was finding the events for users that we didn't specify. We were intrigued by this behavior and discovered that regardless of which users we put in, it was pulling the events for all users. We figured this out by cross referencing the data printed out on the frontend that we were sending into our HTTP request with the data that the backend was receiving in their route. We finally discovered that somewhere in the route, the filter function was working incorrectly which caused the code to pull all users from the calendars instead of using the ones sent in the array from the frontend. We then continued to debug this with print statements in the route which allowed us to check the values of variables with what our expectations of them were. Through this, we ran into some confusing type conversions in Javascript that were turning some of our String variables into Objects and thus making our functions behave differently than expected. We were able to fix these after much trouble and slow debugging as we printed out variables and compared them to the values sent from the frontend and in the database.
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I designed the finding free times feature for this evolution. While the initial modal to find free times is defined in the modalController, functions to display the conflict summary and interact with events are defined in a separate conflictSummaryModalController. We were originally not able to do this since we weren't able to define multiple controllers that needed the same data; however, the Angular services that we discussed above allowed us to share variables between scopes of different controllers which allowed us to split up the controllers into smaller, more specific files. When a free time is found in the conflict summary, I use it to populate the times in the event creation since those variables are stored in the rootScope. From there, I tie this to the modalController and allow the user to create an event and automatically send an invite to each the specified users for this event. 
 \end{enumerate}
-\item {\bf Dealing with Realistic Constraints}
+\item {\bf Dealing with Realistic Contraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item One constraint I encountered in this evolution was the asynchronicity of Javascript. Since the backend team had dealt with this in the past, I originally tried to address this by using the same async library they used. However, I ran into problems with importing the async library and getting it to interact with Angular. I then looked into using promises in Angular and found a function in the \$q Angular library that allows you to make sure one function runs before another function does. This allowed me to complete the finding free times feature since there was an area where I needed to create a new event, and then immediately send invites to users for the event. However, the issue was that the event wasn't being created quickly enough to populate the data used to call the user invite route. This resulted in the route throwing errors from having undefined inputs. After I added the asynchronous control for the order of functions, everything was able to run in the correct order and update as expected.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For this front-end of this evolution, I worked on the finding free times while Wayne worked on the slot sign ups feature. Since these were very separate features, we did not interact very much throughout the evolution. We met at the beginning of the evolution to plan how we wanted to refactor our code and how we wanted to implement each new feature. Towards the end of the evolution, Peter, Parker, and I met to finish up the evolution. However, Wayne worked remotely and we interacted through messaging. We ran into a lot of problems concerning things that Wayne changed and it was very difficult to debug errors without him working alongside us - especially when he went to sleep before us. We feel like it would be a lot more productive if we worked together near the end of the evolution as we try to tie all of our parts together.
 \end{enumerate}
 \end{enumerate}
-
 \subsection*{Wayne}
 
 \begin{enumerate} [a)]

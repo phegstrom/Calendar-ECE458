@@ -96,13 +96,15 @@ router.put('/findConflicts', function (req, res, next) {
 					}
 				}
 			});
-		},
-		function () {
+
 			for(var i = 0; i < conflictSummary.length; i++) {
 				conflictSummary[i].freeTimes = setFreeTimes(conflictSummary[i], req.body.slotSize);
 			}
+
+
+			console.log(JSON.stringify(conflictSummary));
 			res.send(conflictSummary);
-		},
+		}
 		]);
 
 });
@@ -149,7 +151,10 @@ var setFreeTimes = function (conflictSummary, slotSize) {
 	var freeTimesRet = [];
 
 	for(var s = 0; s < freeTimes.length; s++) {
-		var difference = freeTimes[s].end.getTime() - freeTimes[s].start.getTime();
+		var endDate = new Date(freeTimes[s].end);
+		var startDate = new Date(freeTimes[s].start);
+
+		var difference = endDate.getTime() - startDate.getTime();
 		var minutes = Math.round(difference / 60000);
 
 		if(minutes >= slotSize) {
@@ -162,21 +167,19 @@ var setFreeTimes = function (conflictSummary, slotSize) {
 
 // initializes the conflictSummary array
 var initializeConflictSummary = function (times, recurrence) {
-	var initialized = [];
-
 	var timeSlots = [];
 
 	for(var t = 0; t < times.length; t++) {
-		timeSlots.push(times[t]);
+		var tiStart = times[t].startTime;
+		var tiEnd	= times[t].endTime;
 
-		var tiStart = times[t].start;
-		var tiEnd	= times[t].end;
+		var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
+		timeSlots.push(obj);
 
 		for(var r = 1; r < recurrence; r++) {
 			tiStart.setDate(tiStart.getDate() + 7);
 			tiEnd.setDate(tiEnd.getDate() + 7);
 
-			// var obj = {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], endTemp: tiEnd};
 			var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
 			timeSlots.push(obj);
 		}

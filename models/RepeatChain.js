@@ -24,7 +24,9 @@ RepeatChainSchema.statics.getRepeatDates = function (repeatObj) {
 	var toRet = [];
 	var daysLength = repeatObj.days.length + 0;
 	var delta = 0;
+
 	if (repeatObj.frequency) {
+		// frequency
 		for (var i = 0; i < repeatObj.frequency; i++) {
 			for (var j = 0; j < daysLength; j++) {
 				var d = new Date(repeatObj.days[j]);
@@ -34,7 +36,21 @@ RepeatChainSchema.statics.getRepeatDates = function (repeatObj) {
 			delta += 7;
 		}
 	} else {
-		// end date style
+		// endDate
+		var endDate = new Date(repeatObj.endDate);
+		var repeat = true;
+		while (repeat) {
+			for (var k = 0; k < daysLength; j++) {
+				var d = new Date(repeatObj.days[k]);
+				d.setDate(d.getDate() + delta);
+				if(d.getDate() > endDate.getDate()) {
+					repeat = false;
+					break;
+				}
+				toRet.push(d);
+			}
+			delta += 7;
+		}
 	}
 
 	return toRet;

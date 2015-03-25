@@ -645,6 +645,24 @@ block content
                     a(href, ng-click="cancelSignupSlot(block)")
                       span.glyphicon.glyphicon-remove
 
+    script(type="text/ng-template" id="conflictSummaryModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title() Conflict Summary
+      .modal-body
+        h4 Time Slots
+        ul
+          li(ng-repeat="summary in conflictSummary") {{ convertDates(summary.timeSlot.start, summary.timeSlot.end) }} ({{summary.conflicts.length}} conflicts)
+          ul
+            li(ng-repeat="conflict in summary.conflicts")
+              a(href, ng-click="toggleConflictDetails(conflict)") {{conflict.name}} at {{convertDates(conflict.start, conflict.end)}}
+              p(ng-show="conflict.showDetails")
+                User: {{conflict.creator}}
+
+          ul
+            li(ng-repeat="free in summary.freeTimes") {{ convertDates(free.start, free.end) }}
+              a(href, ng-click="")
+
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}
 

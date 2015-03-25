@@ -236,6 +236,13 @@ app.run(function($rootScope, $q, $http, $modal) {
     });
   }
 
+  $rootScope.displayConflictSummaryModal = function() {
+    $modal.open({
+      templateUrl: 'conflictSummaryModal.html',
+      controller: 'modalController'
+    });
+  }
+
   $rootScope.displayAddUsersModal = function() {
     $modal.open({
       templateUrl: 'addUserModal.html',

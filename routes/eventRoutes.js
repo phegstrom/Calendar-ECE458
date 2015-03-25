@@ -9,6 +9,31 @@ var PUD			= require('../models/PUD');
 var RepeatChain = require('../models/RepeatChain');
 var router 		= express.Router();
 
+router.post('/test/test/test/', function (req, res, next) {
+	// original event
+	var constructorObj = createConstructorObj(req);
+
+	var newEvent = new Event(constructorObj);
+
+	if(req.body.alerts != undefined)
+		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
+	
+	if (req.body.evType) {
+		newEvent.evType = req.body.evType;
+		constructorObj.evType = req.body.evType;
+	}
+	else {
+		newEvent.evType = 'regular';
+		constructorObj.evType = 'regular';
+	}
+
+	if (req.body.repeats) {
+		var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
+	}
+
+});
+
 // post new Event
 router.post('/', function(req, res, next) {
 	var newEvent = new Event();
@@ -20,16 +45,12 @@ router.post('/', function(req, res, next) {
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
 
-	console.log("repeat 1: \n" + req.body.repeats);
-
 	var constructorObj = createConstructorObj(req);
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
 
-	console.log("repeat: \n" + req.body.repeats);
 	newEvent.repeats = req.body.repeats;
-	console.log("repeat from event: \n" + newEvent.repeats);
 
 	if (req.body.evType) {
 		newEvent.evType = req.body.evType;

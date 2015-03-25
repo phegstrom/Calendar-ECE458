@@ -29,9 +29,6 @@ function intervalFunction() {
 	lowerBound.setMinutes(lowerBound.getMinutes() - 1);
 	var upperBound = new Date();
 	upperBound.setMinutes(upperBound.getMinutes() + 1);
-	// console.log(lowerBound);
-	// console.log(upperBound);
-	// console.log(now);
 	// Alert.findOne({_id: '54d1f1a799bf6b887dbcdf7c'})
 	Alert.findOne({time: {$gte: lowerBound, $lt: upperBound}}).populate('myEvent myPUD').exec(function (err, alert) {
 		if (err) next(err);
@@ -78,11 +75,11 @@ function updatePUDAlert(pudId, alertId) {
 	console.log("updating PUD Alert info...");
 	PUD.findOne({_id: pudId}, function (err, pud) {
 		if (err) next (err);
-        console.log(pud.alertInterval);
+        // console.log(pud.alertInterval);
 		if (pud.alertInterval == 0) {
             Alert.findOneAndRemove({_id: alertId}, function (err) {
             	if (err) next(err);
-            	console.log("removing PUD alert");
+            	// console.log("removing PUD alert");
             });	
 		} else {
 			Alert.findOne({_id: alertId}, function (err, alert) {

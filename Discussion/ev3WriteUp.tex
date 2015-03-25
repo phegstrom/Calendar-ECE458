@@ -116,7 +116,7 @@
 \vspace{0.2in}
 
 \begin{abstract}
-In this evolution, we added two new features to our shared calendar web application. Specifically, a user can now create Slot Sign Up events, which allow other users to ``sign up" for an appointment. The second feature is more a service as it allows the user to determine who has event conflicts given certain time frames. In addition to these new features, some major back-end refactoring was done and will be further explained in the following document.
+In this evolution, we added two new features to our shared calendar web application. Specifically, a user can now create Slot Sign Up events, which allow other users to ``sign up" for an appointment. The second feature is more a service as it allows the user to determine who has event conflicts given certain time frames. In addition to these new features, some major refactoring was done and will be further explained in the following document.
 \end{abstract}
 
 \tableofcontents
@@ -127,7 +127,7 @@ In this evolution, we added two new features to our shared calendar web applicat
 
 \section{Overall Design}
 
-The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
+The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members' code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
 
 \begin{figure}[htb]
 \centering
@@ -138,7 +138,7 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 
 \noindent Essentially, our back end team provides an exhaustive RESTful API service to our front end. As we received the new requirements for evolution two, the benefits of our modular design came to light as we met to discuss both the refactorings from evolution one that needed to be done and the edits to each modules system design in order to account for the added calendar functionality--event requests and persistent until done events.\\
 
-\noindent At the beginning of evolution three, our group spent four days simply refactoring and making large design change decisions. The back-end did undergo one major change as we now handle repeated events differently. This will be further discussed in the following section.\\
+\noindent At the beginning of evolution three, our group spent four days simply refactoring and making large design change decisions. The back-end did undergo one major change as we now handle repeated events differently. The front-end also made a fundamental change with how Angular controllers are implemented. These will be further discussed in the following section.\\
 
 \noindent The following sections further discuss design choices and implications of those design choices for both our front end and back end teams. \\
 
@@ -153,6 +153,15 @@ To implement the slot sign up feature, we created an entirely new structure in t
 \noindent Lastly, we wanted the slot sign up to be easily modified or extended in the future, thus was the impetus for using the composition pattern. The \texttt{Slot} was extracted into its own model file and is therefore independent of the \texttt{SlotSignUp}. Say, for example, we wanted to add Alerts to our individual Slots. This would be as easy as creating a new \texttt{Alert} property in \texttt{Slot.js}.
 
 \subsubsection{Find Free Times}
+\noindent Find free times did not require any database changes, nor did it require any new models to be created. This requirement was solely algorithm driven and the control for this feature can be found in \texttt{freeTimeRoutes.js}. \\
+
+\noindent There is one route in \texttt{freeTimeRoutes.js}: \texttt{PUT /ftr/findConflicts}.  The goal of this route is to accept users, usergroups, and a list of time slots, and return a comprehensive 'conflict summary'. \\
+
+\noindent First, an array of available events is created from each passed in user.  This array contains only events that the logged in user  has view, modify, or view-busy access to from the list of passed in users and user groups.  The array of all events is sorted by \texttt{start} time. On the other hand, the list of time slots is sorted by \texttt{end} time.  We then developed an algorithm to compare the array of events with the array of time slots in $O(n+m)$ time with $m$=number of events and $n$=number of time slots.  In the conflict summary, each time slot has an array of events which conflict (aka have times that interfere with the start and/or end times of the time slot). \\
+
+\noindent In the conflict summary, each time slot also has an array of free times between the start and end times for the time slot. This is determined with the 'slotSize' in mind. \\
+
+\noindent We designed the conflict summary to be as complex and detailed as possible to minimize the number of calculations needed to be done by the front end.
 
 \subsubsection{New Implementation for Repeated Events}
 Before, our repeated events were somewhat fake and display driven. We would have one real event in the data base and simply display the event in the future if there was a repeat. We decided we wanted a more powerful approach, one that allowed for repeated events to behave similarly (deleting all at once, sharing same properties) but also behave independently. This new implementation also allowed our code for Find Free Times to run and handle the repeats properly without any additional modification.\\
@@ -178,7 +187,22 @@ The way we initially design and implemented repeated events proved to be extreme
 
 \section{Front End Design and Analysis}
 
+\subsection{New Features and Developments}
 
+\subsubsection{Find Free Times}
+Find free times was implemented in the frontend by simply creating new modals to allow users to submit the relevant data, view the resulting conflict summary, and create the event and easily send invite requests. These modals were created relatively easily since they are very modular in their design. However, the difficult part was sharing the data between the modals and calling functions across controllers. We achieved this by using Angular services which we will discuss in more detail below. In the first modal, users are able to choose users that they want to find free times for, the size of the block of time to find, and a list of time slots to consider. We also allow users to find free times over recurring weeks. This data is then sent to the backend which returns an object that we use to populate our next modal - the conflict summary. The conflict summary modal is located in a separate controller with the returned object being shared between the two with an Angular service. While viewing the conflict summary, users are then able to choose a suggested open time and create an event at that time. When users create an event out of a conflict summary, they now have the option of inviting everyone in the conflict summary immediately after creating the event. While implementing this, I ran into asynchronous problems which I address in my individual portion below. From here, event creation and user invites function as they did before.
+
+\subsubsection{Slot Sign Ups}
+
+\subsubsection{Angular Services}
+
+Angular services use dependency injection to allow you to share code between your application. Services are singletons and thus are able to be accessed by all components that are dependent on that service. While previously we had all of our frontend code in two major controllers, by using services we were able to break these up into several smaller controllers and share the relevant scope variables in the service. This allowed more modularity and broke our files into smaller and easier to read parts. This major change has also allowed us to do things that we couldn't before such as open multiple modals in the same portion of our app. Previously this was a challenge because we could not use the same controller to control each modal and define the modal multiple times. However, with services we have been able to create new modal controllers for each modal and just share the relevant variables in the service.
+
+\subsection{Benefits of Our Previous Design}
+
+The inherent modularity of modals made it easy to implement new features on the frontend. We merely had to create a new modal controller and then call the backend HTTP routes out of that. Using Angular's services, we could also share data between these controllers as we needed.
+
+\subsection{Drawbacks of Our Previous Design}
 
 \section{Individual Portion}
 \subsection*{Parker}
@@ -186,23 +210,23 @@ The way we initially design and implemented repeated events proved to be extreme
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item A problem we were having dealt with the data type of a documents \texttt{\_id} value. This \texttt{\_id} value is was is assigned to each document in mongo db. Sometimes we were getting a \texttt{string} and other times the type was \texttt{object}. The experiment was simple. Create a document in the data base and access the \texttt{\_id} property by using various methods. Specifically, I would access it using either \texttt{user.id} or \texttt{user.\_id} and printing out the \texttt{typeof}. Viewing the results yielded the conclusion that \texttt{.id} returns type \texttt{string}.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item  
+\item I think my previous answer also works for this bullet as well. How did I discover that we had a typing problem with the document \texttt{\_.id}? I had noticed weird error messages in the console, analyzing the console to pinpoint where the problem was coming from exactly. Then, after inserting print out statements, I began to study the \texttt{typeof} return value to determine what the end problem was. 
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item As mentioned earlier in this document, the way we previously implemented repeated events was not ideal. So, I designed the new repeated events system. I wanted to make the repeated events act as one in some ways, but in other ways be able to act independently. To do this, I made it such that all repeated events are created in the database. They are of the same type as normal events. However, I did create a new data type in the database, the \texttt{RepeatChain}. When an event was created with repeats, a \texttt{RepeatChain} will be created such that the system always knows what events were created by a repeat. This allows for easy deletion or editing of all of the events at a time.
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item One constraint we found was that it was very difficult to create a mongoose schema with JSON object as property value. For example, property \texttt{attendees} was composed of an array of JSON objects. For some reason, mongodb / mongoose could not handle the editing of such JSON objects and save them properly. Hence, we had to devise our own way to edit the JSON objects to get around this constraint. The solution: set the property to null, and recreate the JSON object every time rather than try and edit the JSON object individually while still a part of the mongoose document.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For the most part, everything went very well. All member contributed equally. Specifically, Peter and I met often to discuss progress on our individual work and to discuss what the next design decisions would be. There were some times, though, when there was a lack in communication between the front end and back end which led to some difficult problems down the road.
 \end{enumerate}
 \end{enumerate}
 
@@ -215,13 +239,13 @@ The way we initially design and implemented repeated events proved to be extreme
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item We ran into several bugs last minute, and at one point I had to analyze and interpret 
+\item We ran into several bugs last minute, and at one point I had to analyze and interpret a million console logs.  I inserted console logs throughout freeTimeRoutes while debugging an issue and eventually found where errors were.
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
 \item I designed the creation of the conflictSummary, the merge and compare algorithm to find conflicting events and free times, the slot sign up creation, signing up, and canceling of slots.  I designed the structure of the conflictSummary object to return to the front end.  It is essentially a map with time slots as keys and conflicting events and free times as values.  This makes it very easy for the front end to display conflict data per time slot. Compared to previous evolutions, this evolution was less about creating new structures and more about developing algorithms to process information.  For example, I wrote the algorithm to compare events with time slots to find conflicting events.  I sorted the events by start date and the time slots by end date. Then I had a pointer for each array that would increment accordingly.
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
 \item Javascript's asynchronous nature made development incredibly frustrating at times. At times, we needed functions to be called in a specific order but certain functions, namely anything dealing with calls to the database through Mongoose, would take too long and would complete when it was too late.  Parker and I found the answer to our problems with the async library and the waterfall function.  Waterfall takes in an array of functions and completes the functions in order one after another. This allowed us to have much more control over how our code works.
 \end{enumerate}
@@ -255,7 +279,6 @@ The way we initially design and implemented repeated events proved to be extreme
 \item For this front-end of this evolution, I worked on the finding free times while Wayne worked on the slot sign ups feature. Since these were very separate features, we did not interact very much throughout the evolution. We met at the beginning of the evolution to plan how we wanted to refactor our code and how we wanted to implement each new feature. Towards the end of the evolution, Peter, Parker, and I met to finish up the evolution. However, Wayne worked remotely and we interacted through messaging. We ran into a lot of problems concerning things that Wayne changed and it was very difficult to debug errors without him working alongside us - especially when he went to sleep before us. We feel like it would be a lot more productive if we worked together near the end of the evolution as we try to tie all of our parts together.
 \end{enumerate}
 \end{enumerate}
-
 \subsection*{Wayne}
 
 \begin{enumerate} [a)]
@@ -271,7 +294,7 @@ The way we initially design and implemented repeated events proved to be extreme
 \begin{enumerate} [$\cdot$]
 \item 
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
 \item 
 \end{enumerate}

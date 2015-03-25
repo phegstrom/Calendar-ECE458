@@ -42,31 +42,37 @@ router.put('/findConflicts', function (req, res, next) {
 		function (allIds, user, next) { // create eventmap
 			var canViewCalIds = _.union(user.modCalId, user.canView);
 
-			Calendar.find({_id: {$in: canViewCalIds}}).populate('events').exec(function (err, cals) {
+			Calendar.find({_id: {$in: canViewCalIds}}).populate('events')
+			.populate('owner')
+			.exec(function (err, cals) {
 				cals.forEach(function (cal) {
 					var eventArray = getEventArrayObject(cal, CAN_VIEW_STRING);
 
 					// merge new array with old one
-					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
+					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner], eventArray);
 				});
 				next(err, allIds, user);
 			});
 		},
 		function (allIds, user, next) { // now get busy view events
 			var calIds = user.canViewBusy;
-			Calendar.find({_id: {$in: calIds}}).populate('events').exec(function (err, cals) {
+			Calendar.find({_id: {$in: calIds}}).populate('events')
+			.populate('owner')
+			.exec(function (err, cals) {
 				var eventArray = [];
 				cals.forEach(function (cal) {
 					eventArray = getEventArrayObject(cal, CANNOT_VIEW_STRING);
 
 					// merge new array with old one
-					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
+					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner], eventArray);
 				});
 				next(err, userEventMap);
 			});
 		},
 		function (allEvents, next) {
 			var conflictSummary = initializeConflictSummary(req.body.timeSlot, req.body.recurrence);
+
+			console.log("$$$$$USEREVENTMAP: "+JSON.stringify(userEventMap));
 
 			var keys = _.allKeys(allEvents);
 			var conflicts = [];
@@ -83,6 +89,7 @@ router.put('/findConflicts', function (req, res, next) {
 
 					if(evStart < tiEnd) {
 						if(evStart > tiStart || evEnd > tiStart) {
+							events[evP].emailKey = key;
 							conflictSummary[timeP].conflicts.push(events[evP]);
 						}
 
@@ -101,8 +108,6 @@ router.put('/findConflicts', function (req, res, next) {
 				conflictSummary[i].freeTimes = setFreeTimes(conflictSummary[i], req.body.slotSize);
 			}
 
-
-			console.log(JSON.stringify(conflictSummary));
 			res.send(conflictSummary);
 		}
 		]);
@@ -206,31 +211,30 @@ var initializeUserEventMap = function (Ids) {
 
 var getEventArrayObject = function (cal, typeString) {
 	var toRet = [];
+	
 	cal.events.forEach(function (ev) {
-		var evWithRepeats = expandEvent(ev, typeString); // returns an array
-		toRet = _.union(toRet, evWithRepeats);		
+		var modifiedEv = expandEvent(ev, typeString); // returns an array
+		toRet = _.union(toRet, modifiedEv);		
 	});
+		// User.findOne({_id: cal.owner}).exec(function (err, user) {
+		// 	ev.calOwnerEmail = user.email;
+		// 	var modifiedEv = expandEvent(ev, typeString); // returns an array
+		// 	toRet = _.union(toRet, modifiedEv);					
+		// });
+
 	return toRet;
 };
 
 var expandEvent = function (ev, typeString) {
 	var toRet = [];
-	if (ev.repeats[0] == null) {
-		ev.type = typeString; // adds property
-		if (typeString == CANNOT_VIEW_STRING) { // hides info if can't view
-			ev.name = 'busy';
-			ev.description = 'busy';
-			ev.location = 'busy';
-		}
-		toRet.push(ev);
-		return toRet;
-	} else {
-		if (ev.repeats[0].frequency == null) { // go till the end date
-
-		} else {
-
-		}
+	ev.type = typeString; // adds property
+	if (typeString == CANNOT_VIEW_STRING) { // hides info if can't view
+		ev.name = 'busy';
+		ev.description = 'busy';
+		ev.location = 'busy';
 	}
+	toRet.push(ev);
+	return toRet;
 };
 
 module.exports = router;

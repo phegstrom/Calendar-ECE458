@@ -6,7 +6,12 @@ var _ = require('underscore');
 
 
 router.get('/', function (req, res, next) {
-	res.send(req.session.user._id);
+	console.log("typeof");
+	User.findOne({_id: req.session.user._id}, function (err, user) {
+		console.log(typeof user._id);
+		res.send(req.session.user._id);
+	});
+	
 });
 
 router.get('/test', function (req, res, next) {

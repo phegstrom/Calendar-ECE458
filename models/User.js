@@ -37,6 +37,8 @@ UserSchema.statics.convertToIds = function (emails) {
 
 UserSchema.statics.toIds = function (emails, cb) {
 	this.find({email: {$in: emails}}, '_id', function (err, ids) {
+		console.log('FROM ID USER FUNCTION\n\n\n');
+		console.log(typeof ids[0]);
 		cb(err, ids);
 	});
 }

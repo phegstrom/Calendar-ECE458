@@ -1,4 +1,4 @@
-app.controller('modalController', function($scope, $http, $modalInstance, $rootScope, modalService) {
+app.controller('modalController', function($scope, $http, $q, $modalInstance, $rootScope, modalService) {
 
   this.modalService = modalService;
 
@@ -217,6 +217,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     });
 
     $scope.cancel();
+    return request;
   }
 
   $scope.editSelectedEvent = function() {
@@ -249,6 +250,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.sendUserInvites = function() {
+    console.log("Sending user invite");
+    console.log($scope.requestDetails);
     var requestDetails = $scope.requestDetails;
 
     var invitedUsers = [];
@@ -414,6 +417,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   // FIND FREE TIME SLOT ROUTES
   $scope.findFreeTimes = function() {
 
+    console.log($scope.freeTimeDetails.userEmails);
+
     if (typeof $scope.freeTimeDetails.recurrence == 'undefined') {
       $scope.freeTimeDetails.recurrence = 1;
     }
@@ -423,7 +428,9 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     if (typeof $scope.freeTimeDetails.userEmails == 'undefined') {
       $scope.freeTimeDetails.userEmails = [];
     }
-
+    $scope.requestDetails.userList = angular.copy($scope.freeTimeDetails.userEmails);
+    $scope.requestDetails.userGroups = angular.copy($scope.freeTimeDetails.userGroupIds);
+    console.log($scope.requestDetails);
     var freeTimeDetails = $scope.freeTimeDetails;
 
     $http.put('/ftr/findConflicts', freeTimeDetails).
@@ -481,41 +488,29 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
 
   $scope.addFreeUserToList = function() {
     var newFreeUserEmail = angular.copy($scope.freeUserEmail);
-    if($scope.freeTimeDetails.userIds) {
-      if($scope.freeTimeDetails.userIds.indexOf(newFreeUserEmail) == -1){
-        $scope.freeTimeDetails.userIds.push(newFreeUserEmail);
+    if($scope.freeTimeDetails.userEmails) {
+      if($scope.freeTimeDetails.userEmails.indexOf(newFreeUserEmail) == -1){
+        $scope.freeTimeDetails.userEmails.push(newFreeUserEmail);
       }
     }
     else {
-      $scope.freeTimeDetails.userIds = [newFreeUserEmail];
+      $scope.freeTimeDetails.userEmails = [newFreeUserEmail];
     }
     $scope.freeUserEmail = '';
   }
 
   $scope.sendAndInviteUsers = function() {
 
-    // $async.waterfall([
-    //   function(next) {
-    //     $scope.sendEventData();
-
-    //     $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
-    //     $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
-    //     next();
-    //   },
-    //   function() {
-    //     $scope.sendUserInvites();
-    //     $scope.cancel();
-    //   }
-
-    // ]);
-
-    // $scope.sendEventData();
-
-    // $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
-    // $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
-
-    // $scope.sendUserInvites();
-    // $scope.cancel();
+    var request = $scope.sendEventData();
+    $q.all([request]).then(function(){
+      console.log("doing this");
+      console.log($scope.freeTimeDetails.userEmails);
+      console.log($scope.freeTimeDetails.userGroupIds);
+      //$scope.requestDetails.userList = $scope.freeTimeDetails.userEmails;
+      //$scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+      $scope.sendUserInvites();
+      $scope.cancel();
+    });
   }
 
   //SSU Functions

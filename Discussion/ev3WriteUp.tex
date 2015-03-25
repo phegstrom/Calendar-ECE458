@@ -153,6 +153,15 @@ To implement the slot sign up feature, we created an entirely new structure in t
 \noindent Lastly, we wanted the slot sign up to be easily modified or extended in the future, thus was the impetus for using the composition pattern. The \texttt{Slot} was extracted into its own model file and is therefore independent of the \texttt{SlotSignUp}. Say, for example, we wanted to add Alerts to our individual Slots. This would be as easy as creating a new \texttt{Alert} property in \texttt{Slot.js}.
 
 \subsubsection{Find Free Times}
+\noindent Find free times did not require any database changes, nor did it require any new models to be created. This requirement was solely algorithm driven and the control for this feature can be found in \texttt{freeTimeRoutes.js}. \\
+
+\noindent There is one route in \texttt{freeTimeRoutes.js}: \texttt{PUT /ftr/findConflicts}.  The goal of this route is to accept users, usergroups, and a list of time slots, and return a comprehensive 'conflict summary'. \\
+
+\noindent First, an array of available events is created from each passed in user.  This array contains only events that the logged in user  has view, modify, or view-busy access to from the list of passed in users and user groups.  The array of all events is sorted by \texttt{start} time. On the other hand, the list of time slots is sorted by \texttt{end} time.  We then developed an algorithm to compare the array of events with the array of time slots in $O(n+m)$ time with $m$=number of events and $n$=number of time slots.  In the conflict summary, each time slot has an array of events which conflict (aka have times that interfere with the start and/or end times of the time slot). \\
+
+\noindent In the conflict summary, each time slot also has an array of free times between the start and end times for the time slot. This is determined with the 'slotSize' in mind. \\
+
+\noindent We designed the conflict summary to be as complex and detailed as possible to minimize the number of calculations needed to be done by the front end.
 
 \subsubsection{New Implementation for Repeated Events}
 Before, our repeated events were somewhat fake and display driven. We would have one real event in the data base and simply display the event in the future if there was a repeat. We decided we wanted a more powerful approach, one that allowed for repeated events to behave similarly (deleting all at once, sharing same properties) but also behave independently. This new implementation also allowed our code for Find Free Times to run and handle the repeats properly without any additional modification.\\
@@ -201,23 +210,23 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item A problem we were having dealt with the data type of a documents \texttt{\_id} value. This \texttt{\_id} value is was is assigned to each document in mongo db. Sometimes we were getting a \texttt{string} and other times the type was \texttt{object}. The experiment was simple. Create a document in the data base and access the \texttt{\_id} property by using various methods. Specifically, I would access it using either \texttt{user.id} or \texttt{user.\_id} and printing out the \texttt{typeof}. Viewing the results yielded the conclusion that \texttt{.id} returns type \texttt{string}.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item  
+\item I think my previous answer also works for this bullet as well. How did I discover that we had a typing problem with the document \texttt{\_.id}? I had noticed weird error messages in the console, analyzing the console to pinpoint where the problem was coming from exactly. Then, after inserting print out statements, I began to study the \texttt{typeof} return value to determine what the end problem was. 
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item As mentioned earlier in this document, the way we previously implemented repeated events was not ideal. So, I designed the new repeated events system. I wanted to make the repeated events act as one in some ways, but in other ways be able to act independently. To do this, I made it such that all repeated events are created in the database. They are of the same type as normal events. However, I did create a new data type in the database, the \texttt{RepeatChain}. When an event was created with repeats, a \texttt{RepeatChain} will be created such that the system always knows what events were created by a repeat. This allows for easy deletion or editing of all of the events at a time.
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item One constraint we found was that it was very difficult to create a mongoose schema with JSON object as property value. For example, property \texttt{attendees} was composed of an array of JSON objects. For some reason, mongodb / mongoose could not handle the editing of such JSON objects and save them properly. Hence, we had to devise our own way to edit the JSON objects to get around this constraint. The solution: set the property to null, and recreate the JSON object every time rather than try and edit the JSON object individually while still a part of the mongoose document.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For the most part, everything went very well. All member contributed equally. Specifically, Peter and I met often to discuss progress on our individual work and to discuss what the next design decisions would be. There were some times, though, when there was a lack in communication between the front end and back end which led to some difficult problems down the road.
 \end{enumerate}
 \end{enumerate}
 
@@ -236,7 +245,7 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [$\cdot$]
 \item 
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
 \item 
 \end{enumerate}
@@ -251,23 +260,23 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item An issue I ran into on the frontend while creating the finding free time feature was that even though I was using the same Angular controller for my conflict summary modal and my find free times modal, the scoping of the variables were not the same. In other words, I was not able to access the variables in the scope of the find free times modal from my conflict summary modal. This made it such I could not send the data between the two modals and display the information correctly. I had a hunch that this was due to the second modal not updating the scope when it was rendered which caused it to have an older version of the scope. I tested this by initializing an object and printing it out in both modals after updating it. As I suspected, the object had the new value in the first modal, but an older value in the second modal. I then experimented to see how the scoping could be updated by playing with Angular services. By creating separate controllers and testing out how to share the variables between them, I was able to create a design that had the two modals using separate controllers but with a shared scope through a service. This allowed me to pass the data between the two and display it correctly.
+\item 
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item One roadblock we encountered while debugging our finding free times feature was that it was finding the events for users that we didn't specify. We were intrigued by this behavior and discovered that regardless of which users we put in, it was pulling the events for all users. We figured this out by cross referencing the data printed out on the frontend that we were sending into our HTTP request with the data that the backend was receiving in their route. We finally discovered that somewhere in the route, the filter function was working incorrectly which caused the code to pull all users from the calendars instead of using the ones sent in the array from the frontend. We then continued to debug this with print statements in the route which allowed us to check the values of variables with what our expectations of them were. Through this, we ran into some confusing type conversions in Javascript that were turning some of our String variables into Objects and thus making our functions behave differently than expected. We were able to fix these after much trouble and slow debugging as we printed out variables and compared them to the values sent from the frontend and in the database.
+\item  
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item I designed the finding free times feature for this evolution. While the initial modal to find free times is defined in the modalController, functions to display the conflict summary and interact with events are defined in a separate conflictSummaryModalController. We were originally not able to do this since we weren't able to define multiple controllers that needed the same data; however, the Angular services that we discussed above allowed us to share variables between scopes of different controllers which allowed us to split up the controllers into smaller, more specific files. When a free time is found in the conflict summary, I use it to populate the times in the event creation since those variables are stored in the rootScope. From there, I tie this to the modalController and allow the user to create an event and automatically send an invite to each the specified users for this event. 
+\item 
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item One constraint I encountered in this evolution was the asynchronicity of Javascript. Since the backend team had dealt with this in the past, I originally tried to address this by using the same async library they used. However, I ran into problems with importing the async library and getting it to interact with Angular. I then looked into using promises in Angular and found a function in the \$q Angular library that allows you to make sure one function runs before another function does. This allowed me to complete the finding free times feature since there was an area where I needed to create a new event, and then immediately send invites to users for the event. However, the issue was that the event wasn't being created quickly enough to populate the data used to call the user invite route. This resulted in the route throwing errors from having undefined inputs. After I added the asynchronous control for the order of functions, everything was able to run in the correct order and update as expected.
+\item 
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item For this front-end of this evolution, I worked on the finding free times while Wayne worked on the slot sign ups feature. Since these were very separate features, we did not interact very much throughout the evolution. We met at the beginning of the evolution to plan how we wanted to refactor our code and how we wanted to implement each new feature. Towards the end of the evolution, Peter, Parker, and I met to finish up the evolution. However, Wayne worked remotely and we interacted through messaging. We ran into a lot of problems concerning things that Wayne changed and it was very difficult to debug errors without him working alongside us - especially when he went to sleep before us. We feel like it would be a lot more productive if we worked together near the end of the evolution as we try to tie all of our parts together.
+\item 
 \end{enumerate}
 \end{enumerate}
 
@@ -286,7 +295,7 @@ The inherent modularity of modals made it easy to implement new features on the 
 \begin{enumerate} [$\cdot$]
 \item 
 \end{enumerate}
-\item {\bf Dealing with Realistic Contraints}
+\item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
 \item 
 \end{enumerate}

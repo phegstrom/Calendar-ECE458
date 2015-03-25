@@ -5,6 +5,7 @@ app.service('modalService', function() {
 
   var selectedCalendar;
   var displayOwnerCalendar;
+  var conflictSummary;
   
 });
 
@@ -239,7 +240,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayConflictSummaryModal = function() {
     $modal.open({
       templateUrl: 'conflictSummaryModal.html',
-      controller: 'modalController'
+      controller: 'conflictSummaryModalController'
     });
   }
 

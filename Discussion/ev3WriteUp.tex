@@ -143,15 +143,37 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 \noindent The following sections further discuss design choices and implications of those design choices for both our front end and back end teams. \\
 
 \section{Back End Design and Analysis}
-\subsection{New Features}
+\subsection{New Features and Developments}
+The two new features as well as other design developments are discussed below:
+\subsubsection{Slot Sign Up Events}
+To implement the slot sign up feature, we created an entirely new structure in the database. This structure, \texttt{SlotSignUp.js}, allowed us to develop without the fear of breaking something already created in the first two evolutions of the project. To handle the dynamic nature of the \texttt{SlotSignUp}, we used the composition design pattern. More specifically, a \texttt{SlotSignUp} is composed of individual \texttt{Slots}, which can be created and associated with any user that signs up for a specific \texttt{Slot}. Initially, though, the \texttt{SlotSignUp} is composed of free blocks of minimum sign up length. As people sign up for slots, the \texttt{Slot} objects are created and tied to that user. This information is stored in the \texttt{attendees} property of the \texttt{SlotSignUp}. \\
 
+\noindent A user must be able to determine the status of the sign up slot (list attendees, what blocks they've signed up for, what free time is left, etc.), and we wanted to make this information as easy as possible to display and edit for the front end. Hence, we stored an attendee's \texttt{email} with his/her slots. This allowed for immediate access to client-ready, displayable information and removed the need for the client to issue additional database queries. Before, the client would have been given a list of user ids and would have had to query the DB with those ids, presenting un-needed latencies to the end user of our application.\\
 
+\noindent Lastly, we wanted the slot sign up to be easily modified or extended in the future, thus was the impetus for using the composition pattern. The \texttt{Slot} was extracted into its own model file and is therefore independent of the \texttt{SlotSignUp}. Say, for example, we wanted to add Alerts to our individual Slots. This would be as easy as creating a new \texttt{Alert} property in \texttt{Slot.js}.
+
+\subsubsection{Find Free Times}
+
+\subsubsection{New Implementation for Repeated Events}
+Before, our repeated events were somewhat fake and display driven. We would have one real event in the data base and simply display the event in the future if there was a repeat. We decided we wanted a more powerful approach, one that allowed for repeated events to behave similarly (deleting all at once, sharing same properties) but also behave independently. This new implementation also allowed our code for Find Free Times to run and handle the repeats properly without any additional modification.\\
+
+\noindent To implement this new design, we created a new structure, the \texttt{RepeatChain}. The purpose of this structure was to keep track of all events that were created as a repeat chain, allowing us to edit individual events in the chain as well as delete all repeated events the same time.
+
+\subsubsection{Async.js}
+One difficult we've mentioned many times in our discussions and presentations has been the asynchronous nature of javascript. In this evolution, we further implemented a new node module: \texttt{asyn.js}. Under the hood this module works with promises, but this api allowed us control asynchronous dependencies. After witnessing the power of this module, we were able to clean up the call back hell situations we got ourselves into in the past.
+
+\subsubsection{Schema Methods}
+Before this evolution, we never used Mongoose Schema methods which leaving our route files cluttered and at times difficult to read. Schema methods allowed us to extract Schema specific behavior and treat our Schemas like classes with an api. For example, we have a \texttt{User} schema. Adding a schema method allowed us to call functions on a \texttt{User} like \texttt{User.convertToEmail()}. Extracting schema methods severely cut back on our repeated code throughout the project. For a working example, see \texttt{./models/User.js}.
 
 \subsection{Benefits of Our Previous Design}
+The major benefit of our previous design was its modularity and composition-driven nature. The modularity allowed for easy addition of new features and simultaneous development by all of our team members. It also allowed for easy and testable code as well, because we could test single files or single methods that composed the entire module.\\
 
+\noindent The composition-driven nature of our design proved to be the most powerful thing we've done thus far. That is, we were able to add new features or extend the functionality of previously working code in extremely easy manner, all the while having these changes to database model files persisted throughout the entire database. For example, this evolution required a User to be able to keep track of slots he/she had signed up for or sign up events he/she had created. This was easily done by adding a new property to the Schema Model that ``pointed" to the actual \texttt{Slot} or \texttt{SlotSignUp} objects in the database.
 
 \subsection{Drawbacks of Our Previous Design}
+The way we initially design and implemented repeated events proved to be extremely limiting with the new requirements of evolution three. As mentioned before, repeated events used to be simply display-driven, meaning that there was really only one event stored in the data base.\\
 
+\noindent This shortfall was changed such that all repeated events are now actual events in the database.
 
 
 \section{Front End Design and Analysis}

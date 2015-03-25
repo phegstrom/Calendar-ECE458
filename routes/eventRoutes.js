@@ -7,31 +7,54 @@ var Repeat		= require('../models/Repeat');
 var Request		= require('../models/Request');
 var PUD			= require('../models/PUD');
 var RepeatChain = require('../models/RepeatChain');
+var _			= require('underscore');
 var router 		= express.Router();
 
 router.post('/test/test/test/', function (req, res, next) {
 	// original event
 	var constructorObj = createConstructorObj(req);
 
-	var newEvent = new Event(constructorObj);
+	var newEvent = createEvent(constructorObj);
+
+	var repeatEventArray = [];
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
 	
-	if (req.body.evType) {
-		newEvent.evType = req.body.evType;
-		constructorObj.evType = req.body.evType;
-	}
-	else {
-		newEvent.evType = 'regular';
-		constructorObj.evType = 'regular';
-	}
-
 	if (req.body.repeats) {
-		var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
-		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
+		var repeatDateArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatDateArray);
+
+		// create repeated events with constructors
+		for (var i = 0; i < repeatedEventConstructors.length; i++) {
+			var repeatEvent = createEvent(repeatedEventConstructors[i]);
+			repeatEventArray.push(repeatEvent);
+		}
+		// create RepeatChain
+
+		var repeatChain = new RepeatChain(repeatEventArray);
+		// add RepeatChain to newEvent
+		newEvent.repeatChain = repeatChain;
 	}
 
+	newEvent.save(function(err, ev) {
+		if(err) next(err);
+		// add event to calendar
+		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+			if(err) next(err);
+		});
+
+		// save each event from RepeatChain
+		for (var i = 0; i < repeatEventArray.length; i++) {
+			repeatEventArray[i].save(function (err, repEv) {
+				Calendar.update({_id: req.body.calendar}, {$push: {events: repEv._id}}, function (err, num, raw) {
+					if(err) next(err);
+				});
+			});
+		}
+
+		res.send(ev);
+	});
 });
 
 // post new Event
@@ -91,6 +114,17 @@ router.post('/', function(req, res, next) {
 	});
 });
 
+function createEvent(constructor) {
+	var newEvent = new Event(constructor);
+
+	var newRequest = new Request();
+	newRequest.usersStatus = {};
+	newRequest.eventID = newEvent._id;
+	newRequest.creator = req.session.user.email;
+	newEvent.requestID = newRequest._id;
+	newEvent.save();
+}
+
 // creates json obj to pass into event constructor
 function createConstructorObj(req) {
 	var toRet = {
@@ -103,6 +137,13 @@ function createConstructorObj(req) {
 					repeats: req.body.repeats,	
 					creator: req.session.user._id
 				};
+	
+	if (req.body.evType) {
+		toRet.evType = req.body.evType;
+	}
+	else {
+		toRet.evType = 'regular';
+	}
 
 	return toRet;				
 };

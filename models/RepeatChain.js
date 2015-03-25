@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var _		= require('underscore');
 var Schema = mongoose.Schema;
 var collectionName = 'repeatChainC';
 
@@ -58,11 +59,16 @@ RepeatChainSchema.statics.getRepeatDates = function (repeatObj) {
 
 // returns an array of constructors, so i can make that many events
 // in back end
-RepeatChainSchema.statics.createEventConstructors = function (constructorObj, repeatArray) {
+RepeatChainSchema.statics.createEventConstructors = function (constructorObj, repeatDateArray) {
 	toRet = [];
 
-	for (var i = 0; i < repeatArray.length; i++) {
-		toRet[i] = constructorObjectModified
+	for (var i = 0; i < repeatDateArray.length; i++) {
+		// toRet[i] = constructorObjectModified
+		var constructor = _.clone(constructorObj);
+		var startDate = new Date(constructor.start);
+		var endDate = new Date(constructor.end);
+
+		toRet.push(constructor);
 	}
 
 

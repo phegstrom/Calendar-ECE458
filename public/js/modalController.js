@@ -1,4 +1,6 @@
-app.controller('modalController', function($scope, $http, $modalInstance, $rootScope) {
+app.controller('modalController', function($scope, $http, $modalInstance, $rootScope, modalService) {
+
+  this.modalService = modalService;
 
   var MINUTE = 1000*60; //ms * sec
 
@@ -23,6 +25,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   $scope.freeTimeDetails = {};
 
   $scope.ssuDetails = {};
+
+  $scope.conflictSummary = ['uninitialized'];
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
@@ -411,7 +415,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     // time ranges
 
     if (typeof freeTimeDetails.recurrence == 'undefined') {
-      $scope.freeTimeDetails.recurrence = 1;
+      freeTimeDetails.recurrence = 1;
     }
     if (typeof freeTimeDetails.userGroupIds == 'undefined') {
       freeTimeDetails.userGroupIds = [];
@@ -421,15 +425,16 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     }
     $http.put('/ftr/findConflicts', freeTimeDetails).
     success(function(data, status, headers, config) {
-      var conflictSummary = angular.fromJson(data);
-      console.log($scope.conflictSummary);
+      $scope.conflictSummary = angular.copy(angular.fromJson(data));
+      modalService.conflictSummary = $scope.conflictSummary;
+      $rootScope.displayConflictSummaryModal();
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to find free times.');
     });
     // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FROM TIMES
     $scope.cancel();
-    $rootScope.displayConflictSummaryModal();
+    
   }
 
   $scope.toggleConflictDetails = function(conflict) {

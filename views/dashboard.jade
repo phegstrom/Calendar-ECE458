@@ -652,16 +652,19 @@ block content
       .modal-body
         h4 Time Slots
         ul
-          li(ng-repeat="summary in conflictSummary") {{ convertDates(summary.timeSlot.start, summary.timeSlot.end) }} ({{summary.conflicts.length}} conflicts)
-          ul
-            li(ng-repeat="conflict in summary.conflicts")
-              a(href, ng-click="toggleConflictDetails(conflict)") {{conflict.name}} at {{convertDates(conflict.start, conflict.end)}}
-              p(ng-show="conflict.showDetails")
-                User: {{conflict.creator}}
-
-          ul
-            li(ng-repeat="free in summary.freeTimes") {{ convertDates(free.start, free.end) }}
-              a(href, ng-click="")
+          li(ng-repeat="summary in conflictSummary")
+            b {{ convertDates(summary.timeSlot.start, summary.timeSlot.end) }} ({{summary.conflicts.length}} conflicts)
+            br
+            | Conflicts
+            ul
+              li(ng-repeat="conflict in summary.conflicts")
+                a(href, ng-click="toggleConflictDetails(conflict)") {{conflict.name}} at {{convertDates(conflict.start, conflict.end)}}
+                p(ng-show="conflict.showDetails")
+                  User: {{conflict.creator}}
+            | Free Times
+            ul
+              li(ng-repeat="free in summary.freeTimes") {{ convertDates(free.start, free.end) }}
+                a(href, ng-click="")
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}
@@ -678,4 +681,5 @@ block content
     script(type='text/javascript', src='/js/sideBarController.js')
     script(type='text/javascript', src='/js/addRuleModalController.js')
     script(type='text/javascript', src='/js/addUserModalController.js')
+    script(type='text/javascript', src='/js/conflictSummaryModalController.js')
 

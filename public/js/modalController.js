@@ -276,6 +276,8 @@ app.controller('modalController', function($scope, $http, $q, $modalInstance, $r
       users: invitedUsers
     };
 
+    console.log($rootScope.selectedEvent);
+    
     $http.put('/request/addUsers/'+$rootScope.selectedEvent._id, addUsersRequest).
     success(function(data, status, headers, config) {
       var changedRequest = angular.fromJson(data);
@@ -417,7 +419,7 @@ app.controller('modalController', function($scope, $http, $q, $modalInstance, $r
   // FIND FREE TIME SLOT ROUTES
   $scope.findFreeTimes = function() {
 
-    console.log($scope.freeTimeDetails.userEmails);
+    //console.log($scope.freeTimeDetails.userEmails);
 
     if (typeof $scope.freeTimeDetails.recurrence == 'undefined') {
       $scope.freeTimeDetails.recurrence = 1;
@@ -428,9 +430,14 @@ app.controller('modalController', function($scope, $http, $q, $modalInstance, $r
     if (typeof $scope.freeTimeDetails.userEmails == 'undefined') {
       $scope.freeTimeDetails.userEmails = [];
     }
-    $scope.requestDetails.userList = angular.copy($scope.freeTimeDetails.userEmails);
-    $scope.requestDetails.userGroups = angular.copy($scope.freeTimeDetails.userGroupIds);
-    console.log($scope.requestDetails);
+    var requestDetailsTemp = {};
+    requestDetailsTemp.userList = angular.copy($scope.freeTimeDetails.userEmails);
+    requestDetailsTemp.userGroups = angular.copy($scope.freeTimeDetails.userGroupIds);
+
+    modalService.requestDetails = angular.copy(requestDetailsTemp);
+    // modalService.requestDetails.userList = angular.copy($scope.freeTimeDetails.userEmails);
+    // modalService.requestDetails.userGroups = angular.copy($scope.freeTimeDetails.userGroupIds);
+    console.log(modalService.requestDetails);
     var freeTimeDetails = $scope.freeTimeDetails;
 
     $http.put('/ftr/findConflicts', freeTimeDetails).
@@ -504,10 +511,9 @@ app.controller('modalController', function($scope, $http, $q, $modalInstance, $r
     var request = $scope.sendEventData();
     $q.all([request]).then(function(){
       console.log("doing this");
-      console.log($scope.freeTimeDetails.userEmails);
-      console.log($scope.freeTimeDetails.userGroupIds);
-      //$scope.requestDetails.userList = $scope.freeTimeDetails.userEmails;
-      //$scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+      $scope.requestDetails = modalService.requestDetails;
+      console.log($scope.requestDetails.userList);
+      console.log($scope.requestDetails.userGroups);
       $scope.sendUserInvites();
       $scope.cancel();
     });

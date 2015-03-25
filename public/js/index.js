@@ -7,6 +7,7 @@ app.service('modalService', function() {
   var displayOwnerCalendar;
   var conflictSummary;
   var freeTimeEvent;
+  var requestDetails;
 
 });
 

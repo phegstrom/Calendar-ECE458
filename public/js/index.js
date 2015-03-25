@@ -6,7 +6,8 @@ app.service('modalService', function() {
   var selectedCalendar;
   var displayOwnerCalendar;
   var conflictSummary;
-  
+  var freeTimeDetails;
+
 });
 
 
@@ -213,7 +214,7 @@ app.run(function($rootScope, $q, $http, $modal) {
         templateUrl: 'eventDetailsModal.html',
         controller: 'modalController'
       });
-    console.log($rootScope.selectedEvent);
+    //console.log($rootScope.selectedEvent);
   }
 
   $rootScope.displayCreateEventModal = function() {
@@ -231,6 +232,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   }
 
   $rootScope.displayFindFreeTimeModal = function() {
+    modalService.freeTimeDetails = {};
     $modal.open({
       templateUrl: 'findFreeTimeModal.html',
       controller: 'modalController'

@@ -278,7 +278,9 @@ block content
             | &nbsp;
             select.form-control(style="display:table-cell;", ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
           input.form-control(type="text", ng-model="selectedEvent._id", ng-hide="true")
-          btn.btn.btn-primary(type="submit", ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
+          button.btn.btn-primary(type="submit", ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
+          | &nbsp;
+          button.btn.btn-primary(ng-show="", type="submit", ng-disabled="eventForm.$invalid", ng-click="sendAndInviteUsers()", data-dismiss='modal') Save and Invite Users
     
     script(type="text/ng-template" id="eventDetailsModal.html" )
       .modal-header
@@ -650,21 +652,23 @@ block content
         button.close(type='button', ng-click="cancel()") &times;
         h4#myModalLabel.modal-title() Conflict Summary
       .modal-body
-        h4 Time Slots
         ul
           li(ng-repeat="summary in conflictSummary")
-            b {{ convertDates(summary.timeSlot.start, summary.timeSlot.end) }} ({{summary.conflicts.length}} conflicts)
-            br
-            | Conflicts
-            ul
+            h4
+              u {{ convertDates(summary.timeSlot.start, summary.timeSlot.end) }} ({{summary.conflicts.length}} conflicts)
+            a(href, ng-click="toggleConflictDetails(summary)") Conflicts
+            ul(ng-show="summary.showDetails")
               li(ng-repeat="conflict in summary.conflicts")
-                a(href, ng-click="toggleConflictDetails(conflict)") {{conflict.name}} at {{convertDates(conflict.start, conflict.end)}}
-                p(ng-show="conflict.showDetails")
-                  User: {{conflict.creator}}
+                b {{conflict.creator}} 
+                | has 
+                b {{conflict.name}} 
+                | at 
+                b {{convertDates(conflict.start, conflict.end)}}
+            br
             | Free Times
             ul
-              li(ng-repeat="free in summary.freeTimes") {{ convertDates(free.start, free.end) }}
-                a(href, ng-click="")
+              li(ng-repeat="free in summary.freeTimes")
+                a(href, ng-click="chooseEventTime(free.start, free.end)") {{ convertDates(free.start, free.end) }}
 
     datalist(id="emails")
       option(ng-repeat="user in userList") {{ user.email }}

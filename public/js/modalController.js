@@ -202,6 +202,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
         owningCalendar.events.push(dBEvent);
         $rootScope.events.push(calEvent);
+        $rootScope.displayEventDetails(calEvent);
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -644,6 +645,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.cancelSignupSlot = function(slot) {
+    console.log(slot);
     $http.put('/ssu/cancelSlot/' + slot._id).
     success(function(data, status, headers, config) {
       console.log(data);

@@ -92,49 +92,6 @@ block content
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
 
-          #calendarDetailsWindow(ng-show="selector == 3")
-            h3 {{ selectedCalendar.name }}
-            b Owner 
-            | {{ selectedCalendar.owner.name }}
-            br
-            b Events 
-            ul
-              li(ng-repeat="event in selectedCalendar.events")
-                a(href ng-click="displayEventDetails(event)") {{ event.name }}
-
-          #calendarOwnerDetailsWindow(ng-show="selector == 5")
-            h3 {{ selectedCalendar.name }}
-            b Owner 
-            | {{ selectedCalendar.owner.name }}
-            br
-            b Events 
-            ul
-              li(ng-repeat="event in selectedCalendar.events")
-                a(href ng-click="displayEventDetails(event)") {{ event.name }}
-            b Rules 
-            ul
-              li(ng-repeat="rule in selectedCalendar.rules")
-                | {{ rule.ruleType + " " }}
-                a(href, ng-click="deleteRule(rule._id)")
-                  span(class="glyphicon glyphicon-remove")
-                br
-                | Groups 
-                ul
-                  li(ng-repeat="group in rule.assocUserGroups") {{ group.name }}
-                | Users 
-                ul
-                  li(ng-repeat="user in rule.assocUsers") {{ user.email }}
-            b Users with Modify 
-            ul
-              li(ng-repeat="modUser in selectedCalendar.modList")
-                | {{ getUserEmail(modUser) + " " }}
-                a(href, ng-click="removeModUser(getUserEmail(modUser))")
-                  span(class="glyphicon glyphicon-remove")
-            hr
-            button.btn.btn-primary(ng-click="displayAddRuleModal()") Add Rule
-            | &nbsp;
-            button.btn.btn-primary(ng-click="displayAddUsersModal()") Add Users with Modify
-
           #PUDEvents(ng-show="selector == 4")
             br
             h4 To-Do
@@ -644,6 +601,54 @@ block content
                   li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
                     a(href, ng-click="cancelSignupSlot(block)")
                       span.glyphicon.glyphicon-remove
+    script(type="text/ng-template" id="ownedCalendarModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title() {{ selectedCalendar.name }}
+      .modal-body
+        b Owner 
+        | {{ selectedCalendar.owner.name }}
+        br
+        b Events 
+        ul
+          li(ng-repeat="event in selectedCalendar.events")
+            a(href ng-click="displayEventDetails(event)") {{ event.name }}
+        b Rules 
+        ul
+          li(ng-repeat="rule in selectedCalendar.rules")
+            | {{ rule.ruleType + " " }}
+            a(href, ng-click="deleteRule(rule._id)")
+              span(class="glyphicon glyphicon-remove")
+            br
+            | Groups 
+            ul
+              li(ng-repeat="group in rule.assocUserGroups") {{ group.name }}
+            | Users 
+            ul
+              li(ng-repeat="user in rule.assocUsers") {{ user.email }}
+        b Users with Modify 
+        ul
+          li(ng-repeat="modUser in selectedCalendar.modList")
+            | {{ getUserEmail(modUser) + " " }}
+            a(href, ng-click="removeModUser(getUserEmail(modUser))")
+              span(class="glyphicon glyphicon-remove")
+        hr
+        button.btn.btn-primary(ng-click="displayAddRuleModal()") Add Rule
+        | &nbsp;
+        button.btn.btn-primary(ng-click="displayAddUsersModal()") Add Users with Modify
+
+    script(type="text/ng-template" id="otherCalendarModal.html" )
+      .modal-header
+        button.close(type='button', ng-click="cancel()") &times;
+        h4#myModalLabel.modal-title() {{ selectedCalendar.name }}
+      .modal-body
+        b Owner 
+          | {{ selectedCalendar.owner.name }}
+        br
+        b Events 
+        ul
+          li(ng-repeat="event in selectedCalendar.events")
+            a(href ng-click="displayEventDetails(event)") {{ event.name }}
 
     script(type="text/ng-template" id="conflictSummaryModal.html" )
       .modal-header
@@ -681,5 +686,6 @@ block content
     script(type='text/javascript', src='/js/sideBarController.js')
     script(type='text/javascript', src='/js/addRuleModalController.js')
     script(type='text/javascript', src='/js/addUserModalController.js')
+    script(type='text/javascript', src='/js/calendarModalController.js')
     script(type='text/javascript', src='/js/conflictSummaryModalController.js')
 

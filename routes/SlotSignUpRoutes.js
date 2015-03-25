@@ -189,22 +189,24 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			newSlot.basicBlocks = ((startDate - endDate)/60000) / ssu.minDuration;
 			user.mySlots.push(newSlot);
 
-			ssu.attendees.forEach(function (attendee) {
-				if(attendee.userEmail == req.session.user.email) {
-					attendee.slots.push(newSlot._id);
-				}
-			});
+			var attendeesTemp = _.clone(ssu.attendees);
+			ssu.attendees = null;
 
-			console.log(ssu);
+			for(var i = 0; i < attendeesTemp.length; i++) {
+				if(attendeesTemp[i].userEmail == req.session.user.email) {
+					attendeesTemp[i].slots.push(newSlot._id);
+				}
+			}
+
+			ssu.attendees = attendeesTemp;
 
 			newSlot.save();
 			user.save();
-			ssu.save();
-
-		    res.send(ssu);
+			ssu.save(function (err, ssuObj) {
+				res.send(ssu);
+			});
 		});
 	});
-
 });
 
 module.exports = router;

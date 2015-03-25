@@ -5,6 +5,7 @@ app.service('modalService', function() {
 
   var selectedCalendar;
   var displayOwnerCalendar;
+  var conflictSummary;
   
 });
 
@@ -225,6 +226,13 @@ app.run(function($rootScope, $q, $http, $modal) {
     $modal.open({
       templateUrl: 'findFreeTimeModal.html',
       controller: 'modalController'
+    });
+  }
+
+  $rootScope.displayConflictSummaryModal = function() {
+    $modal.open({
+      templateUrl: 'conflictSummaryModal.html',
+      controller: 'conflictSummaryModalController'
     });
   }
 

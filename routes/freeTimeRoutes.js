@@ -42,31 +42,37 @@ router.put('/findConflicts', function (req, res, next) {
 		function (allIds, user, next) { // create eventmap
 			var canViewCalIds = _.union(user.modCalId, user.canView);
 
-			Calendar.find({_id: {$in: canViewCalIds}}).populate('events').exec(function (err, cals) {
+			Calendar.find({_id: {$in: canViewCalIds}}).populate('events')
+			.populate('owner')
+			.exec(function (err, cals) {
 				cals.forEach(function (cal) {
 					var eventArray = getEventArrayObject(cal, CAN_VIEW_STRING);
 
 					// merge new array with old one
-					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
+					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner], eventArray);
 				});
 				next(err, allIds, user);
 			});
 		},
 		function (allIds, user, next) { // now get busy view events
 			var calIds = user.canViewBusy;
-			Calendar.find({_id: {$in: calIds}}).populate('events').exec(function (err, cals) {
+			Calendar.find({_id: {$in: calIds}}).populate('events')
+			.populate('owner')
+			.exec(function (err, cals) {
 				var eventArray = [];
 				cals.forEach(function (cal) {
 					eventArray = getEventArrayObject(cal, CANNOT_VIEW_STRING);
 
 					// merge new array with old one
-					userEventMap[cal.owner] = _.union(userEventMap[cal.owner], eventArray);
+					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner], eventArray);
 				});
 				next(err, userEventMap);
 			});
 		},
 		function (allEvents, next) {
-			var conflictSummary = initializeConflictSummary(req.body.timeSlots, req.body.recurrence);
+			var conflictSummary = initializeConflictSummary(req.body.timeSlot, req.body.recurrence);
+
+			console.log("$$$$$USEREVENTMAP: "+JSON.stringify(userEventMap));
 
 			var keys = _.allKeys(allEvents);
 			var conflicts = [];
@@ -76,13 +82,14 @@ router.put('/findConflicts', function (req, res, next) {
 				var bool = true, timeP = 0, evP = 0;				
 
 				while(bool) {
-					var evStart	= events[evP].start;
-					var evEnd	= events[evP].end;
-					var tiStart	= conflictSummary[timeP].timeSlot.start;
-					var tiEnd	= conflictSummary[timeP].timeSlot.end;
+					var evStart	= new Date(events[evP].start);
+					var evEnd	= new Date(events[evP].end);
+					var tiStart	= new Date(conflictSummary[timeP].timeSlot.start);
+					var tiEnd	= new Date(conflictSummary[timeP].timeSlot.end);
 
 					if(evStart < tiEnd) {
 						if(evStart > tiStart || evEnd > tiStart) {
+							events[evP].emailKey = key;
 							conflictSummary[timeP].conflicts.push(events[evP]);
 						}
 
@@ -96,13 +103,13 @@ router.put('/findConflicts', function (req, res, next) {
 					}
 				}
 			});
-		},
-		function () {
+
 			for(var i = 0; i < conflictSummary.length; i++) {
 				conflictSummary[i].freeTimes = setFreeTimes(conflictSummary[i], req.body.slotSize);
 			}
+
 			res.send(conflictSummary);
-		},
+		}
 		]);
 
 });
@@ -125,18 +132,20 @@ var setFreeTimes = function (conflictSummary, slotSize) {
 	freeTimes.push({start: conflictSummary.timeSlot.start, end: conflictSummary.timeSlot.end});
 
 	for(var i = 0; i < conflictSummary.conflicts.length; i++) {
-		var start = conflictSummary.conflicts[i].start;
-		var end = conflictSummary.conflicts[i].end;
+		var start = new Date(conflictSummary.conflicts[i].start);
+		var end = new Date(conflictSummary.conflicts[i].end);
 
 		for (var j = 0; j < freeTimes.length; j++) {
+			var ftStart = new Date(freeTimes[j].start);
+			var ftEnd = new Date(freeTimes[j].end);
 
-			if(start <= freeTimes[j].start && end > freeTimes[j].start && end < freeTimes[j].end) {
+			if(start <= ftStart && end > ftStart && end < ftEnd) {
 				freeTimes[j].start = end;
 			}
-			else if(start > freeTimes[j].start && start < freeTimes[j].end && end >= freeTimes[j].end) {
+			else if(start > ftStart && start < ftEnd && end >= ftEnd) {
 				freeTimes[j].end = start;
 			}
-			else if(start >= freeTimes[j].start && end <= freeTimes[j].end) {
+			else if(start >= ftStart && end <= ftEnd) {
 				var toAdd = {start: freeTimes[j].start, end: freeTimes[j].end};
 				freeTimes[j].start = end;
 				toAdd.end = start;
@@ -149,7 +158,10 @@ var setFreeTimes = function (conflictSummary, slotSize) {
 	var freeTimesRet = [];
 
 	for(var s = 0; s < freeTimes.length; s++) {
-		var difference = freeTimes[s].end.getTime() - freeTimes[s].start.getTime();
+		var endDate = new Date(freeTimes[s].end);
+		var startDate = new Date(freeTimes[s].start);
+
+		var difference = endDate.getTime() - startDate.getTime();
 		var minutes = Math.round(difference / 60000);
 
 		if(minutes >= slotSize) {
@@ -162,21 +174,19 @@ var setFreeTimes = function (conflictSummary, slotSize) {
 
 // initializes the conflictSummary array
 var initializeConflictSummary = function (times, recurrence) {
-	var initialized = [];
-
 	var timeSlots = [];
 
 	for(var t = 0; t < times.length; t++) {
-		timeSlots.push(times[t]);
+		var tiStart = times[t].startTime;
+		var tiEnd	= times[t].endTime;
 
-		var tiStart = times[t].start;
-		var tiEnd	= times[t].end;
+		var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
+		timeSlots.push(obj);
 
 		for(var r = 1; r < recurrence; r++) {
 			tiStart.setDate(tiStart.getDate() + 7);
 			tiEnd.setDate(tiEnd.getDate() + 7);
 
-			// var obj = {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], endTemp: tiEnd};
 			var obj = {toPluck: {timeSlot: {start: tiStart, end: tiEnd}, conflicts: [], freeTimes: []}, endTemp: tiEnd};
 			timeSlots.push(obj);
 		}
@@ -201,31 +211,30 @@ var initializeUserEventMap = function (Ids) {
 
 var getEventArrayObject = function (cal, typeString) {
 	var toRet = [];
+	
 	cal.events.forEach(function (ev) {
-		var evWithRepeats = expandEvent(ev, typeString); // returns an array
-		toRet = _.union(toRet, evWithRepeats);		
+		var modifiedEv = expandEvent(ev, typeString); // returns an array
+		toRet = _.union(toRet, modifiedEv);		
 	});
+		// User.findOne({_id: cal.owner}).exec(function (err, user) {
+		// 	ev.calOwnerEmail = user.email;
+		// 	var modifiedEv = expandEvent(ev, typeString); // returns an array
+		// 	toRet = _.union(toRet, modifiedEv);					
+		// });
+
 	return toRet;
 };
 
 var expandEvent = function (ev, typeString) {
 	var toRet = [];
-	if (ev.repeats[0] == null) {
-		ev.type = typeString; // adds property
-		if (typeString == CANNOT_VIEW_STRING) { // hides info if can't view
-			ev.name = 'busy';
-			ev.description = 'busy';
-			ev.location = 'busy';
-		}
-		toRet.push(ev);
-		return toRet;
-	} else {
-		if (ev.repeats[0].frequency == null) { // go till the end date
-
-		} else {
-
-		}
+	ev.type = typeString; // adds property
+	if (typeString == CANNOT_VIEW_STRING) { // hides info if can't view
+		ev.name = 'busy';
+		ev.description = 'busy';
+		ev.location = 'busy';
 	}
+	toRet.push(ev);
+	return toRet;
 };
 
 module.exports = router;

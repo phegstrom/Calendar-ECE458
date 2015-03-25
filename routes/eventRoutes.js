@@ -6,7 +6,56 @@ var Alert		= require('../models/Alert');
 var Repeat		= require('../models/Repeat');
 var Request		= require('../models/Request');
 var PUD			= require('../models/PUD');
+var RepeatChain = require('../models/RepeatChain');
+var _			= require('underscore');
 var router 		= express.Router();
+
+router.post('/test/test/test/', function (req, res, next) {
+	// original event
+	var constructorObj = createConstructorObj(req);
+
+	var newEvent = createEvent(constructorObj);
+
+	var repeatEventArray = [];
+
+	if(req.body.alerts != undefined)
+		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
+	
+	if (req.body.repeats) {
+		var repeatDateArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatDateArray);
+
+		// create repeated events with constructors
+		for (var i = 0; i < repeatedEventConstructors.length; i++) {
+			var repeatEvent = createEvent(repeatedEventConstructors[i]);
+			repeatEventArray.push(repeatEvent);
+		}
+		// create RepeatChain
+
+		var repeatChain = new RepeatChain(repeatEventArray);
+		// add RepeatChain to newEvent
+		newEvent.repeatChain = repeatChain;
+	}
+
+	newEvent.save(function(err, ev) {
+		if(err) next(err);
+		// add event to calendar
+		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+			if(err) next(err);
+		});
+
+		// save each event from RepeatChain
+		for (var i = 0; i < repeatEventArray.length; i++) {
+			repeatEventArray[i].save(function (err, repEv) {
+				Calendar.update({_id: req.body.calendar}, {$push: {events: repEv._id}}, function (err, num, raw) {
+					if(err) next(err);
+				});
+			});
+		}
+
+		res.send(ev);
+	});
+});
 
 // post new Event
 router.post('/', function(req, res, next) {
@@ -15,32 +64,35 @@ router.post('/', function(req, res, next) {
 	newEvent.name = req.body.name;
 	newEvent.description = req.body.description;
 	newEvent.location = req.body.location;
-	newEvent.start = req.body.start;
+	newEvent.start  = req.body.start;
 	newEvent.end = req.body.end;
 	newEvent.calendar = req.body.calendar;
-	console.log("repeat 1: \n" + req.body.repeats);
+
+	var constructorObj = createConstructorObj(req);
 
 	if(req.body.alerts != undefined)
 		newEvent.alerts = createAlertSchemas(req.body.alerts, newEvent, req);
 
-	console.log("repeat: \n" + req.body.repeats);
 	newEvent.repeats = req.body.repeats;
-	console.log("repeat from event: \n" + newEvent.repeats);
 
-	if (req.body.evType) 
+	if (req.body.evType) {
 		newEvent.evType = req.body.evType;
-	else 
+		constructorObj.evType = req.body.evType;
+	}
+	else {
 		newEvent.evType = 'regular';
+		constructorObj.evType = 'regular';
+	}
 
-	console.log(req.body);
+	// if (req.body.repeats) {
+	// 	var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+	// 	var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
+	// 	console.log('REPEAT ARRAY \n' + repeatArray);
+	// }
 
-	console.log("EVENT CREATED");
-	console.log(newEvent);
+	console.log("event created!");
 
 	newEvent.creator = req.session.user._id;
-
-	//for use with POSTman
-	//newEvent.creator = req.body.creator;
 
 	var newRequest = new Request();
 	// newRequest.info = newEvent.description;
@@ -61,6 +113,40 @@ router.post('/', function(req, res, next) {
 		res.send(ev);
 	});
 });
+
+function createEvent(constructor) {
+	var newEvent = new Event(constructor);
+
+	var newRequest = new Request();
+	newRequest.usersStatus = {};
+	newRequest.eventID = newEvent._id;
+	newRequest.creator = req.session.user.email;
+	newEvent.requestID = newRequest._id;
+	newEvent.save();
+}
+
+// creates json obj to pass into event constructor
+function createConstructorObj(req) {
+	var toRet = {
+					name: req.body.name,
+					description: req.body.description,
+					location: req.body.location,
+					start: req.body.start,
+					end:req.body.end,
+					calendar: req.body.calendar,
+					repeats: req.body.repeats,	
+					creator: req.session.user._id
+				};
+	
+	if (req.body.evType) {
+		toRet.evType = req.body.evType;
+	}
+	else {
+		toRet.evType = 'regular';
+	}
+
+	return toRet;				
+};
 
 // creates individual
 function createAlertSchemas(objArray, ev, req) {

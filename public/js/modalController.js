@@ -1,4 +1,6 @@
-app.controller('modalController', function($scope, $http, $modalInstance, $rootScope) {
+app.controller('modalController', function($scope, $http, $modalInstance, $rootScope, modalService) {
+
+  this.modalService = modalService;
 
   var MINUTE = 1000*60; //ms * sec
 
@@ -23,6 +25,8 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   $scope.freeTimeDetails = {};
 
   $scope.ssuDetails = {};
+
+  $scope.conflictSummary = ['uninitialized'];
 
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
@@ -407,24 +411,40 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   // FIND FREE TIME SLOT ROUTES
-  $scope.findFreeTimeSlots = function() {
+  $scope.findFreeTimes = function() {
     var freeTimeDetails = $scope.freeTimeDetails;
     // time ranges
 
     if (typeof freeTimeDetails.recurrence == 'undefined') {
-      $scope.freeTimeDetails.recurrence = 1;
+      freeTimeDetails.recurrence = 1;
     }
-
-    $http.put('/fts/requestTimes', freeTimeDetails).
+    if (typeof freeTimeDetails.userGroupIds == 'undefined') {
+      freeTimeDetails.userGroupIds = [];
+    }
+    if (typeof freeTimeDetails.userEmails == 'undefined') {
+      freeTimeDetails.userEmails = [];
+    }
+    $http.put('/ftr/findConflicts', freeTimeDetails).
     success(function(data, status, headers, config) {
-
+      $scope.conflictSummary = angular.copy(angular.fromJson(data));
+      modalService.conflictSummary = $scope.conflictSummary;
+      $rootScope.displayConflictSummaryModal();
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to find free times.');
     });
-
     // NEED TO POPULATE SCOPE STUFF IN EVENT CREATION FROM TIMES
     $scope.cancel();
+    
+  }
+
+  $scope.toggleConflictDetails = function(conflict) {
+    if (typeof conflict.showDetails == 'undefined') {
+      conflict.showDetails = true;
+    }
+    else {
+      conflict.showDetails = !conflict.showDetails;
+    }
   }
 
   $scope.addTimeSlot = function() {

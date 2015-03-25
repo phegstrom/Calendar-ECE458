@@ -186,6 +186,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
       request = $http.post('/event', eventDetails).
       success(function(data, status, headers, config) {
         var dBEvent = angular.fromJson(data);
+        $rootScope.selectedEvent = dBEvent;
         console.log(dBEvent);
         console.log(eventDetails);
         var owningCalendar = $rootScope.getCalendar(eventDetails.calendar);
@@ -491,12 +492,29 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.sendAndInviteUsers = function() {
-    $scope.sendEventData();
 
-    $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
-    $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+    // $async.waterfall([
+    //   function(next) {
+    //     $scope.sendEventData();
 
+    //     $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
+    //     $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+    //     next();
+    //   },
+    //   function() {
+    //     $scope.sendUserInvites();
+    //     $scope.cancel();
+    //   }
 
+    // ]);
+
+    // $scope.sendEventData();
+
+    // $scope.requestDetails.userList = $scope.freeTimeDetails.userIds;
+    // $scope.requestDetails.userGroups = $scope.freeTimeDetails.userGroupIds;
+
+    // $scope.sendUserInvites();
+    // $scope.cancel();
   }
 
   //SSU Functions

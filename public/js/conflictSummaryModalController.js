@@ -44,7 +44,7 @@ app.controller('conflictSummaryModalController', function($scope, $http, $modalI
     $rootScope.eventDetails.end = new Date(end);
 
     // SAVE USER LIST TO modalService???
-    //modalService.freeTimeEvent = true;
+    $rootScope.freeTimeEvent = true;
 
   }
 

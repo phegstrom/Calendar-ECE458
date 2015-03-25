@@ -13,6 +13,7 @@ var EventSchema = new Schema({
 	location: String,
 	start: {type: Date},
 	end: {type: Date},
+	emailKey: String,
 
 	// need to phase this out
 	// calendar: {type: Schema.Types.ObjectId, ref: 'Calendar'},

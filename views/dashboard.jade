@@ -279,8 +279,8 @@ block content
             select.form-control(style="display:table-cell;", ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
           input.form-control(type="text", ng-model="selectedEvent._id", ng-hide="true")
           button.btn.btn-primary(type="submit", ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
-          | &nbsp;
-          button.btn.btn-primary(ng-show="", type="submit", ng-disabled="eventForm.$invalid", ng-click="sendAndInviteUsers()", data-dismiss='modal') Save and Invite Users
+          br
+          button.btn.btn-primary(ng-show="freeTimeEvent", type="submit", ng-disabled="eventForm.$invalid", ng-click="sendAndInviteUsers()", data-dismiss='modal') Save and Invite Users
     
     script(type="text/ng-template" id="eventDetailsModal.html" )
       .modal-header
@@ -659,7 +659,7 @@ block content
             a(href, ng-click="toggleConflictDetails(summary)") Conflicts
             ul(ng-show="summary.showDetails")
               li(ng-repeat="conflict in summary.conflicts")
-                b {{conflict.creator}} 
+                b {{conflict.emailKey}} 
                 | has 
                 b {{conflict.name}} 
                 | at 
@@ -686,4 +686,3 @@ block content
     script(type='text/javascript', src='/js/addRuleModalController.js')
     script(type='text/javascript', src='/js/addUserModalController.js')
     script(type='text/javascript', src='/js/conflictSummaryModalController.js')
-

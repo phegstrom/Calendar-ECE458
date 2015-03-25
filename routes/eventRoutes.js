@@ -8,6 +8,7 @@ var Request		= require('../models/Request');
 var PUD			= require('../models/PUD');
 var RepeatChain = require('../models/RepeatChain');
 var _			= require('underscore');
+var async 		= require('async');
 var router 		= express.Router();
 
 router.post('/test/test/test/', function (req, res, next) {
@@ -84,10 +85,16 @@ router.post('/', function(req, res, next) {
 		constructorObj.evType = 'regular';
 	}
 
+	var repeatedEventConstructors = [];
+	
 	if (req.body.repeats) {
+		var newRepeatChain = new RepeatChain();
 		var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
-		var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
 		console.log('REPEAT ARRAY \n' + repeatArray);
+		repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray, newRepeatChain._id);
+
+		// add repeat chain id to original event
+		newEvent.repeatChain = newRepeatChain._id;
 	}
 
 	console.log("event created!");
@@ -101,18 +108,79 @@ router.post('/', function(req, res, next) {
 	newRequest.creator = req.session.user.email;
 	newEvent.requestID = newRequest._id;
 
-	newEvent.save(function(err, ev) {
-		if(err) next(err);
-		// add event to calendar
-		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+	if (req.body.repeats == null) {
+		newEvent.save(function(err, ev) {
 			if(err) next(err);
-		});
+			// add event to calendar
+			Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+				if(err) next(err);
+			});
 
-		newRequest.save();
+			newRequest.save();
 
-		res.send(ev);
-	});
+			res.send(ev);
+		});			
+	} else { // we have repeated events to create
+		console.log('Creating repeat events in database...');
+		var allFunctions = [];
+		var allEvIds = [];
+
+		var f = function (next) {
+			newEvent.save(function (err, ev) {
+				allEvIds.push(ev._id);
+				console.log('saved EVENT: ' + ev);
+				next(null, allEvIds, ev);
+			});
+		}
+
+		allFunctions.push(f);
+
+		var functionArray = createFunctionArray(repeatedEventConstructors);
+		allFunctions = _.union(allFunctions, functionArray);
+
+
+
+		var endF = function (allEvIds, ev) {
+			Calendar.update({_id: req.body.calendar}, {$pushAll: {events: allEvIds}}, function(err, num, raw) {
+				if(err) next(err);
+				console.log('Repeat events creation complete!');
+				console.log(ev);
+				res.send(ev);
+			});
+		};
+
+		allFunctions.push(endF);
+
+		console.log('about to initailize repeat event creation...');
+		async.waterfall(allFunctions);
+	}
+
+
+
 });
+
+var createFunctionArray  = function (constructors) {
+	var toRet = [];
+	for (var i = 0; i < constructors.length; i++) {
+		var f = createIndividualFunction(constructors[i]);
+		toRet.push(f);
+	}
+	console.log("number functions created: " + toRet.length);
+	return toRet;
+}
+
+var createIndividualFunction = function (construct) {
+	var toRet = function (allEvIds, ev, next) {
+		var ev = new Event(construct);
+		console.log('created repeat event: ' + ev);
+		allEvIds.push(ev._id);
+		ev.save(function (err, saved) {
+			next(err, allEvIds, ev);
+		});
+	};
+
+	return toRet;
+}
 
 function createEvent(constructor) {
 	var newEvent = new Event(constructor);
@@ -127,12 +195,15 @@ function createEvent(constructor) {
 
 // creates json obj to pass into event constructor
 function createConstructorObj(req) {
+	var dStart = new Date(req.body.start);
+	var dEnd = new Date(req.body.end);
+
 	var toRet = {
 					name: req.body.name,
 					description: req.body.description,
 					location: req.body.location,
-					start: req.body.start,
-					end:req.body.end,
+					start: dStart,
+					end: dEnd,
 					calendar: req.body.calendar,
 					repeats: req.body.repeats,	
 					creator: req.session.user._id
@@ -144,6 +215,7 @@ function createConstructorObj(req) {
 	else {
 		toRet.evType = 'regular';
 	}
+
 
 	return toRet;				
 };

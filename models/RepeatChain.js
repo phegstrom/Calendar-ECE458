@@ -59,18 +59,31 @@ RepeatChainSchema.statics.getRepeatDates = function (repeatObj) {
 
 // returns an array of constructors, so i can make that many events
 // in back end
-RepeatChainSchema.statics.createEventConstructors = function (constructorObj, repeatDateArray) {
+RepeatChainSchema.statics.createEventConstructors = function (constructorObj, repeatDateArray, rChainId) {
 	toRet = [];
-
+	console.log('hererreerer');
 	for (var i = 0; i < repeatDateArray.length; i++) {
-		// toRet[i] = constructorObjectModified
-		var constructor = _.clone(constructorObj);
-		var startDate = new Date(constructor.start);
-		var endDate = new Date(constructor.end);
 
-		toRet.push(constructor);
+		var constructorTemp = _.clone(constructorObj);
+		console.log(constructorObj.start + " type of " + typeof constructorObj.start);
+
+		// copy dates to avoid copy by reference
+		var dStart = new Date(constructorObj.start);
+		constructorTemp.start = dStart;
+		var dEnd = new Date(constructorObj.end);
+		constructorTemp.end = dEnd;
+		constructorTemp.repeatChain = rChainId;
+		// change value of month and day for start and end
+		constructorTemp.start.setDate(repeatDateArray[i].getDate());
+		constructorTemp.start.setMonth(repeatDateArray[i].getMonth());
+		constructorTemp.end.setDate(repeatDateArray[i].getDate());
+		constructorTemp.end.setMonth(repeatDateArray[i].getMonth());
+		
+
+		toRet.push(constructorTemp);
 	}
 
+	console.log(toRet);
 
 	return toRet;
 };

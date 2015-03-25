@@ -42,13 +42,6 @@ router.post('/', function (req, res, next) {
 	ssu.minDuration = req.body.evMinDuration;
 	ssu.maxDuration = req.body.evMaxDuration;
 
-	// ssu.freeBlocks = req.body.evFreeBlocks;
-	// var date1 = new Date();
-	// var date2 = new Date();
-	// date2.setMinutes(date2.getMinutes() + 45);
-
-	// ssu.freeBlocks = [{start: date1, end: date2}];
-
 	// for each attendee email received, add info
 	ssu.maxPerUser = req.body.evMaxPerUser;
 	ssu.freeBlocks = req.body.evFreeBlocks;
@@ -68,8 +61,6 @@ router.post('/', function (req, res, next) {
 			User.toIds(req.body.userEmails, function (err, uids) {
 				uids = _.pluck(uids, '_id');
 				ssu.assocUsers = uids;
-				console.log('uids: ' + uids);
-				console.log('ids: ' + ids);
 				ids = _.union(ids, uids);
 				next(err, ids);
 			});			
@@ -79,13 +70,10 @@ router.post('/', function (req, res, next) {
 				emails.forEach(function (email) {
 					ssu.attendees.push({userEmail: email, slots: []});
 				});
-				console.log('attendees: ' + ids);
 				next(err, ids);
 			});
 		},
 		function (result, next) {	
-			console.log('Slot signup result for attendee population.');
-			console.log(result);
 			// update for all invitees	
 			for (var i = 0; i < result.length; i++) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});
@@ -116,7 +104,6 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 		},
 		function (saved, next) {
 			Slot.findOneAndRemove({_id: req.params.slotId}, function (err) {
-				console.log('SAVED: '+saved);
 				res.send(saved);
 			});
 		}
@@ -131,8 +118,6 @@ router.delete('/:ssuId', function (req, res, next) {
 	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
 
 		ssu.getAllAssociatedUsers(function (err, uids) {
-			console.log(uids);
-			console.log("ssu id to delete: " + ssu._id);
 			for (var i = 0; i < uids.length; i++) {
 				User.findOneAndUpdate({_id: uids[i]}, {$pull: {SSEvents: ssu._id}}, function (err, numAffected) {});
 			}
@@ -152,10 +137,6 @@ router.get('/test/:date', function (req, res, next) {
 	var date1 = new Date(req.params.date);
 	var date2 = new Date(req.params.date);
 	date2.setMinutes(date2.getMinutes() + 15);
-	console.log("date1: " + date1);
-	console.log("date2: " + date2);
-
-
 
 	res.send(req.params.date);
 });

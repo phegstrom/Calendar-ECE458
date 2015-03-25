@@ -23,13 +23,29 @@ app.controller('conflictSummaryModalController', function($scope, $http, $modalI
     }
   }
 
-  $scope.toggleConflictDetails = function(conflict) {
-    if (typeof conflict.showDetails == 'undefined') {
-      conflict.showDetails = true;
-    }
-    else {
-      conflict.showDetails = !conflict.showDetails;
-    }
+  $scope.toggleConflictDetails = function(summary) {
+  	var i;
+  	for(i = 0; i < $scope.conflictSummary.length; i++) {
+  	  if ($scope.conflictSummary[i] == summary) {
+        if (typeof $scope.conflictSummary[i].showDetails == 'undefined') {
+          $scope.conflictSummary[i].showDetails = true;
+        }
+        else {
+          $scope.conflictSummary[i].showDetails = !$scope.conflictSummary[i].showDetails;
+        }
+      }
+	  }
+  }
+
+  $scope.chooseEventTime = function(start, end) {
+    $scope.cancel();
+
+    $rootScope.eventDetails.start = new Date(start);
+    $rootScope.eventDetails.end = new Date(end);
+
+    // SAVE USER LIST TO modalService???
+    $rootScope.freeTimeEvent = true;
+
   }
 
 });

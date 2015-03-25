@@ -6,7 +6,8 @@ app.service('modalService', function() {
   var selectedCalendar;
   var displayOwnerCalendar;
   var conflictSummary;
-  
+  var freeTimeEvent;
+
 });
 
 
@@ -205,10 +206,11 @@ app.run(function($rootScope, $q, $http, $modal) {
         templateUrl: 'eventDetailsModal.html',
         controller: 'modalController'
       });
-    console.log($rootScope.selectedEvent);
+    //console.log($rootScope.selectedEvent);
   }
 
   $rootScope.displayCreateEventModal = function() {
+    $rootScope.freeTimeEvent = false;
     $modal.open({
         templateUrl: 'createEventModal.html',
         controller: 'modalController'
@@ -482,7 +484,9 @@ app.run(function($rootScope, $q, $http, $modal) {
         dBEvent.canEditEvent = canEdit;
         dBEvent.calendarName = calendar.name;
         dBEvent.calendarId = calendar._id;
-        dBEvent.name = calendar.owner.email + '\'s Event';
+        if(!canView) {
+          dBEvent.name = calendar.owner.email + '\'s Event';
+        }
       });
     }
     else {

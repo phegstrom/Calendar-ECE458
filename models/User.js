@@ -38,8 +38,21 @@ UserSchema.statics.convertToIds = function (emails) {
 UserSchema.statics.toIds = function (emails, cb) {
 	this.find({email: {$in: emails}}, '_id', function (err, ids) {
 		console.log('FROM ID USER FUNCTION\n\n\n');
-		console.log(typeof ids[0]);
+		console.log(ids);
 		cb(err, ids);
+	});
+}
+
+UserSchema.statics.toIdsUpdate = function (emails, cb) {
+	this.find({email: {$in: emails}}, function (err, idsT) {
+		console.log('\n\n\nFROM ID USER FUNCTION');
+		// idsT = _.pluck(idsT, '_id');
+		var toRet = [];
+		idsT.forEach(function (singleUser) {
+			toRet.push(singleUser.id);
+		});
+		console.log(toRet);
+		cb(err, toRet);
 	});
 }
 

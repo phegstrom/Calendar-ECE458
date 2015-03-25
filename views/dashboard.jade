@@ -120,12 +120,10 @@ block content
                 br
                 | Groups 
                 ul
-                  li(ng-repeat="group in rule.assocUserGroups")
-                    | {{ group.name }}
+                  li(ng-repeat="group in rule.assocUserGroups") {{ group.name }}
                 | Users 
                 ul
-                  li(ng-repeat="user in rule.assocUsers")
-                  | {{ user.email }}
+                  li(ng-repeat="user in rule.assocUsers") {{ user.email }}
             b Users with Modify 
             ul
               li(ng-repeat="modUser in selectedCalendar.modList")
@@ -292,9 +290,11 @@ block content
               p(ng-show="selectedEvent.description")
                 b Description 
                 | {{ selectedEvent.description }}
+            div
               p
                 b When 
                 | {{convertDates(selectedEvent.start, selectedEvent.end)}}
+            div(ng-show="selectedEvent.canViewEvent")
               p(ng-show="selectedEvent.location")
                 b Where 
                 | {{ selectedEvent.location }}

@@ -34,10 +34,11 @@ app.controller('addRuleModalController', function($scope, $http, $modalInstance,
   }
 
   $scope.addRule = function() {
-    if ($scope.newRule.userGroupIds == "undefined") {
+    console.log($scope.newRule);
+    if (typeof $scope.newRule.userGroupIds == 'undefined') {
       $scope.newRule.userGroupIds = [];
     }
-    if ($scope.newRule.userIds == "undefined") {
+    if (typeof $scope.newRule.userIds == 'undefined') {
       $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);
@@ -45,7 +46,7 @@ app.controller('addRuleModalController', function($scope, $http, $modalInstance,
     $http.post('/rule/'+ modalService.selectedCalendar._id, $scope.newRule).
     success(function(data, status, headers, config) {
       modalService.selectedCalendar.rules.push(angular.copy(angular.fromJson(data)));
-      modalService.displayOwnerCalendar(modalService.selectedCalendar);
+      //modalService.displayOwnerCalendar(modalService.selectedCalendar);
       $scope.newRule = {};
       $scope.userGroupDisplay = [];
       //console.log($scope.selectedCalendar);

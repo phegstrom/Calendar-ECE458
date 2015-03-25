@@ -16,7 +16,7 @@ app.controller('addUserModalController', function($scope, $http, $modalInstance,
       console.log(angular.fromJson(data));
       //console.log($scope.selectedCalendar);
       modalService.selectedCalendar = $scope.selectedCalendar;
-      modalService.displayOwnerCalendar(modalService.selectedCalendar);
+      //modalService.displayOwnerCalendar(modalService.selectedCalendar);
     }).
     error(function(data, status, headers, config) {
       $scope.text = 'Failed to add user with modify.';

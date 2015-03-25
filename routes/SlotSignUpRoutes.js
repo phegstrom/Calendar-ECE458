@@ -189,47 +189,24 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			newSlot.basicBlocks = ((startDate - endDate)/60000) / ssu.minDuration;
 			user.mySlots.push(newSlot);
 
-			// ssu.attendees.forEach(function (attendee) {
-			// 	console.log("##### "+attendee.userEmail + " : " + req.session.user.email);
-			// 	if(attendee.userEmail == req.session.user.email) {
-			// 		console.log("success!!!");
-
-			// 		var attendeeTemp = attendee;
-			// 		attendee = null;
-
-			// 		attendeeTemp.slots.push(newSlot._id);
-			// 		attendee = attendeeTemp;
-
-			// 		// attendee.slots.push(newSlot._id);
-			// 	}
-			// });
 			var attendeesTemp = _.clone(ssu.attendees);
 			ssu.attendees = null;
 
-			for (var i = 0; i < attendeesTemp.length; i++) {
+			for(var i = 0; i < attendeesTemp.length; i++) {
 				if(attendeesTemp[i].userEmail == req.session.user.email) {
-					attendeeTemp[i].slots.push(newSlot._id);
-					console.log("success: "+JSON.stringify(attendeeTemp[i].slots));
+					attendeesTemp[i].slots.push(newSlot._id);
 				}
 			}
 
 			ssu.attendees = attendeesTemp;
 
-			// console.log(ssu);
-
-			newSlot.save(function (err, nsSaved) {
-				user.save(function (err, uSaved) {
-					ssu.save(function (err, ssuSaved) {
-						console.log("saved: " + ssu);
-						res.send(ssu);
-					});
-				});
+			newSlot.save();
+			user.save();
+			ssu.save(function (err, ssuObj) {
+				res.send(ssu);
 			});
-
-		    // res.send(ssu);
 		});
 	});
-
 });
 
 module.exports = router;

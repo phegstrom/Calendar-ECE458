@@ -226,7 +226,7 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 \end{enumerate}
 \item {\bf Dealing with Realistic Contraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item One constraint I encountered this evolution was Javascript's asynchronicity. When creating the Free Time Slot feature, there was a race condition as I implemented the ability for the user to easily initiate event requests after finding a free time they wanted to use for a group. The issue was that I wanted to create an event, then immediately invite all of the users from the conflict summary to the event. However, the problem was that inviting the users required the event ID which wasn't being returned quickly enough from the creating event route. Because the back end had dealt with similar issues before, I initially tried to use the async library that they were using. However, after issues with bringing in the library and getting it to interact with Angular, I found that the correct way to solve this was to use promises in the \$q library included in Angular. 
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]

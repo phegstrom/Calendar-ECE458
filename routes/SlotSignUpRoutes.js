@@ -112,20 +112,24 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 	async.waterfall([
 		function (next) {
 			Slot.findOne({_id: req.params.slotId}, function (err, slot) {
-				next(slot);
+				next(err, slot);
 			});
 		},
 		function (slot, next) {
-			SlotSignUp.findOne({_id: slot._id}, function (err, ssu) {
-				ssu.createFreeBlocksAndUpdate(slot, function (err, saved) {					
-					next();
+			SlotSignUp.findOne({_id: slot.SSU}, function (err, ssu) {
+				ssu.createFreeBlocksAndUpdate(slot, function (err, saved) {
+					next(err, saved);
 				});
-			});		
+			});	
 		},
-		function (next) {	
-
+		function (saved, next) {
+			Slot.findOneAndRemove({_id: req.params.slotId}, function (err) {
+				res.send(saved);
+			});
 		}
 	]);
+
+	//return the ssu
 
 });
 

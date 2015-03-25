@@ -660,7 +660,7 @@ block content
               li(ng-repeat="conflict in summary.conflicts")
                 a(href, ng-click="toggleConflictDetails(conflict)") {{conflict.name}} at {{convertDates(conflict.start, conflict.end)}}
                 p(ng-show="conflict.showDetails")
-                  User: {{conflict.creator}}
+                  User: {{conflict.emailKey}}
             | Free Times
             ul
               li(ng-repeat="free in summary.freeTimes") {{ convertDates(free.start, free.end) }}

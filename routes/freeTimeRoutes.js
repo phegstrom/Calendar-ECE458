@@ -33,14 +33,16 @@ router.put('/findConflicts', function (req, res, next) {
 			});			
 		},
 		function (allIds, next) {
-			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
+			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').populate('modCalId canView canViewBusy').exec(function (err, user) {
 				userEventMap = initializeUserEventMap(allIds);
 
 				next(err, allIds, user);
 			});	
 		},
 		function (allIds, user, next) { // create eventmap
-			var canViewCalIds = _.union(user.modCalId, user.canView);
+			var modCalIdsFiltered = filterCalIds(user.modCalId, allIds);
+			var canViewIdsFiltered = filterCalIds(user.canView, allIds);
+			var canViewCalIds = _.union(modCalIdsFiltered, canViewIdsFiltered);
 
 			Calendar.find({_id: {$in: canViewCalIds}}).populate('events')
 			.populate('owner')
@@ -55,7 +57,7 @@ router.put('/findConflicts', function (req, res, next) {
 			});
 		},
 		function (allIds, user, next) { // now get busy view events
-			var calIds = user.canViewBusy;
+			var calIds = filterCalIds(user.canViewBusy, allIds);
 			Calendar.find({_id: {$in: calIds}}).populate('events')
 			.populate('owner')
 			.exec(function (err, cals) {
@@ -113,6 +115,19 @@ router.put('/findConflicts', function (req, res, next) {
 		]);
 
 });
+
+// filters out the calendar ids of the people who aren't associated
+// with this free time call
+var filterCalIds = function (calendar, idArray) {
+	var toRet = [];
+	for (var i = 0; i < calendar.length; i++) {
+		if (idArray.indexOf(calendar[i].owner) != -1) {
+			toRet.push(calendar[i]._id);
+		}
+	}
+
+	return toRet;
+}
 
 router.get('/blah/blah/test', function (req, res, next) {
 	var conflictSummary = {timeSlot: {start: 1, end: 8}, conflicts: []};

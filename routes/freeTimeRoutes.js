@@ -21,50 +21,55 @@ router.put('/findConflicts', function (req, res, next) {
 
 		function (next) {
 			UserGroup.getUserIds(req.body.userGroupIds, function (err, ids) {
-				next(err, ids);
+				var toRet = [];
+				for (var i = 0; i < ids.length; i++) {
+					toRet.push(ids[i].toString());
+				}
+				next(err, toRet);
 			});
 		},
 		function (ids, next) {
-			User.toIds(req.body.userEmails, function (err, uids) {
-				uids = _.pluck(uids, '_id');
+			User.toIdsUpdate(req.body.userEmails, function (err, uids) {
+
 				ids = _.union(ids, uids);
 
 				next(err, ids);
 			});			
 		},
 		function (allIds, next) {
-			User.findOne({_id: req.session.user._id}, 'modCalId canView canViewBusy').exec(function (err, user) {
-				userEventMap = initializeUserEventMap(allIds);
 
+			User.findOne({_id: req.session.user._id}).populate('modCalId canView canViewBusy').exec(function (err, user) {
 				next(err, allIds, user);
 			});	
 		},
-		function (allIds, user, next) { // create eventmap
-			var canViewCalIds = _.union(user.modCalId, user.canView);
-
+		function (allIds, user, next) { // create eventmap			
+			var modCalIdsFiltered = filterCalIds(user.modCalId, allIds);
+			var canViewIdsFiltered = filterCalIds(user.canView, allIds);
+			var canViewCalIds = _.union(modCalIdsFiltered, canViewIdsFiltered);
+			
 			Calendar.find({_id: {$in: canViewCalIds}}).populate('events')
 			.populate('owner')
 			.exec(function (err, cals) {
 				cals.forEach(function (cal) {
 					var eventArray = getEventArrayObject(cal, CAN_VIEW_STRING);
-
+			
 					// merge new array with old one
-					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner], eventArray);
+					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner.email], eventArray);					
 				});
+
 				next(err, allIds, user);
 			});
 		},
 		function (allIds, user, next) { // now get busy view events
-			var calIds = user.canViewBusy;
+			var calIds = filterCalIds(user.canViewBusy, allIds);
 			Calendar.find({_id: {$in: calIds}}).populate('events')
 			.populate('owner')
 			.exec(function (err, cals) {
-				var eventArray = [];
 				cals.forEach(function (cal) {
-					eventArray = getEventArrayObject(cal, CANNOT_VIEW_STRING);
+					var eventArray = getEventArrayObject(cal, CANNOT_VIEW_STRING);
 
 					// merge new array with old one
-					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner], eventArray);
+					userEventMap[cal.owner.email] = _.union(userEventMap[cal.owner.email], eventArray);
 				});
 				next(err, userEventMap);
 			});
@@ -72,18 +77,12 @@ router.put('/findConflicts', function (req, res, next) {
 		function (allEvents, next) {
 			var conflictSummary = initializeConflictSummary(req.body.timeSlot, req.body.recurrence);
 
-			console.log("$$$$$USEREVENTMAP: "+JSON.stringify(userEventMap));
-
 			var keys = _.allKeys(allEvents);
-			console.log("keys: "+keys);
 			var conflicts = [];
 
 			keys.forEach(function (key) {
-				console.log("key: "+key);
-				console.log("  "+JSON.stringify(allEvents[key]));
 				var events = _.sortBy(allEvents[key], 'start');
 				var bool = true, timeP = 0, evP = 0;				
-				console.log("___"+JSON.stringify(events));
 
 				while(bool) {
 					var evStart	= new Date(events[evP].start);
@@ -118,18 +117,20 @@ router.put('/findConflicts', function (req, res, next) {
 
 });
 
-router.get('/blah/blah/test', function (req, res, next) {
-	var conflictSummary = {timeSlot: {start: 1, end: 8}, conflicts: []};
-	var con1 = {start: 0, end: 2};
-	var con2 = {start: 3, end: 5};
-	var con3 = {start: 7, end: 9};
-	conflictSummary.conflicts.push(con1);
-	conflictSummary.conflicts.push(con2);
-	conflictSummary.conflicts.push(con3);
+// filters out the calendar ids of the people who aren't associated
+// with this free time call
+var filterCalIds = function (calendarArray, idArray) {
+	var toRet = [];
+	for (var i = 0; i < calendarArray.length; i++) {
+		var testBool = idArray.indexOf(calendarArray[i].owner.toString()) != -1;
+		var test = idArray.indexOf(calendarArray[i].owner);
+		if (testBool) {
+			toRet.push(calendarArray[i]._id.toString());_
+	.toString()	}
+	}
 
-	var freeTimes = setFreeTimes(conflictSummary, 2);
-	res.send(freeTimes);
-});
+	return toRet;
+}
 
 var setFreeTimes = function (conflictSummary, slotSize) {
 	var freeTimes = [];
@@ -220,11 +221,6 @@ var getEventArrayObject = function (cal, typeString) {
 		var modifiedEv = expandEvent(ev, typeString); // returns an array
 		toRet = _.union(toRet, modifiedEv);		
 	});
-		// User.findOne({_id: cal.owner}).exec(function (err, user) {
-		// 	ev.calOwnerEmail = user.email;
-		// 	var modifiedEv = expandEvent(ev, typeString); // returns an array
-		// 	toRet = _.union(toRet, modifiedEv);					
-		// });
 
 	return toRet;
 };

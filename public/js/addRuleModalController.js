@@ -34,9 +34,10 @@ app.controller('addRuleModalController', function($scope, $http, $modalInstance,
   }
 
   $scope.addRule = function() {
-    if (typeof $scope.newRule.userGroupIds === "undefined") {
+    if ($scope.newRule.userGroupIds == "undefined") {
       $scope.newRule.userGroupIds = [];
-    } else if (typeof $scope.newRule.userIds === "undefined") {
+    }
+    if ($scope.newRule.userIds == "undefined") {
       $scope.newRule.userIds = [];
     }
     console.log($scope.newRule);

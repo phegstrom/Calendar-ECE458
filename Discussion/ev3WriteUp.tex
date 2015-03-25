@@ -116,7 +116,7 @@
 \vspace{0.2in}
 
 \begin{abstract}
-In this evolution, we added two new features to our shared calendar web application. Specifically, a user can now create Slot Sign Up events, which allow other users to ``sign up" for an appointment. The second feature is more a service as it allows the user to determine who has event conflicts given certain time frames. In addition to these new features, some major back-end refactoring was done and will be further explained in the following document.
+In this evolution, we added two new features to our shared calendar web application. Specifically, a user can now create Slot Sign Up events, which allow other users to ``sign up" for an appointment. The second feature is more a service as it allows the user to determine who has event conflicts given certain time frames. In addition to these new features, some major refactoring was done and will be further explained in the following document.
 \end{abstract}
 
 \tableofcontents
@@ -127,7 +127,7 @@ In this evolution, we added two new features to our shared calendar web applicat
 
 \section{Overall Design}
 
-The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
+The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members' code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
 
 \begin{figure}[htb]
 \centering
@@ -138,7 +138,7 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 
 \noindent Essentially, our back end team provides an exhaustive RESTful API service to our front end. As we received the new requirements for evolution two, the benefits of our modular design came to light as we met to discuss both the refactorings from evolution one that needed to be done and the edits to each modules system design in order to account for the added calendar functionality--event requests and persistent until done events.\\
 
-\noindent At the beginning of evolution three, our group spent four days simply refactoring and making large design change decisions. The back-end did undergo one major change as we now handle repeated events differently. This will be further discussed in the following section.\\
+\noindent At the beginning of evolution three, our group spent four days simply refactoring and making large design change decisions. The back-end did undergo one major change as we now handle repeated events differently. The front-end also made a fundamental change with how Angular controllers are implemented. These will be further discussed in the following section.\\
 
 \noindent The following sections further discuss design choices and implications of those design choices for both our front end and back end teams. \\
 
@@ -178,7 +178,22 @@ The way we initially design and implemented repeated events proved to be extreme
 
 \section{Front End Design and Analysis}
 
+\subsection{New Features and Developments}
 
+\subsubsection{Find Free Times}
+Find free times was implemented in the frontend by simply creating new modals to allow users to submit the relevant data, view the resulting conflict summary, and create the event and easily send invite requests. These modals were created relatively easily since they are very modular in their design. However, the difficult part was sharing the data between the modals and calling functions across controllers. We achieved this by using Angular services which we will discuss in more detail below. In the first modal, users are able to choose users that they want to find free times for, the size of the block of time to find, and a list of time slots to consider. We also allow users to find free times over recurring weeks. This data is then sent to the backend which returns an object that we use to populate our next modal - the conflict summary. The conflict summary modal is located in a separate controller with the returned object being shared between the two with an Angular service. While viewing the conflict summary, users are then able to choose a suggested open time and create an event at that time. When users create an event out of a conflict summary, they now have the option of inviting everyone in the conflict summary immediately after creating the event. While implementing this, I ran into asynchronous problems which I address in my individual portion below. From here, event creation and user invites function as they did before.
+
+\subsubsection{Slot Sign Ups}
+
+\subsubsection{Angular Services}
+
+Angular services use dependency injection to allow you to share code between your application. Services are singletons and thus are able to be accessed by all components that are dependent on that service. While previously we had all of our frontend code in two major controllers, by using services we were able to break these up into several smaller controllers and share the relevant scope variables in the service. This allowed more modularity and broke our files into smaller and easier to read parts. This major change has also allowed us to do things that we couldn't before such as open multiple modals in the same portion of our app. Previously this was a challenge because we could not use the same controller to control each modal and define the modal multiple times. However, with services we have been able to create new modal controllers for each modal and just share the relevant variables in the service.
+
+\subsection{Benefits of Our Previous Design}
+
+The inherent modularity of modals made it easy to implement new features on the frontend. We merely had to create a new modal controller and then call the backend HTTP routes out of that. Using Angular's services, we could also share data between these controllers as we needed.
+
+\subsection{Drawbacks of Our Previous Design}
 
 \section{Individual Portion}
 \subsection*{Parker}

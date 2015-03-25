@@ -74,8 +74,6 @@ router.put('/findConflicts', function (req, res, next) {
 		function (allEvents, next) {
 			var conflictSummary = initializeConflictSummary(req.body.timeSlot, req.body.recurrence);
 
-			console.log("$$$$$USEREVENTMAP: "+JSON.stringify(userEventMap));
-
 			var keys = _.allKeys(allEvents);
 			var conflicts = [];
 
@@ -128,19 +126,6 @@ var filterCalIds = function (calendar, idArray) {
 
 	return toRet;
 }
-
-router.get('/blah/blah/test', function (req, res, next) {
-	var conflictSummary = {timeSlot: {start: 1, end: 8}, conflicts: []};
-	var con1 = {start: 0, end: 2};
-	var con2 = {start: 3, end: 5};
-	var con3 = {start: 7, end: 9};
-	conflictSummary.conflicts.push(con1);
-	conflictSummary.conflicts.push(con2);
-	conflictSummary.conflicts.push(con3);
-
-	var freeTimes = setFreeTimes(conflictSummary, 2);
-	res.send(freeTimes);
-});
 
 var setFreeTimes = function (conflictSummary, slotSize) {
 	var freeTimes = [];
@@ -231,12 +216,6 @@ var getEventArrayObject = function (cal, typeString) {
 		var modifiedEv = expandEvent(ev, typeString); // returns an array
 		toRet = _.union(toRet, modifiedEv);		
 	});
-		// User.findOne({_id: cal.owner}).exec(function (err, user) {
-		// 	ev.calOwnerEmail = user.email;
-		// 	var modifiedEv = expandEvent(ev, typeString); // returns an array
-		// 	toRet = _.union(toRet, modifiedEv);					
-		// });
-
 	return toRet;
 };
 

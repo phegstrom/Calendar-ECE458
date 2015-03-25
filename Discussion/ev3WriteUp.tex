@@ -211,23 +211,23 @@ The way we initially design and implemented repeated events proved to be extreme
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item While developing the algorithms to find conflicting times or slot sign up free times, I would write out simple test code with the simple javascript test tools on \texttt{w3schools.com}.  Javascript Date objects can be compared and modified like simple numbers, as they are essentially large millisecond values, so I tested my algorithms with simple numbers to save time.  After I was satisfied with my tests, I created simple test routes and tested them with PostMan with more realistic values.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item  
+\item 
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I designed the creation of the conflictSummary, the merge and compare algorithm to find conflicting events and free times, the slot sign up creation, signing up, and canceling of slots.  I designed the structure of the conflictSummary object to return to the front end.  It is essentially a map with time slots as keys and conflicting events and free times as values.  This makes it very easy for the front end to display conflict data per time slot. Compared to previous evolutions, this evolution was less about creating new structures and more about developing algorithms to process information.  For example, I wrote the algorithm to compare events with time slots to find conflicting events.  I sorted the events by start date and the time slots by end date. Then I had a pointer for each array that would increment accordingly.
 \end{enumerate}
 \item {\bf Dealing with Realistic Contraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item Javascript's asynchronous nature made development incredibly frustrating at times. At times, we needed functions to be called in a specific order but certain functions, namely anything dealing with calls to the database through Mongoose, would take too long and would complete when it was too late.  Parker and I found the answer to our problems with the async library and the waterfall function.  Waterfall takes in an array of functions and completes the functions in order one after another. This allowed us to have much more control over how our code works.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For the back-end, Parker and I met up and worked together regularly.  We had group meetings with Wayne and Brandon on occasion as well in order to catch everyone up to speed with all of the new developments.  Towards the due date of the evolution, Parker, Brandon, and I met up to finish up.  Wayne chose to work remotely despite our suggestions to work together in person.  This led to difficulties in communication and quite a few frustrating bugs. For the final evolution, we will need to collaborate and meet up as much as possible especially right before the evolution is due.
 \end{enumerate}
 \end{enumerate}
 

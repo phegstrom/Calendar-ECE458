@@ -97,13 +97,9 @@ router.post('/', function (req, res, next) {
 				User.findOneAndUpdate({_id: uid}, {$push: {createdSSEvents: saved._id}}, function (err, numAffected) {
 					res.send(saved);
 				});
-
 			});
-
 		}
 	]);
-
-
 });
 
 router.put('/cancelSlot/:slotId', function (req, res, next) {

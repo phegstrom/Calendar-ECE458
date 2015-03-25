@@ -8,6 +8,7 @@ var Request		= require('../models/Request');
 var PUD			= require('../models/PUD');
 var RepeatChain = require('../models/RepeatChain');
 var _			= require('underscore');
+var async 		= require('async');
 var router 		= express.Router();
 
 router.post('/test/test/test/', function (req, res, next) {
@@ -84,11 +85,18 @@ router.post('/', function(req, res, next) {
 		constructorObj.evType = 'regular';
 	}
 
-	// if (req.body.repeats) {
-	// 	var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
-	// 	var repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray);
-	// 	console.log('REPEAT ARRAY \n' + repeatArray);
-	// }
+	var repeatedEventConstructors = [];
+	
+	if (req.body.repeats) {
+		var newRepeatChain = new RepeatChain();
+		var repeatArray = RepeatChain.getRepeatDates(req.body.repeats[0]);
+		console.log('REPEAT ARRAY \n' + repeatArray);
+		repeatedEventConstructors = RepeatChain.createEventConstructors(constructorObj, repeatArray, newRepeatChain._id);
+
+		// add repeat chain id to original event
+		newEvent.repeatChain = newRepeatChain._id;
+	}
+
 
 	console.log("event created!");
 
@@ -101,18 +109,83 @@ router.post('/', function(req, res, next) {
 	newRequest.creator = req.session.user.email;
 	newEvent.requestID = newRequest._id;
 
-	newEvent.save(function(err, ev) {
-		if(err) next(err);
-		// add event to calendar
-		Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+	if (req.body.repeats == null) {
+		newEvent.save(function(err, ev) {
 			if(err) next(err);
-		});
+			// add event to calendar
+			Calendar.update({_id: req.body.calendar}, {$push: {events: newEvent._id}}, function(err, num, raw) {
+				if(err) next(err);
+			});
 
-		newRequest.save();
+			newRequest.save();
 
-		res.send(ev);
-	});
+			res.send(ev);
+		});			
+	} else { // we have repeated events to create
+		console.log('Creating repeat events in database...');
+
+
+		var allFunctions = [];
+		var allEvIds = [];
+
+		var f = function (next) {
+			newEvent.save(function (err, ev) {
+				allEvIds.push(ev._id);
+				console.log('saved EVENT: ' + ev);
+				next(null, allEvIds, ev);
+			});
+		};
+		console.log('IM HERE');
+		allFunctions.push(f);
+
+		var functionArray = createFunctionArray(repeatedEventConstructors);
+		allFunctions = _.union(allFunctions, functionArray);
+
+		console.log('HEREEREr');
+
+		var endF = function (allEvIds, ev) {
+			Calendar.update({_id: req.body.calendar}, {$pushAll: {events: allEvIds}}, function(err, num, raw) {
+				if(err) next(err);
+				console.log('Repeat events creation complete!');
+				console.log(ev);
+				newRepeatChain.myEvents = allEvIds;
+				newRepeatChain.save(function (err, savedd) {
+					res.send(ev);
+				});
+			});
+		};
+
+		allFunctions.push(endF);
+
+		console.log('about to initailize repeat event creation...');
+		async.waterfall(allFunctions);
+
+	}
+
 });
+
+var createFunctionArray  = function (constructors) {
+	var toRet = [];
+	for (var i = 0; i < constructors.length; i++) {
+		var f = createIndividualFunction(constructors[i]);
+		toRet.push(f);
+	}
+	console.log("number functions created: " + toRet.length);
+	return toRet;
+}
+
+var createIndividualFunction = function (construct) {
+	var toRet = function (allEvIds, ev, next) {
+		var ev = new Event(construct);
+		console.log('created repeat event: ' + ev);
+		allEvIds.push(ev._id);
+		ev.save(function (err, saved) {
+			next(err, allEvIds, ev);
+		});
+	};
+
+	return toRet;
+}
 
 function createEvent(constructor) {
 	var newEvent = new Event(constructor);
@@ -127,12 +200,15 @@ function createEvent(constructor) {
 
 // creates json obj to pass into event constructor
 function createConstructorObj(req) {
+	var dStart = new Date(req.body.start);
+	var dEnd = new Date(req.body.end);
+
 	var toRet = {
 					name: req.body.name,
 					description: req.body.description,
 					location: req.body.location,
-					start: req.body.start,
-					end:req.body.end,
+					start: dStart,
+					end: dEnd,
 					calendar: req.body.calendar,
 					repeats: req.body.repeats,	
 					creator: req.session.user._id
@@ -144,6 +220,7 @@ function createConstructorObj(req) {
 	else {
 		toRet.evType = 'regular';
 	}
+
 
 	return toRet;				
 };
@@ -255,6 +332,7 @@ router.put('/:eventId', function(req, res, next) {
 
 // delete the event, the event from the calendar, and the alerts and repeats
 router.delete('/:eventId', function(req, res, next) {
+
 	Event.findOne({_id: req.params.eventId}, function(err, ev) {
 		Calendar.update({_id: ev.calendar}, {$pull: {events: ev._id}}, function(err, num, raw) {
 
@@ -273,6 +351,22 @@ router.delete('/:eventId', function(req, res, next) {
 		Request.findByIdAndRemove({_id: mongoose.Types.ObjectId(ev.requestID)}, function (err) {
 			if (err) next(err);
 		});
+
+		if (ev.repeatChain) {
+			console.log('REPEAT CHAIN: ' + ev.repeatChain);
+			RepeatChain.findOne({_id: ev.repeatChain}, function (err, repeatChain) {
+				if (err) next(err);
+				Calendar.update({_id: ev.calendar}, {$pullAll: {events: repeatChain.myEvents}}, function(err, num, raw) {
+					console.log('NUMBER DELETED: ' + num);
+					for (var i = 0; i < repeatChain.myEvents.length; i++) {
+						Event.findByIdAndRemove({_id: repeatChain.myEvents[i]}, function(err) {
+							if(err)
+								next(err);
+						});						
+					}
+				});
+			});
+		}
 
 	});
 

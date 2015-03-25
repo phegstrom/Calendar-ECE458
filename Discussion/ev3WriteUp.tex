@@ -153,15 +153,6 @@ To implement the slot sign up feature, we created an entirely new structure in t
 \noindent Lastly, we wanted the slot sign up to be easily modified or extended in the future, thus was the impetus for using the composition pattern. The \texttt{Slot} was extracted into its own model file and is therefore independent of the \texttt{SlotSignUp}. Say, for example, we wanted to add Alerts to our individual Slots. This would be as easy as creating a new \texttt{Alert} property in \texttt{Slot.js}.
 
 \subsubsection{Find Free Times}
-Find free times did not require any database changes, nor did it require any new models to be created. This requirement was solely algorithm driven and the control for this feature can be found in \texttt{freeTimeRoutes.js}. 
-
-There is one route in \texttt{freeTimeRoutes.js}: \texttt{PUT /ftr/findConflicts}.  The goal of this route is to accept users, usergroups, and a list of time slots, and return a comprehensive 'conflict summary'.
-
-First, an array of available events is created from each passed in user.  This array contains only events that the logged in user  has view, modify, or view-busy access to from the list of passed in users and user groups.  The array of all events is sorted by \texttt{start} time. On the other hand, the list of time slots is sorted by \texttt{end} time.  We then developed an algorithm to compare the array of events with the array of time slots in $O(n+m)$ time with $m$=number of events and $n$=number of time slots.  In the conflict summary, each time slot has an array of events which conflict (aka have times that interfere with the start and/or end times of the time slot). 
-
-In the conflict summary, each time slot also has an array of free times between the start and end times for the time slot. This is determined with the 'slotSize' in mind.
-
-We designed the conflict summary to be as complex and detailed as possible to minimize the number of calculations needed to be done by the front end.
 
 \subsubsection{New Implementation for Repeated Events}
 Before, our repeated events were somewhat fake and display driven. We would have one real event in the data base and simply display the event in the future if there was a repeat. We decided we wanted a more powerful approach, one that allowed for repeated events to behave similarly (deleting all at once, sharing same properties) but also behave independently. This new implementation also allowed our code for Find Free Times to run and handle the repeats properly without any additional modification.\\
@@ -253,15 +244,15 @@ The way we initially design and implemented repeated events proved to be extreme
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item I designed the finding free times feature for this evolution. While the initial modal to find free times is defined in the modalController, functions to display the conflict summary and interact with events are defined in a separate conflictSummaryModalController. We were originally not able to do this since we weren't able to define multiple controllers that needed the same data; however, the Angular services that we discussed above allowed us to share variables between scopes of different controllers which allowed us to split up the controllers into smaller, more specific files. When a free time is found in the conflict summary, I use it to populate the times in the event creation since those variables are stored in the rootScope. From there, 
 \end{enumerate}
 \item {\bf Dealing with Realistic Contraints}
 \begin{enumerate} [$\cdot$]
-\item One constraint I encountered this evolution was Javascript's asynchronicity. When creating the Free Time Slot feature, there was a race condition as I implemented the ability for the user to easily initiate event requests after finding a free time they wanted to use for a group. The issue was that I wanted to create an event, then immediately invite all of the users from the conflict summary to the event. However, the problem was that inviting the users required the event ID which wasn't being returned quickly enough from the creating event route. Because the back end had dealt with similar issues before, I initially tried to use the async library that they were using. However, after issues with bringing in the library and getting it to interact with Angular, I found that the correct way to solve this was to use promises in the \$q library included in Angular. 
+\item 
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For this front-end of this evolution, I worked on the finding free times while Wayne worked on the slot sign ups feature. Since these were very separate features, we did not interact very much throughout the evolution. We met at the beginning of the evolution to plan how we wanted to refactor our code and how we wanted to implement each new feature. Towards the end of the evolution, Peter, Parker, and I met to finish up the evolution. However, Wayne worked remotely and we interacted through messaging. We feel like debugging errors in our evolution may have been easier if we were all able to meet together.
 \end{enumerate}
 \end{enumerate}
 

@@ -38,6 +38,8 @@ data
 
 # LaTeX
 *.aux
+*.toc
+*.gz
 
 # Debug log from npm
 npm-debug.log

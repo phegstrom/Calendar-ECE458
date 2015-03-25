@@ -90,7 +90,7 @@ SlotSignUpSchema.methods.createFreeBlocksAndUpdate = function (slot, cb) {
 	}
 	console.log('freeblocks created: '+ counter);
 
-	this.freeBlocks.push(fBLocksToAdd);
+	this.freeBlocks.push(fBlocksToAdd);
 	this.freeBlocks = _.sortBy(this.freeBlocks, 'start');
 
 	this.attendees.forEach(function (attendee) {

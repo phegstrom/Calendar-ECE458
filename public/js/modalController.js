@@ -203,6 +203,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
         var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
         owningCalendar.events.push(dBEvent);
         $rootScope.events.push(calEvent);
+        $rootScope.displayEventDetails(calEvent);
       }).
       error(function(data, status, headers, config) {
         // called asynchronously if an error occurs
@@ -663,7 +664,22 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
     $http.put('/ssu/signUp/' + ssuId, selectedBlock).
     success(function(data, status, headers, config) {
-      console.log(data);
+      var newSsu = angular.fromJson(data);
+      $rootScope.selectedSsu.freeBlocks = data.freeBlocks;
+
+
+      var newAttendee = getAttendee(newSsu, $rootScope.currentUserEmail);
+      console.log(newAttendee);
+
+      var newSlot = {
+        start: selectedBlock.start,
+        end: selectedBlock.end,
+        _id: newAttendee.slots[newAttendee.slots.length - 1]
+      }
+
+      var oldAttendee = getAttendee($rootScope.selectedSsu, $rootScope.currentUserEmail);
+
+      oldAttendee.slots.push(newSlot);
       $scope.clearCurrentTimeRange();
     }).
     error(function(data, status, headers, config) {
@@ -671,7 +687,16 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
     });
   }
 
+  var getAttendee = function(newSsu, userEmail) {
+    for(var index = 0; index < newSsu.attendees.length; index++) {
+      if(newSsu.attendees[index].userEmail == userEmail) {
+        return newSsu.attendees[index];
+      }
+    }
+  }
+
   $scope.cancelSignupSlot = function(slot) {
+    console.log(slot);
     $http.put('/ssu/cancelSlot/' + slot._id).
     success(function(data, status, headers, config) {
       console.log(data);

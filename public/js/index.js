@@ -32,8 +32,6 @@ app.run(function($rootScope, $q, $http, $modal) {
     $http.get('/ssu').
     success(function(data, status, headers, config) {
       $rootScope.slotSignupsCreated = angular.fromJson(data);
-
-      console.log($rootScope.slotSignupsCreated);
     }).
     error(function(data, status, headers, config) {
       console.log('Could not retrieve list of created slot signup events.');
@@ -186,12 +184,6 @@ app.run(function($rootScope, $q, $http, $modal) {
       $rootScope.selectedEvent = event;
     }
 
-    if($rootScope.selectedEvent.canViewEvent) {}
-    else {
-      $rootScope.selectedEvent.canViewEvent = true;
-      $rootScope.selectedEvent.canEditEvent = false;
-    }
-
     //Populate request details if owner of request
     $rootScope.selectedRequest = $rootScope.getOwnRequest($rootScope.selectedEvent.requestID);
 
@@ -257,6 +249,18 @@ app.run(function($rootScope, $q, $http, $modal) {
     $modal.open({
         templateUrl: 'inviteUserModal.html',
         controller: 'modalController'
+      });
+  }
+  $rootScope.displayOwnedCalendarModal = function() {
+    $modal.open({
+        templateUrl: 'ownedCalendarModal.html',
+        controller: 'calendarModalController'
+      });
+  }
+  $rootScope.displayOtherCalendarModal = function() {
+    $modal.open({
+        templateUrl: 'otherCalendarModal.html',
+        controller: 'calendarModalController'
       });
   }
 
@@ -480,6 +484,7 @@ app.run(function($rootScope, $q, $http, $modal) {
         dBEvent.canEditEvent = canEdit;
         dBEvent.calendarName = calendar.name;
         dBEvent.calendarId = calendar._id;
+        dBEvent.name = calendar.owner.email + '\'s Event';
       });
     }
     else {

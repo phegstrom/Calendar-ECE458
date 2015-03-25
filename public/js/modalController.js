@@ -662,7 +662,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   var getAttendee = function(newSsu, userEmail) {
     for(var index = 0; index < newSsu.attendees.length; index++) {
       if(newSsu.attendees[index].userEmail == userEmail) {
-        return attendees[index];
+        return newSsu.attendees[index];
       }
     }
   }

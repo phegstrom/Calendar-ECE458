@@ -537,9 +537,7 @@ block content
             button.btn(ng-click="addUserToRequest(ssuDetails)") Add User
             p(style='display: table-cell;')
             ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
-              li(ng-repeat="user in ssuDetails.userList") {{ user }}
-                a(href, ng-click="removeUserFromRequest(user, ssuDetails)")
-                  span.glyphicon.glyphicon-remove
+              li(ng-repeat="user in ssuDetails.userList") {{ user }} a(href, ng-click="removeUserFromRequest(user, ssuDetails)") span.glyphicon.glyphicon-remove
           
           p(style="display:table-row;")
             label(style="display:table-cell;") Sign-up Section Start Time

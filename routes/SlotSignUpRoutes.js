@@ -91,7 +91,6 @@ router.post('/', function (req, res, next) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});
 			}
 
-
 			ssu.save(function (err, saved) {
 				if (err) next(err);
 
@@ -112,18 +111,16 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 	async.waterfall([
 		function (next) {
 			Slot.findOne({_id: req.params.slotId}, function (err, slot) {
-				next(err, slot);
+				SlotSignUp.findOne({_id: slot.SSU}, function (err, ssu) {
+					ssu.createFreeBlocksAndUpdate(slot, function (err, saved) {
+						next(err, saved);
+					});
+				});	
 			});
-		},
-		function (slot, next) {
-			SlotSignUp.findOne({_id: slot.SSU}, function (err, ssu) {
-				ssu.createFreeBlocksAndUpdate(slot, function (err, saved) {
-					next(err, saved);
-				});
-			});	
 		},
 		function (saved, next) {
 			Slot.findOneAndRemove({_id: req.params.slotId}, function (err) {
+				console.log('SAVED: '+saved);
 				res.send(saved);
 			});
 		}
@@ -188,12 +185,19 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			var newSlot = new Slot();
 			newSlot.useremail = req.session.user.email;
 			newSlot.SSU = ssu._id;
+
+
 			newSlot.start = startDate;
 			newSlot.end = endDate;
-			newSlot.basicBlocks = ((startDate - endDate)/60000) / ssu.minDuration;
+			var startTemp = new Date(req.body.start);
+			var endTemp = new Date(req.body.end);
+			var block = (((endTemp.getTime() - startTemp.getTime())/60000) / ssu.minDuration);
+			newSlot.basicBlocksNumber = block;
 			user.mySlots.push(newSlot);
 
-			var attendeesTemp = _.clone(ssu.attendees);
+			var jSSU = ssu.toJSON();
+
+			var attendeesTemp = jSSU.attendees;
 			ssu.attendees = null;
 
 			for(var i = 0; i < attendeesTemp.length; i++) {
@@ -204,11 +208,14 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 
 			ssu.attendees = attendeesTemp;
 
-			newSlot.save();
-			user.save();
-			ssu.save(function (err, ssuObj) {
-				res.send(ssu);
+			newSlot.save(function (err, nsSaved) {
+				user.save(function (err, uSaved) {
+					ssu.save(function (err, ssuSaved) {
+						res.send(ssuSaved);
+					});
+				});
 			});
+
 		});
 	});
 });

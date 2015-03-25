@@ -252,13 +252,13 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayOwnedCalendarModal = function() {
     $modal.open({
         templateUrl: 'ownedCalendarModal.html',
-        controller: 'ownedCalendarModalController'
+        controller: 'calendarModalController'
       });
   }
   $rootScope.displayOtherCalendarModal = function() {
     $modal.open({
         templateUrl: 'otherCalendarModal.html',
-        controller: 'otherCalendarModalController'
+        controller: 'calendarModalController'
       });
   }
 

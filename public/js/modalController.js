@@ -645,6 +645,7 @@ app.controller('modalController', function($scope, $http, $modalInstance, $rootS
   }
 
   $scope.cancelSignupSlot = function(slot) {
+    console.log(slot);
     $http.put('/ssu/cancelSlot/' + slot._id).
     success(function(data, status, headers, config) {
       console.log(data);

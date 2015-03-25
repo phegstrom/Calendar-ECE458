@@ -50,6 +50,7 @@ app.controller('sideBarController', function($scope, $http, $rootScope, modalSer
 
     $scope.selectedCalendar = calendar;
     modalService.selectedCalendar = calendar;
+    $rootScope.displayOtherCalendarModal();
   }
   // display contents of a single calendar you are owner of
   $scope.displayOwnerCalendar = function(calendar) {

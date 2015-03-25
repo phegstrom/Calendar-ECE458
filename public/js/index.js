@@ -482,7 +482,9 @@ app.run(function($rootScope, $q, $http, $modal) {
         dBEvent.canEditEvent = canEdit;
         dBEvent.calendarName = calendar.name;
         dBEvent.calendarId = calendar._id;
-        dBEvent.name = calendar.owner.email + '\'s Event';
+        if(!canView) {
+          dBEvent.name = calendar.owner.email + '\'s Event';
+        }
       });
     }
     else {

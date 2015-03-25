@@ -241,6 +241,18 @@ app.run(function($rootScope, $q, $http, $modal) {
         controller: 'modalController'
       });
   }
+  $rootScope.displayOwnedCalendarModal = function() {
+    $modal.open({
+        templateUrl: 'ownedCalendarModal.html',
+        controller: 'ownedCalendarModalController'
+      });
+  }
+  $rootScope.displayOtherCalendarModal = function() {
+    $modal.open({
+        templateUrl: 'otherCalendarModal.html',
+        controller: 'otherCalendarModalController'
+      });
+  }
 
   $rootScope.editPud = function(pud) {
     $rootScope.pudDetails = angular.copy(pud);

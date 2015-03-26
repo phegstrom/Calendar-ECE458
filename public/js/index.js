@@ -552,6 +552,50 @@ app.run(function($rootScope, $q, $http, $modal) {
     }
   }
 
+  //Email routes
+  $rootScope.emailTextSchedule = function() {
+    var startInterval = moment($rootScope.calendarDay).startOf($rootScope.calendarView).toDate();
+    var endInterval = moment($rootScope.calendarDay).endOf($rootScope.calendarView).toDate();
+    var eventList = [];
+
+    $rootScope.events.forEach(function(calEvent, index, array) {
+      var eventStart = new Date(calEvent.starts_at);
+      var eventEnd = new Date(calEvent.ends_at);
+
+      if(eventStart.getTime() <= endInterval.getTime() &&
+          eventEnd.getTime() >= startInterval.getTime()) {
+        eventList.push(calEvent.parentData);
+      }
+    });
+
+    console.log(eventList);
+
+    $http.post('schedule/text', eventList).
+    success(function(data, status, headers, config) {
+        console.log('Calendar sent.')
+      }).
+    error(function(data, status, headers, config) {
+        console.log('Failed to send calendar.');
+      });
+  }
+
+  $rootScope.emailPngSchedule = function() {
+    html2canvas(document.getElementById('calendar'), {
+    //html2canvas(document.content, {
+      logging: 'on'
+    }).then(function(canvas) {
+      console.log(canvas.toDataURL());
+
+      $http.post('schedule/image', canvas.toDataURL()).
+      success(function(data, status, headers, config) {
+          console.log('Calendar sent.')
+        }).
+      error(function(data, status, headers, config) {
+          console.log('Failed to send calendar.');
+        });
+    });
+  }
+
   $rootScope.findEvent = function(eventId) {
     for(var eventIndex=0; eventIndex < $rootScope.events.length; eventIndex++) {
       if($rootScope.events[eventIndex]._id == eventId) {

@@ -27,7 +27,7 @@ block content
               button.btn.btn-primary(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
       br
     .row
-      .col-md-8
+      .col-md-8#calendar
         mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='displayEventDetails($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
       .col-md-4
         #sideBar(ng-controller="sideBarController")
@@ -91,6 +91,9 @@ block content
             ul
               li(ng-repeat="calendar in viewBusyCalendars")
                 a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
+            .btn-group
+              button.btn.btn-primary(ng-click="emailTextSchedule()") Email Text Schedule
+              button.btn.btn-primary(ng-click="emailPngSchedule()") Email PNG Schedule
 
           #PUDEvents(ng-show="selector == 4")
             br
@@ -162,6 +165,7 @@ block content
     script(type='text/javascript', src='/js/angular-filter.min.js')
     script(type='text/javascript', src='/js/angular-bootstrap-calendar-tpls.min.js')
     script(type='text/javascript', src='/js/ui-bootstrap-tpls.min.js')
+    script(type='text/javascript', src='/js/html2canvas.js')
     script(type='text/javascript', src='/js/date.js')
     script(type='text/javascript', src='/js/index.js')
     script(type='text/javascript', src='/js/eventModalController.js')

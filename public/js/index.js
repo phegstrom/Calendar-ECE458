@@ -205,7 +205,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $modal.open({
         templateUrl: '/modal/eventDetailsModal',
-        controller: 'modalController'
+        controller: 'eventModalController'
       });
     //console.log($rootScope.selectedEvent);
   }
@@ -214,7 +214,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     $rootScope.freeTimeEvent = false;
     $modal.open({
         templateUrl: '/modal/createEventModal',
-        controller: 'modalController'
+        controller: 'eventModalController'
       });
   }
 
@@ -228,7 +228,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayFindFreeTimeModal = function() {
     $modal.open({
       templateUrl: '/modal/findFreeTimeModal',
-      controller: 'modalController'
+      controller: 'eventModalController'
     });
   }
 
@@ -249,7 +249,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayInviteUserModal = function() {
     $modal.open({
         templateUrl: '/modal/inviteUserModal',
-        controller: 'modalController'
+        controller: 'eventModalController'
       });
   }
   $rootScope.displayOwnedCalendarModal = function() {
@@ -280,7 +280,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreatePudModal = function() {
     $modal.open({
       templateUrl: '/modal/createPudModal',
-      controller: 'modalController'
+      controller: 'pudModalController'
     });
   }
 
@@ -289,7 +289,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $modal.open({
         templateUrl: '/modal/ssuDetailsModal',
-        controller: 'modalController'
+        controller: 'ssuModalController'
       });
     console.log($rootScope.selectedSsu);
   }
@@ -297,7 +297,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreateSsuModal = function() {
     $modal.open({
       templateUrl: '/modal/createSsuModal',
-      controller: 'modalController'
+      controller: 'ssuModalController'
     });
   }
 
@@ -312,7 +312,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     $modal.open({
       templateUrl: '/modal/ssuSignupModal',
-      controller: 'modalController'
+      controller: 'ssuModalController'
     });
   }
 

@@ -28,6 +28,8 @@ app.controller('eventModalController', function($scope, $http, $q, $modalInstanc
 
   $scope.conflictSummary = [];
 
+  $scope.testDate = 'today';
+
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
   };
@@ -462,6 +464,87 @@ app.controller('eventModalController', function($scope, $http, $q, $modalInstanc
     if(userIndex != -1) {
       details.userList.splice(userIndex, 1);
     }
+  }
+
+  //Bulk Add Events
+  $scope.parsedDate = function(date) {
+    if(date == undefined) {
+      return 'undefined';
+    }
+
+    var parsedValue = Date.parse(date);
+
+    if(parsedValue != undefined) {
+      parsedValue = parsedValue.toLocaleString();
+    }
+
+    return parsedValue;
+  }
+
+  $scope.bulkAddEvents = function(eventsString) {
+    var elementArray = eventsString.split('\n');
+    var eventArray = [];
+
+    if(elementArray.length % 4 != 0) {
+      $scope.bulkAddErrorText = 'Improper number of lines, remember to include a name, description, start, and end time for each event.';
+      return;
+    }
+
+    for(var elementIndex=0; elementIndex < elementArray.length; elementIndex+=4) {
+      var name = elementArray[elementIndex];
+      var description = elementArray[elementIndex+1];
+      var start = Date.parse(elementArray[elementIndex+2]);
+      var end = Date.parse(elementArray[elementIndex+3]);
+
+      if(start == undefined) {
+        $scope.bulkAddErrorText = 'Error for date: ' + elementArray[elementIndex+2];
+        return;
+      }
+      else if(end == undefined) {
+        $scope.bulkAddErrorText = 'Error for date: ' + elementArray[elementIndex+3];
+        return;
+      }
+
+      var newEvent = new Object();
+      newEvent = {
+        name: name,
+        description: description,
+        evType: 'regular',
+        location: '',
+        start: start,
+        end: end,
+        calendar: $scope.bulkAddCalendar._id
+      }
+
+      console.log(newEvent);
+
+      eventArray.push(newEvent);
+    }
+
+    eventArray.forEach(function(eventDetails, index, array) {
+      $http.post('/event', eventDetails).
+      success(function(data, status, headers, config) {
+        var dBEvent = angular.fromJson(data);
+        console.log(dBEvent);
+        console.log(eventDetails);
+        var owningCalendar = $rootScope.getCalendar(eventDetails.calendar);
+
+        var tempCalendar = {
+          events: [dBEvent],
+          name: owningCalendar.name,
+          _id: owningCalendar._id
+        };
+        $rootScope.setEventData(tempCalendar, owningCalendar.evType, true, true, dBEvent);
+
+        var calEvent = $rootScope.convertDBEventToCalEvent(dBEvent);
+        owningCalendar.events.push(dBEvent);
+        $rootScope.events.push(calEvent);
+      }).
+      error(function(data, status, headers, config) {
+        // called asynchronously if an error occurs
+        // or server returns response with an error status.
+      });
+    });
   }
 
 });

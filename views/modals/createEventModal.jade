@@ -79,3 +79,5 @@
     button.btn.btn-primary(type="submit", ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
     br
     button.btn.btn-primary(ng-show="freeTimeEvent", type="submit", ng-disabled="eventForm.$invalid", ng-click="sendAndInviteUsers()", data-dismiss='modal') Save and Invite Users
+    br
+    button.btn.btn-primary(ng-click="displayBulkAddEventsModal()", data-dismiss='modal') Bulk Add Events

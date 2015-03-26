@@ -218,6 +218,14 @@ app.run(function($rootScope, $q, $http, $modal) {
       });
   }
 
+  $rootScope.displayBulkAddEventsModal = function() {
+    $rootScope.freeTimeEvent = false;
+    $modal.open({
+        templateUrl: '/modal/bulkAddEventsModal',
+        controller: 'eventModalController'
+      });
+  }
+
   $rootScope.displayAddRuleModal = function() {
     $modal.open({
         templateUrl: '/modal/addRuleModal',

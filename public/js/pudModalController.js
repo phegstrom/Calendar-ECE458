@@ -27,6 +27,10 @@ app.controller('pudModalController', function($scope, $http, $q, $modalInstance,
       pudDetails.alertInterv = 0;
     }
 
+    if(!$rootScope.isValidTime(pudDetails.expirationDate)) {
+      pudDetails.expirationDate = undefined;
+    }
+
     console.log(pudDetails);
 
     var request = {};

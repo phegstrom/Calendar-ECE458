@@ -43,7 +43,7 @@
       button.btn(ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
     ul
      li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
-       a(href ng-click="removeAlert(time)")
+       a(href="#", ng-click="removeAlert(time)")
         span(class="glyphicon glyphicon-remove")
     label For PUD?
     | &nbsp;

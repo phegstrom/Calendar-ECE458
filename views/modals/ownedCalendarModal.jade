@@ -8,12 +8,12 @@
   b Events 
   ul
     li(ng-repeat="event in selectedCalendar.events")
-      a(href ng-click="displayEventDetails(event)") {{ event.name }}
+      a(href="#", ng-click="displayEventDetails(event)") {{ event.name }}
   b Rules 
   ul
     li(ng-repeat="rule in selectedCalendar.rules")
       | {{ rule.ruleType + " " }}
-      a(href, ng-click="deleteRule(rule._id)")
+      a(href="#", ng-click="deleteRule(rule._id)")
         span(class="glyphicon glyphicon-remove")
       br
       | Groups 
@@ -26,7 +26,7 @@
   ul
     li(ng-repeat="modUser in selectedCalendar.modList")
       | {{ getUserEmail(modUser) + " " }}
-      a(href, ng-click="removeModUser(getUserEmail(modUser))")
+      a(href="#", ng-click="removeModUser(getUserEmail(modUser))")
         span(class="glyphicon glyphicon-remove")
   hr
   button.btn.btn-primary(ng-click="displayAddRuleModal()") Add Rule

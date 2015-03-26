@@ -24,7 +24,7 @@
           | Invited Users
         p(ng-repeat="user in selectedSsu.attendees")
           | {{ user.userEmail }}
-          ul(ng-show="user.slots.length > 0")
+          ul
             li(ng-repeat="slot in user.slots") {{ convertDates(slot.start, slot.end) }}
   .row
     hr

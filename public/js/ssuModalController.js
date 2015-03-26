@@ -105,6 +105,8 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
     success(function(data, status, headers, config) {
       $rootScope.slotSignupsCreated.push(angular.fromJson(data));
       $scope.ssuDetails = {};
+
+      $scope.cancel();
     }).
     error(function(data, status, headers, config) {
       console.log('Failed to create sign-up event.');

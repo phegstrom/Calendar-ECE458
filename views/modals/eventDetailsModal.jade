@@ -1,0 +1,56 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title(ng-hide="selectedEvent.canViewEvent") Event
+  h4#myModalLabel.modal-title(ng-show="selectedEvent.canViewEvent") {{ selectedEvent.name }}
+.modal-body
+  .row
+    .col-md-6
+      div(ng-show="selectedEvent.canViewEvent")
+        p(ng-show="selectedEvent.description")
+          b Description 
+          | {{ selectedEvent.description }}
+      div
+        p
+          b When 
+          | {{convertDates(selectedEvent.start, selectedEvent.end)}}
+      div(ng-show="selectedEvent.canViewEvent")
+        p(ng-show="selectedEvent.location")
+          b Where 
+          | {{ selectedEvent.location }}
+        p(ng-show="selectedEvent.pudDetails")
+          b To-Do
+          | {{ " " + selectedEvent.pudDetails }}
+      p
+        b Calendar 
+        | {{ selectedEvent.calendarName }}
+      div(ng-show="selectedEvent.canViewEvent")
+        div(ng-hide="selectedEvent.alerts == null")
+          b Alerts
+          ul
+            li(ng-repeat="alert in selectedEvent.alerts") {{ alert.time.toLocaleString() + " by " + alert.method }}
+        div(ng-hide="selectedEvent.willRepeat == null")
+          h4 Repeats?
+          p {{ selectedEvent.willRepeat }}
+            div(ng-show="selectedEvent.willRepeat")
+              p(ng-show="eventDetails.repeatMode == 'Number'") Repeats for {{ eventDetails.repeatCount }} iterations.
+              p(ng-show="eventDetails.repeatMode == 'End Date'") Repeats until {{ eventDetails.repeatUntil }}.
+      h3(ng-show="selectedEvent.repeats.length > 0") Part of a series of events.
+    .col-md-6
+      div(ng-show="selectedRequest")
+        p
+          b 
+            | Invite Information
+        p
+          | {{ selectedRequest.info }}
+        p
+          b
+            | User Invite Statuses
+          p(ng-repeat="userId in selectedRequest.userIDs")
+            | {{ getUserEmail(userId) + ": " + selectedRequest.usersStatus[userId].status }}
+  .row
+    hr
+    | &nbsp;
+    .btn-group
+      button.btn.btn-primary.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="editSelectedEvent()") Edit Event
+      button.btn.btn-danger.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="deleteSelectedEvent()") Delete Event
+      button.btn.btn-warning.btn-sm(ng-disabled="!selectedEvent.canEditEvent", ng-click="inviteUsers()") Invite Users

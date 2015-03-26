@@ -204,7 +204,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     }
 
     $modal.open({
-        templateUrl: 'eventDetailsModal.html',
+        templateUrl: '/modal/eventDetailsModal',
         controller: 'modalController'
       });
     //console.log($rootScope.selectedEvent);
@@ -213,54 +213,54 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displayCreateEventModal = function() {
     $rootScope.freeTimeEvent = false;
     $modal.open({
-        templateUrl: 'createEventModal.html',
+        templateUrl: '/modal/createEventModal',
         controller: 'modalController'
       });
   }
 
   $rootScope.displayAddRuleModal = function() {
     $modal.open({
-        templateUrl: 'addRuleModal.html',
+        templateUrl: '/modal/addRuleModal',
         controller: 'addRuleModalController'
       });
   }
 
   $rootScope.displayFindFreeTimeModal = function() {
     $modal.open({
-      templateUrl: 'findFreeTimeModal.html',
+      templateUrl: '/modal/findFreeTimeModal',
       controller: 'modalController'
     });
   }
 
   $rootScope.displayConflictSummaryModal = function() {
     $modal.open({
-      templateUrl: 'conflictSummaryModal.html',
+      templateUrl: '/modal/conflictSummaryModal',
       controller: 'conflictSummaryModalController'
     });
   }
 
   $rootScope.displayAddUsersModal = function() {
     $modal.open({
-      templateUrl: 'addUserModal.html',
+      templateUrl: '/modal/addUserModal',
       controller: 'addUserModalController'
     });
   }
 
   $rootScope.displayInviteUserModal = function() {
     $modal.open({
-        templateUrl: 'inviteUserModal.html',
+        templateUrl: '/modal/inviteUserModal',
         controller: 'modalController'
       });
   }
   $rootScope.displayOwnedCalendarModal = function() {
     $modal.open({
-        templateUrl: 'ownedCalendarModal.html',
+        templateUrl: '/modal/ownedCalendarModal',
         controller: 'calendarModalController'
       });
   }
   $rootScope.displayOtherCalendarModal = function() {
     $modal.open({
-        templateUrl: 'otherCalendarModal.html',
+        templateUrl: '/modal/otherCalendarModal',
         controller: 'calendarModalController'
       });
   }
@@ -279,7 +279,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
   $rootScope.displayCreatePudModal = function() {
     $modal.open({
-      templateUrl: 'createPudModal.html',
+      templateUrl: '/modal/createPudModal',
       controller: 'modalController'
     });
   }
@@ -288,7 +288,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     $rootScope.selectedSsu = ssuEvent;
 
     $modal.open({
-        templateUrl: 'ssuDetailsModal.html',
+        templateUrl: '/modal/ssuDetailsModal',
         controller: 'modalController'
       });
     console.log($rootScope.selectedSsu);
@@ -296,7 +296,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
   $rootScope.displayCreateSsuModal = function() {
     $modal.open({
-      templateUrl: 'createSsuModal.html',
+      templateUrl: '/modal/createSsuModal',
       controller: 'modalController'
     });
   }
@@ -311,7 +311,7 @@ app.run(function($rootScope, $q, $http, $modal) {
     }
 
     $modal.open({
-      templateUrl: 'ssuSignupModal.html',
+      templateUrl: '/modal/ssuSignupModal',
       controller: 'modalController'
     });
   }

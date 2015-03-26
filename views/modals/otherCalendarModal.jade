@@ -1,0 +1,11 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title() {{ selectedCalendar.name }}
+.modal-body
+  b Owner 
+    | {{ selectedCalendar.owner.name }}
+  br
+  b Events 
+  ul
+    li(ng-repeat="event in selectedCalendar.events")
+      a(href ng-click="displayEventDetails(event)") {{ event.name }}

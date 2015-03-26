@@ -1,0 +1,28 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title Invite Users to {{ selectedEvent.name }}
+.modal-body
+  form.navbar-form(style="padding: 0; display: table;", name="UserInvite")
+    p(style="display: table-row;")
+      label(style="display: table-cell;") Description
+      textarea.form-control(style="display: table-cell;", rows="2", cols="40", ng-model="requestDetails.description", placeholder="Invite Description")
+    br
+    p(style="display: table-row;")
+      label(style="display: table-cell;") User Groups
+      | &nbsp;
+      select.form-control(style="display:table-cell;", ng-model="selectedGroup", ng-options="group.name for group in userGroups")
+      | &nbsp;
+      button.btn(ng-click="addUserGroupToRequest(requestDetails)") Add User Group
+      p(style='display: table-cell;')
+      ul
+        li(ng-repeat="userGroup in requestDetails.userGroups") {{ userGroup.name }}
+    p(style="display: table-row;")
+      Label(style="display: table-cell;") Users
+      input.form-control(style="display: table-cell", type="text", ng-model="userEmail", list="emails")
+      | &nbsp;
+      button.btn(ng-click="addUserToRequest(requestDetails)") Add User
+      p(style='display: table-cell;')
+      ul(style='display: table-cell; list-style-type: none; padding-left: 10px;')
+        li(ng-repeat="user in requestDetails.userList") {{ user }}
+  .btn-group
+    button.btn.btn-primary(ng-click="sendUserInvites()") Send Invites

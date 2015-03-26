@@ -1,0 +1,34 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title() {{ selectedCalendar.name }}
+.modal-body
+  b Owner 
+  | {{ selectedCalendar.owner.name }}
+  br
+  b Events 
+  ul
+    li(ng-repeat="event in selectedCalendar.events")
+      a(href ng-click="displayEventDetails(event)") {{ event.name }}
+  b Rules 
+  ul
+    li(ng-repeat="rule in selectedCalendar.rules")
+      | {{ rule.ruleType + " " }}
+      a(href, ng-click="deleteRule(rule._id)")
+        span(class="glyphicon glyphicon-remove")
+      br
+      | Groups 
+      ul
+        li(ng-repeat="group in rule.assocUserGroups") {{ group.name }}
+      | Users 
+      ul
+        li(ng-repeat="user in rule.assocUsers") {{ user.email }}
+  b Users with Modify 
+  ul
+    li(ng-repeat="modUser in selectedCalendar.modList")
+      | {{ getUserEmail(modUser) + " " }}
+      a(href, ng-click="removeModUser(getUserEmail(modUser))")
+        span(class="glyphicon glyphicon-remove")
+  hr
+  button.btn.btn-primary(ng-click="displayAddRuleModal()") Add Rule
+  | &nbsp;
+  button.btn.btn-primary(ng-click="displayAddUsersModal()") Add Users with Modify

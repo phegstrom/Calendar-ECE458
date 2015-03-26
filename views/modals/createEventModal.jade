@@ -1,0 +1,81 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title Create Event
+.modal-body
+  form.navbar-form(style="display: table;", name="eventForm")
+    p(style="display:table-row;")
+      label(style="display:table-cell;") Event Name
+      //br
+      input.form-control(style="display:table-cell;", type="text", ng-model="eventDetails.name", placeholder="Event Name", required)
+    br
+    p(style="display:table-row;")
+      label(style="display:table-cell;") Description
+      //br
+      textarea.form-control(style="display:table-cell;", rows="4", cols="50", ng-model="eventDetails.description", placeholder="Description")
+    br
+    p(style="display:table-row;")
+      label(style="display:table-cell;") Location
+      //br
+      input.form-control(style="display:table-cell;", type="text", ng-model="eventDetails.location", placeholder="Location")
+    br
+    //
+      label All Day?
+      input(type="checkbox", ng-model="eventDetails.isAllDay")
+    p(style="display:table-row;")
+      label(style="display:table-cell;") Start Time
+      //br
+      input.form-control(style="display:table-cell;", type="datetime-local", ng-model="eventDetails.start", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+      | &nbsp;
+      button.btn.btn-primary(ng-click="displayFindFreeTimeModal()") Find Free Times
+    br
+    p(style="display:table-row;")
+      label(style="display:table-cell;") End Time
+      //br
+      input.form-control(style="display:table-cell;", type="datetime-local", ng-model="eventDetails.end", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00", required)
+    br
+
+    //Currently this naively assumes the date in alertTime is valid
+    p(style="display:table-row;")
+      label(style="display:table-cell;") Add Alert
+      //br
+      input.form-control(style="display:table-cell;", type="datetime-local", ng-model="alertTime", name="alertTimeInput", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+      | &nbsp;
+      button.btn(ng-disabled="!isValidTime(alertTime)", ng-click="addAlert()") Add Alert
+    ul
+     li(ng-repeat="time in eventDetails.alerts") {{ time.toLocaleTimeString() + "  " }}
+       a(href ng-click="removeAlert(time)")
+        span(class="glyphicon glyphicon-remove")
+    label For PUD?
+    | &nbsp;
+    input(type="checkbox", ng-model="eventDetails.isPUD")
+    br
+    label Repeat? &nbsp;
+    input(type="checkbox", ng-model="eventDetails.willRepeat")
+    br
+    div(ng-hide="!eventDetails.willRepeat")
+      label Repeat Mode
+      select.form-control(ng-model="eventDetails.repeatMode", placeholder="Select an Option")
+        option Number
+        option End Date
+      br
+      div(ng-hide="eventDetails.repeatMode != 'Number'")
+        label Repeat Count
+        br
+        input.form-control(type="text", ng-model="eventDetails.repeatCount", placeholder="Enter an Integer", ng-pattern="/[0-9]+/")
+        br
+      div(ng-hide="eventDetails.repeatMode != 'End Date'")
+        label End Date
+        br
+        input.form-control(type="date", ng-model="eventDetails.repeatUntil", placeholder="yyyy-MM-dd")
+        br
+      div(ng-repeat="day in daysOfTheWeek")
+        label {{ day.name }} &nbsp;
+        input(type="checkbox", ng-model="eventDetails.weekdayRepeats[day.number]")
+    p(style="display:table-row;")
+      label(style="display:table-cell;") Containing Calendar
+      | &nbsp;
+      select.form-control(style="display:table-cell;", ng-model="eventDetails.calendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
+    input.form-control(type="text", ng-model="selectedEvent._id", ng-hide="true")
+    button.btn.btn-primary(type="submit", ng-disabled="eventForm.$invalid", ng-click="sendEventData()", data-dismiss='modal') Save
+    br
+    button.btn.btn-primary(ng-show="freeTimeEvent", type="submit", ng-disabled="eventForm.$invalid", ng-click="sendAndInviteUsers()", data-dismiss='modal') Save and Invite Users

@@ -1,0 +1,33 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title() {{ selectedSsu.name }}
+.modal-body
+  .row
+    .col-md-6
+      p(ng-show="selectedSsu.description")
+        b Description 
+        | {{ selectedSsu.description }}
+      p
+        b Maximum Sign-Up Duration 
+        | {{ selectedSsu.maxDuration + ' Minutes' }}
+      p
+        b Max Sign-Ups per Attendee 
+        | {{ selectedSsu.maxPerUser }}
+      p
+        b Free Time Slots
+        ul(ng-show="selectedSsu.freeBlocks.length > 0")
+          li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
+      
+    .col-md-6
+      p
+        b 
+          | Invited Users
+        p(ng-repeat="user in selectedSsu.attendees")
+          | {{ user.userEmail }}
+          ul(ng-show="user.slots.length > 0")
+            li(ng-repeat="slot in user.slots") {{ convertDates(slot.start, slot.end) }}
+  .row
+    hr
+    | &nbsp;
+    .btn-group
+      button.btn.btn-danger.btn-sm(ng-click="deleteSignUpEvent(selectedSsu)") Delete Sign-Up Event

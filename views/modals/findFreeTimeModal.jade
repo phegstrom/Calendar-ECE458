@@ -1,0 +1,51 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4.modal-title Find Free Times
+.modal-body
+    form.navbar-form(style="display: table;", name="findFreeTimeForm")
+      p(style="display: table-row;")
+        label(style="display: table-cell;") User Group
+        select.form-control(ng-model="userGroup", ng-options="group.name for group in userGroups")
+        | &nbsp;
+        button.btn(ng-click="addUserGroupToFreeRequest()") Add User Group
+        p(style="display: table-cell;")
+          ul
+            li(ng-repeat="displayGroup in freeUserGroupDisplay") {{ displayGroup }}
+      p(style="display: table-row;")
+        label(style="display: table-cell;") User Email
+        input.form-control(type="text", ng-model="freeUserEmail", list="emails")
+        | &nbsp;
+        button.btn(ng-click="addFreeUserToList()") Add User
+        p(style="display: table-cell;")
+          ul
+            li(ng-repeat="userEmail in freeTimeDetails.userEmails") {{ userEmail }}
+      p(style="display: table-row;")
+        p(style="display: table-cell;")
+          label Recurring
+          | &nbsp;
+          input(type="checkbox", ng-model="isRecurring")
+        input.form-control(type="text", ng-show="isRecurring", ng-model="freeTimeDetails.recurrence", placeholder="# weeks to repeat")
+        br
+      p(style="display: table-row;")
+        label(style="display: table-cell;") Time Slot Size
+        | &nbsp;
+        input.form-control(type="text", ng-model="freeTimeDetails.slotSize", placeholder="Size in minutes", required)
+      br
+      p(style="display: table-row;")
+        label(style="display: table-cell;") Time Slot Start
+        | &nbsp;
+        input.form-control(type="datetime-local", ng-model="timeSlotStart", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+      br
+      p(style="display: table-row;")
+        label(style="display: table-cell;") Time Slot End
+        | &nbsp;
+        input.form-control(type="datetime-local", ng-model="timeSlotEnd", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00" max="2050-12-31T00:00")
+        | &nbsp;
+        button.btn.btn-primary(ng-click="addTimeSlot()") Add Time Slot
+      p(style="display: table-row;")
+        p(style="display: table-cell;")
+          ul
+            li(ng-repeat="slot in freeTimeDetails.timeSlot") {{ convertDates(slot.startTime, slot.endTime) }}
+      br
+      p(style="display:table-row;")
+        button.btn.btn-primary(ng-disabled="findFreeTimeForm.$invalid", ng-click="findFreeTimes()") Find Free Times

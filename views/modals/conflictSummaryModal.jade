@@ -1,0 +1,21 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title() Conflict Summary
+.modal-body
+  ul
+    li(ng-repeat="summary in conflictSummary")
+      h4
+        u {{ convertDates(summary.timeSlot.start, summary.timeSlot.end) }} ({{summary.conflicts.length}} conflicts)
+      a(href, ng-click="toggleConflictDetails(summary)") Conflicts
+      ul(ng-show="summary.showDetails")
+        li(ng-repeat="conflict in summary.conflicts")
+          b {{conflict.emailKey}} 
+          | has 
+          b {{conflict.name}} 
+          | at 
+          b {{convertDates(conflict.start, conflict.end)}}
+      br
+      | Free Times
+      ul
+        li(ng-repeat="free in summary.freeTimes")
+          a(href, ng-click="chooseEventTime(free.start, free.end)") {{ convertDates(free.start, free.end) }}

@@ -36,6 +36,9 @@ bower_components
 # MongoDB Data? (using the data folder in this folder for the database)
 data
 
+# OS X .DS_Store
+.DS_Store
+
 # LaTeX
 *.aux
 *.toc

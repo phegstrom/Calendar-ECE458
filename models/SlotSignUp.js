@@ -27,20 +27,37 @@ var SlotSignUpSchema = new Schema({
 }, {collection: collectionName});
 
 SlotSignUpSchema.methods.takeFreeBlocks = function (startDate, endDate) {
-	var start = new Date(startDate);
-	var end = new Date(endDate);
-	for (var i = 0; i < this.freeBlocks.length; i++) {
-		var currBlock = this.freeBlocks[i];
-		if(currBlock.start.getTime() <= start.getTime() && currBlock.end.getTime() >= end.getTime()) {
-			this.freeBlocks.splice(i, 1);
+	var newStart = new Date(startDate);
+	var newEnd = new Date(startDate);
+	newEnd.setMinutes(newEnd.getMinutes() + this.minDuration);
+	var finalEnd = new Date(endDate);
 
-			if(currBlock.end.getTime() != end.getTime()) {
-				this.freeBlocks.splice(i, 0, {start: end, end: currBlock.end});
-			}
-			if(currBlock.start.getTime() != start.getTime()) {
-				this.freeBlocks.splice(i, 0, {start: currBlock.start, end: start});
+	var bool = true;
+
+	while(bool) {
+		if(newEnd.getTime() > finalEnd.getTime()) {
+			newEnd = finalEnd;
+			bool = false;
+		}
+
+		for (var i = 0; i < this.freeBlocks.length; i++) {
+			var currBlock = this.freeBlocks[i];
+
+			if(currBlock.start.getTime() <= newStart.getTime() && currBlock.end.getTime() >= newEnd.getTime()) {
+				console.log("removed: "+this.freeBlocks[i].start);
+				this.freeBlocks.splice(i, 1);
+
+				if(currBlock.end.getTime() != newEnd.getTime()) {
+					this.freeBlocks.splice(i, 0, {start: newEnd, end: currBlock.end});
+				}
+				if(currBlock.start.getTime() != newStart.getTime()) {
+					this.freeBlocks.splice(i, 0, {start: currBlock.start, end: newStart});
+				}
+				break;
 			}
 		}
+		newStart.setMinutes(newStart.getMinutes() + this.minDuration);
+		newEnd.setMinutes(newEnd.getMinutes() + this.minDuration);		
 	}
 
 	this.save();

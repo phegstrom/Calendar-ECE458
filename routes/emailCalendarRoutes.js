@@ -3,6 +3,7 @@ var User 		= require('../models/User');
 var Calendar 	= require('../models/Calendar');
 var _ 			= require('underscore');
 var nodemailer 	= require('nodemailer');
+var fs = require('fs');
 var router 		= express.Router();
 
 
@@ -26,11 +27,28 @@ router.post('/text', function (req, res, next) {
 
 // sends link to a picture of the calendar
 router.post('/image', function (req, res, next) {
-	console.log(req.body);
+	
+
+	var string = req.body.image;
+	var regex = /^data:.+\/(.+);base64,(.*)$/;
+
+	var matches = string.match(regex);
+	var ext = matches[1];
+	var data = matches[2];
+	var buffer = new Buffer(data, 'base64');
+	fs.writeFileSync('./public/images/screenShots/calendarIMG.' + ext, buffer);
+
+
 	var htmlString = createImageEmailHtml(req.body.image);
 	var options = setOptions(htmlString, req.session.user.email, 'Image Version of Calendar');
+	options.attachments = [{   
+            			filename: 'calendarIMG.png',
+            			path: './calendarIMG.png' // stream this file
+        				}];
+    console.log(options);
 	sendEmail(options, htmlString);	
-	res.send(req.body);
+
+	res.send('image processed');
 });
 
 
@@ -56,7 +74,7 @@ function setOptions(htmlString, email, subject) {
         from: 'soCal Staff <soCalStaff@gamil.com>', // sender address', // sender address
         to: email, // list of receivers
         subject: subject, // Subject line
-        text: 'See below for your event information:', // plaintext body
+        //text: 'See below for your event information:', // plaintext body
         html: htmlString // html body
     }; 
 
@@ -102,9 +120,7 @@ function createTextEmailHtml(eventArray) {
 // takes in Alert populated with Event object
 function createImageEmailHtml(url) {
 	var toRet = '';
-	toRet += 'Please follow the link below to view a PNG image of your calendar! <br>';
-	toRet += url + '<br><br>'
-
+	toRet += 'Please see attachement to view a PNG image of your calendar! <br>';
 	var date = new Date();
     
             

@@ -10,8 +10,8 @@ var PUDSchema = new Schema({
 	repeatInterval: Number, // days BUT SHOULD CHANGE TO MINUTES
 	alertInterval: Number, // minutes
 	alert: {type: Schema.Types.ObjectId, ref: 'Alert', default: null},
-	expDate: {type: Date},
-	willEscalate: {type: Boolean}
+	expDate: {type: Date, default: null},
+	willEscalate: {type: Boolean, default: false}
 }, {collection: collectionName});
 
 function toHours(n) {

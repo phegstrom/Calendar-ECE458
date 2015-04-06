@@ -30,6 +30,32 @@ UserSchema.plugin(passportLocalMongoose, options);
 
 UserSchema.plugin(deepPopulate);
 
+UserSchema.methods.reorderPUDs = function () {
+	// populate PUDs
+
+	var toEscalate = [];
+	var notToEscalate = [];
+	var jsonPUDs = this.toJSON().PUDs;
+
+	for(var i = 0; i < jsonPUDs.length; i++) {
+		var jsonPUD = jsonPUDs[i];
+		jsonPUD.index = i;
+		if(jsonPUD.willEscalate)
+			toEscalate.push(jsonPUD);
+		else
+			notToEscalate.push(jsonPUD);
+	}
+
+	// loop through toEscalate and decrement index
+	// if one to the left is 1 away, don't decrement
+	for(var j = 0; j < toEscalate.length; j++) {
+
+	}
+
+	// merge toEscalate and notToEscalate
+
+}
+
 // returns a promise that will give access to array of ids
 UserSchema.statics.convertToIds = function (emails) {
 	return this.find({email: {$in: emails}}, '_id').exec();

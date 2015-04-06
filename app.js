@@ -28,6 +28,7 @@ var PUDRoutes = require('./routes/PUDRoutes');
 var ssuRoutes = require('./routes/SlotSignUpRoutes');
 var freeTimeRoutes = require('./routes/freeTimeRoutes');
 var modalRenderRoutes = require('./routes/modalRenderRoutes');
+var emailScheduleRoutes = require('./routes/emailCalendarRoutes');
 
 var app = express();
 
@@ -133,6 +134,7 @@ app.use('/ssu', requireLogin, ssuRoutes);
 // app.use('/ftr', peterPostMANTest, freeTimeRoutes);
 app.use('/ftr', requireLogin, freeTimeRoutes);
 app.use('/modal', requireLogin, modalRenderRoutes);
+app.use('/schedule', emailScheduleRoutes);
 
 // insert specific user id here when testing with POSTman
 function postMANTest(req, res, next) {

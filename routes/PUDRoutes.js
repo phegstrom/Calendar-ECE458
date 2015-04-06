@@ -5,7 +5,33 @@ var Event 		= require('../models/Event');
 var Alert		= require('../models/Alert');
 var router 		= express.Router();
 
+// repeats PUDremove
+setInterval(PUDremove, 1000 * 30);
+setInterval(PUDreorder, 1000 * 5);
 
+function PUDreorder() {
+	User.find()
+		.populate('PUDs')
+		.exec(function (err, userArr) {
+			userArr.forEach(function (user) {
+				user.reorderPUDs();
+			});
+		});
+}
+
+function PUDremove() {
+	var currDate = new Date();
+	PUD.find(function (err, pudArr) {
+		pudArr.forEach(function (pud) {
+			if(pud.expDate != null &&pud.expDate < currDate) {
+				console.log(pud.expDate + " is before " + currDate);
+				console.log("deleting");
+				PUD.findByIdAndRemove({_id: pud._id}, function (err) {
+				});
+			}
+		});
+	});
+}
 
 // creates a PUD associated with logged in user
 router.post('/createPUD', function (req, res, next) {
@@ -27,7 +53,9 @@ router.post('/createPUD', function (req, res, next) {
 		var aId = createAlert(req.body.alert, newPUD, req);
 		newPUD.alert = aId;
 	}
-		
+
+	newPUD.expDate = req.body.expirationDate;
+	newPUD.willEscalate = req.body.willEscalate;
 
 	// for POSTman
 	var uid = req.session.user._id;

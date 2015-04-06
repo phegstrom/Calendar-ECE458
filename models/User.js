@@ -17,7 +17,7 @@ var UserSchema = new Schema({
 	userGroups: [{type: Schema.Types.ObjectId, ref: 'UserGroup'}],
 	eventRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}], // ev requests sent to me
 	createdRequests: [{type: Schema.Types.ObjectId, ref: 'Request'}], 
-	PUDs: [{type: Schema.Types.ObjectId, ref: 'PUD'}],
+	PUDs: [{type: Schema.Types.ObjectId, ref: 'PUD'}], // PUDs[0] = highest priority		
 	createdSSEvents: [{type: Schema.Types.ObjectId, ref: 'SlotSignUp'}],
 	SSEvents: [{type: Schema.Types.ObjectId, ref: 'SlotSignUp'}], // ssu requests sent to me
 	mySlots: [{type: Schema.Types.ObjectId, ref: 'Slot'}],

@@ -570,7 +570,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
     console.log(eventList);
 
-    $http.post('schedule/text', eventList).
+    $http.post('/schedule/text', eventList).
     success(function(data, status, headers, config) {
         console.log('Calendar sent.')
       }).
@@ -586,7 +586,11 @@ app.run(function($rootScope, $q, $http, $modal) {
     }).then(function(canvas) {
       console.log(canvas.toDataURL());
 
-      $http.post('schedule/image', canvas.toDataURL()).
+      var calendarImage = {
+        image: canvas.toDataURL()
+      }
+
+      $http.post('/schedule/image', calendarImage).
       success(function(data, status, headers, config) {
           console.log('Calendar sent.')
         }).

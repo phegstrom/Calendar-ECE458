@@ -127,7 +127,7 @@ In this evolution, we added two new features to our shared calendar web applicat
 
 \section{Overall Design}
 
-The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another members' code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
+The overarching design principle we wanted to achieve was modularity. In doing so, we believed we would be able to work separately (with occasional meetings to work through minor problems with the API) and refactor without the worry of breaking another \dcomment{member's} code. Figure \ref{design} below shows a high level diagram of how we decided to design our calendar web application.
 
 \begin{figure}[htb]
 \centering
@@ -138,13 +138,15 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 
 \noindent Essentially, our back end team provides an exhaustive RESTful API service to our front end. As we received the new requirements for evolution two, the benefits of our modular design came to light as we met to discuss both the refactorings from evolution one that needed to be done and the edits to each modules system design in order to account for the added calendar functionality--event requests and persistent until done events.\\
 
-\noindent At the beginning of evolution three, our group spent four days simply refactoring and making large design change decisions. The back-end did undergo one major change as we now handle repeated events differently. The front-end also made a fundamental change with how Angular controllers are implemented. These will be further discussed in the following section.\\
+\noindent At the beginning of evolution three, our group spent four days simply refactoring and making large design change decisions.  The back-end did undergo one major change as we now handle repeated events differently. The front-end also made a fundamental change with how Angular controllers are implemented. These will be further discussed in the following section.\dcomment{(In 2.3 you only mention the repeating events part. Was that really all 4 days?  Were these other refactorings not indicative of weaknesses that you should discuss there?) }\\
 
 \noindent The following sections further discuss design choices and implications of those design choices for both our front end and back end teams. \\
 
 \section{Back End Design and Analysis}
 \subsection{New Features and Developments}
 The two new features as well as other design developments are discussed below:
+\dcomment{(Really no need for this subsection if you aren't going to say anything here.  Just
+make the subsubsections into subsections.)}
 \subsubsection{Slot Sign Up Events}
 To implement the slot sign up feature, we created an entirely new structure in the database. This structure, \texttt{SlotSignUp.js}, allowed us to develop without the fear of breaking something already created in the first two evolutions of the project. To handle the dynamic nature of the \texttt{SlotSignUp}, we used the composition design pattern. More specifically, a \texttt{SlotSignUp} is composed of individual \texttt{Slots}, which can be created and associated with any user that signs up for a specific \texttt{Slot}. Initially, though, the \texttt{SlotSignUp} is composed of free blocks of minimum sign up length. As people sign up for slots, the \texttt{Slot} objects are created and tied to that user. This information is stored in the \texttt{attendees} property of the \texttt{SlotSignUp}. \\
 
@@ -169,10 +171,10 @@ Before, our repeated events were somewhat fake and display driven. We would have
 \noindent To implement this new design, we created a new structure, the \texttt{RepeatChain}. The purpose of this structure was to keep track of all events that were created as a repeat chain, allowing us to edit individual events in the chain as well as delete all repeated events the same time.
 
 \subsubsection{Async.js}
-One difficult we've mentioned many times in our discussions and presentations has been the asynchronous nature of javascript. In this evolution, we further implemented a new node module: \texttt{asyn.js}. Under the hood this module works with promises, but this api allowed us control asynchronous dependencies. After witnessing the power of this module, we were able to clean up the call back hell situations we got ourselves into in the past.
+One difficult\dcomment{y} we've mentioned many times in our discussions and presentations has been the asynchronous nature of javascript. In this evolution, we further implemented a new node module: \texttt{asyn.js}. Under the hood this module works with promises, but this api allowed us \dcomment{to} control asynchronous dependencies. After witnessing the power of this module, we were able to clean up the call back hell situations we got ourselves into in the past.
 
 \subsubsection{Schema Methods}
-Before this evolution, we never used Mongoose Schema methods which leaving our route files cluttered and at times difficult to read. Schema methods allowed us to extract Schema specific behavior and treat our Schemas like classes with an api. For example, we have a \texttt{User} schema. Adding a schema method allowed us to call functions on a \texttt{User} like \texttt{User.convertToEmail()}. Extracting schema methods severely cut back on our repeated code throughout the project. For a working example, see \texttt{./models/User.js}.
+Before this evolution, we never used Mongoose Schema methods which \dcomment{left} our route files cluttered and at times difficult to read. Schema methods allowed us to extract Schema specific behavior and treat our Schemas like classes with an api. For example, we have a \texttt{User} schema. Adding a schema method allowed us to call functions on a \texttt{User} like \texttt{User.convertToEmail()}. Extracting schema methods severely cut back on our repeated code throughout the project. For a working example, see \texttt{./models/User.js}.
 
 \subsection{Benefits of Our Previous Design}
 The major benefit of our previous design was its modularity and composition-driven nature. The modularity allowed for easy addition of new features and simultaneous development by all of our team members. It also allowed for easy and testable code as well, because we could test single files or single methods that composed the entire module.\\
@@ -180,10 +182,12 @@ The major benefit of our previous design was its modularity and composition-driv
 \noindent The composition-driven nature of our design proved to be the most powerful thing we've done thus far. That is, we were able to add new features or extend the functionality of previously working code in extremely easy manner, all the while having these changes to database model files persisted throughout the entire database. For example, this evolution required a User to be able to keep track of slots he/she had signed up for or sign up events he/she had created. This was easily done by adding a new property to the Schema Model that ``pointed" to the actual \texttt{Slot} or \texttt{SlotSignUp} objects in the database.
 
 \subsection{Drawbacks of Our Previous Design}
-The way we initially design and implemented repeated events proved to be extremely limiting with the new requirements of evolution three. As mentioned before, repeated events used to be simply display-driven, meaning that there was really only one event stored in the data base.\\
+The way we initially design\dcomment{ed} and implemented repeated events proved to be extremely limiting with the new requirements of evolution three. As mentioned before, repeated events used to be simply display-driven, meaning that there was really only one event stored in the data base.\\
 
 \noindent This shortfall was changed such that all repeated events are now actual events in the database.
 
+\dcomment{This subsection is rather short.  If you spent 4 days refactoring your code, it seems
+  like you should have had a \emph{lot} to say here.}
 
 \section{Front End Design and Analysis}
 
@@ -213,7 +217,7 @@ Angular scopes continue to create some problems when trying to debug and circumv
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item A problem we were having dealt with the data type of a documents \texttt{\_id} value. This \texttt{\_id} value is was is assigned to each document in mongo db. Sometimes we were getting a \texttt{string} and other times the type was \texttt{object}. The experiment was simple. Create a document in the data base and access the \texttt{\_id} property by using various methods. Specifically, I would access it using either \texttt{user.id} or \texttt{user.\_id} and printing out the \texttt{typeof}. Viewing the results yielded the conclusion that \texttt{.id} returns type \texttt{string}.
+\item A problem we were having dealt with the data type of a documents \texttt{\_id} value. This \texttt{\_id} value \dcomment{is } assigned to each document in mongo db. Sometimes we were getting a \texttt{string} and other times the type was \texttt{object}. The experiment was simple. Create a document in the data base and access the \texttt{\_id} property by using various methods. Specifically, I would access it using either \texttt{user.id} or \texttt{user.\_id} and printing out the \texttt{typeof}. Viewing the results yielded the conclusion that \texttt{.id} returns type \texttt{string}.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
@@ -225,7 +229,7 @@ Angular scopes continue to create some problems when trying to debug and circumv
 \end{enumerate}
 \item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item One constraint we found was that it was very difficult to create a mongoose schema with JSON object as property value. For example, property \texttt{attendees} was composed of an array of JSON objects. For some reason, mongodb / mongoose could not handle the editing of such JSON objects and save them properly. Hence, we had to devise our own way to edit the JSON objects to get around this constraint. The solution: set the property to null, and recreate the JSON object every time rather than try and edit the JSON object individually while still a part of the mongoose document.
+\item One constraint we found was that it was very difficult to create a mongoose schema with JSON object as property value. For example, \dcomment{the} property \texttt{attendees} was composed of an array of JSON objects. For some reason, mongodb / mongoose could not handle the editing of such JSON objects and save them properly. Hence, we had to devise our own way to edit the JSON objects to get around this constraint. The solution: set the property to null, and recreate the JSON object every time rather than try and edit the JSON object individually while still a part of the mongoose document.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
@@ -383,7 +387,9 @@ Angular scopes continue to create some problems when trying to debug and circumv
 %\end{minipage}
 %\end{table}
 
-
+\dcomment{It sounds like you all need to smooth out your plans for working together, both
+  in terms of physical versus remote, and when you feature-freeze your project.  If your group
+needs to come see me to discuss, please let me know.}
 
 \end{document}
 % end of file template.tex

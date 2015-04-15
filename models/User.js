@@ -37,6 +37,10 @@ UserSchema.methods.reorderPUDs = function () {
 	var notToEscalate = [];
 	var jsonPUDs = this.toJSON().PUDs;
 
+	if(jsonPUDs == undefined) {
+		return;
+	}
+
 	for(var i = 0; i < jsonPUDs.length; i++) {
 		var jsonPUD = jsonPUDs[i];
 		jsonPUD.index = i;

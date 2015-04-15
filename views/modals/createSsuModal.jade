@@ -15,11 +15,11 @@
       label(style="display: table-cell;") Preference-Based Sign-up?
       input(type="checkbox", ng-model="ssuDetails.preferenceBased")
     br
-    p(style="display: table-row;")
+    p(style="display: table-row;", ng-show="ssuDetails.preferenceBased")
       label(style="display: table-cell;") Sign-up Deadline
       input.form-control(style="display: table-cell;", type="datetime-local", ng-model="ssuDetails.signupDate", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
     br
-    p(style="display: table-row;", ng-show="isValidTime(pudDetails.expirationDate)")
+    p(style="display: table-row;", ng-show="isValidTime(ssuDetails.signupDate)")
       label(style="display: table-cell;") Create PUD for Attendees?
       input(type="checkbox", ng-model="ssuDetails.createPud")
     br

@@ -1,0 +1,31 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4.modal-title Resolve Sign-Up Event
+.modal-body
+    .row
+    .col-md-6
+        p(ng-show="selectedSsu.description")
+          b Description 
+          | {{ selectedSsu.description }}
+        p
+          b Sign-Up Duration 
+          | {{ selectedSsu.maxDuration + ' Minutes' }}
+        p
+          b Max Sign-Ups per Attendee 
+          | {{ selectedSsu.maxPerUser }}
+        form.navbar-form(style="display: table;", name="resolveSsuForm")
+          div(ng-repeat="slot in resolutionDetails.signupSlot")
+            p(style="display: table-row;")
+              | {{ convertDates(slot.start, slot.end) }}
+              select.form-control(style="display:table-cell;", ng-model="slot.invitee", ng-options="invitee.name for invitee in resolutionDetails.users")
+            br
+        br
+        .btn-group
+          button.btn.btn-primary(ng-disabled="resolveSsuForm.$invalid", ng-click="resolveSsuData(resolutionDetails)") Resolve Sign-Ups
+        
+    .col-md-6
+      p
+        b 
+          | Invited Users
+        div(ng-repeat="user in selectedSsu.attendees")
+          p {{ user.userEmail }}

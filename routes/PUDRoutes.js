@@ -7,7 +7,7 @@ var router 		= express.Router();
 
 // repeats PUDremove
 setInterval(PUDremove, 1000 * 30);
-setInterval(PUDreorder, 1000 * 5);
+// setInterval(PUDreorder, 1000 * 5);
 
 function PUDreorder() {
 	User.find()
@@ -32,6 +32,12 @@ function PUDremove() {
 		});
 	});
 }
+
+router.get('/pudReorder/test', function (req, res, next) {
+	var ret = PUDreorder();
+
+	res.send("PUDs reordered");
+});
 
 // creates a PUD associated with logged in user
 router.post('/createPUD', function (req, res, next) {

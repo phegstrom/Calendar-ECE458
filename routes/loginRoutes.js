@@ -47,9 +47,11 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/query', function(req, res) {
-  User.find(function(err, users) {
-    res.send(users);
-  });
+  User.find()
+      .populate('PUDs')
+      .exec(function (err, users) {
+          res.send(users)
+      })
 });
 
 router.get('/users', function (req, res, next) {

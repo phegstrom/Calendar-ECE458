@@ -49,11 +49,39 @@ UserSchema.methods.reorderPUDs = function () {
 	// loop through toEscalate and decrement index
 	// if one to the left is 1 away, don't decrement
 	for(var j = 0; j < toEscalate.length; j++) {
-
+		if((j > 0) && (toEscalate[j-1].index == toEscalate[j].index - 1))
+			continue;
+		else if(toEscalate[j].index > 0)
+			toEscalate[j].index--;
 	}
 
 	// merge toEscalate and notToEscalate
-
+	var e = 0; var n = 0;
+	var toRet = [];
+	while (1) {
+		if(e == toEscalate.length && n != notToEscalate.length) {
+			toRet.push(notToEscalate[n]);
+			n++;
+		} else if (e != toEscalate.length && n == notToEscalate.length) {
+			toRet.push(toEscalate[e]);
+			e++;
+		} else if (e == toEscalate.length && n == notToEscalate.length) {
+			break;
+		} else {
+			if(toEscalate[e].index <= notToEscalate[n].index) {
+				toRet.push(toEscalate[e]);
+				e++;
+			}
+			else {
+				toRet.push(notToEscalate[n]);
+				n++;
+			}
+		}
+	}
+	
+	this.PUDs = toRet;
+	this.save();
+	return toRet;
 }
 
 // returns a promise that will give access to array of ids

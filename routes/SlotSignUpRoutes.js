@@ -47,8 +47,14 @@ router.post('/', function (req, res, next) {
 	ssu.freeBlocks = req.body.evFreeBlocks;
 	// ssu.freeBlocks = [{start: new Date(), end: new Date()}];
 	ssu.assocUserGroups = req.body.userGroupIds;
+
+	// preference based signups
+	ssu.preferenceBased = req.body.preferenceBased;
+	ssu.createPud = req.body.createPud;
+	ssu.signupDate = req.body.signupDate;
 	
 	var usergroupIds = [];
+
 	// update invite lists SSEvents
 	async.waterfall([
 		function (next) {
@@ -68,7 +74,7 @@ router.post('/', function (req, res, next) {
 		function (ids, next) {
 			User.toEmails(ids, function (err, emails) {
 				emails.forEach(function (email) {
-					ssu.attendees.push({userEmail: email, slots: []});
+					ssu.attendees.push({userEmail: email, pudId: null, slots: []});
 				});
 				next(err, ids);
 			});
@@ -79,6 +85,28 @@ router.post('/', function (req, res, next) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});
 			}
 
+			// create PUDs for all invited users
+			if (ssu.createPud) {
+				var descString = 'SSU Reminder!'; 
+				var pudObject = {
+									description: descString,
+									time: 0,
+									myDate: Date.now(),
+									expDate: ssu.signupDate,
+									willEscalate: false,
+								};
+
+				createPUDsForAllUsers(result, pudObject, ssu, function (ssuRet) {
+						next(null, ssuRet);
+				});							
+			}
+
+			next(err, ssu);
+
+		},
+
+		function (ssu) {
+			
 			ssu.save(function (err, saved) {
 				if (err) next(err);
 
@@ -86,9 +114,89 @@ router.post('/', function (req, res, next) {
 					res.send(saved);
 				});
 			});
+
 		}
 	]);
 });
+
+
+// will loop through all users and create a PUD for the recipients
+function createPUDsForAllUsers(allIds, pudObj, ssu, cb) {
+
+	var fnArray = createWaterfallArray(ssu, allIds, pudObj);
+
+	// final function in waterfall
+	var lastFunction = function (ssu) {
+		cb(ssu);
+	};
+
+	fnArray.push(lastFunction);
+
+	// now execute all functions, will return ssu updated in cb
+	async.waterfall(fnArray);
+
+};
+
+function createWaterfallArray(ssu, allIds, pudObj) {
+
+	// first function in waterfall function array
+	var f = function (next) {
+		next(null, ssu);
+	};
+
+	funcArray.push(f);
+
+	// create individual functions for each request to venmo server
+	for (var i = 0; i < allIds.length; i++) {
+		
+
+		var f = createFunctionInArray(allIds[i], pudObj, ssu);
+		
+		funcArray.push(f);
+
+	}
+
+	return funcArray;
+
+};
+
+// creates venmo_charge function to send in waterfall
+function createFunctionInArray(userId, pudObj, ssu) {
+
+	// one of the functions in array
+	var f = function(ssu, next) {
+		var pud = new PUD(pudObj);
+		pud.save(function (err, saved) {
+			if (err) console.log(err);
+
+			User.findOne({_id: userId}, function (err, user) {
+				user.push(pud._id);
+
+				var jSSU = ssu.toJSON();
+
+				var attendeesTemp = jSSU.attendees;
+				ssu.attendees = null;
+
+				// add pud id to 
+				for(var i = 0; i < attendeesTemp.length; i++) {
+					if(attendeesTemp[i].userEmail == user.email) {
+						attendeesTemp[i].pudId.push(saved._id);
+					}
+				}
+
+				ssu.attendees = attendeesTemp;
+
+				user.save(function (err, saved) {
+					if (err) console.log(err);
+					next(err, ssu);
+				})				
+			});
+		});
+	};
+
+	return f;
+
+}
 
 router.put('/cancelSlot/:slotId', function (req, res, next) {
 

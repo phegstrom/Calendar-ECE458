@@ -28,6 +28,9 @@ var EventSchema = new Schema({
 	// ID of request that this is associated with
 	requestID: {type: Schema.Types.ObjectId, ref: 'Request', default: null},
 
+	// ID of slot if this event is tied to one
+	// slotID: {type: Schema.Types.ObjectId, ref: 'Slot', default: null},
+	
 	alerts: [{type: Schema.Types.ObjectId, ref: 'Alert'}],
 	repeats: [{ // either frequency or endDate will be populated,
 				// will repeat the days until endDate or for frequency

@@ -7,7 +7,7 @@ var router 		= express.Router();
 
 // repeats PUDremove
 setInterval(PUDremove, 1000 * 30);
-setInterval(PUDreorder, 1000 * 5);
+// setInterval(PUDreorder, 1000 * 5);
 
 function PUDreorder() {
 	User.find()
@@ -32,6 +32,12 @@ function PUDremove() {
 		});
 	});
 }
+
+router.get('/pudReorder/test', function (req, res, next) {
+	var ret = PUDreorder();
+
+	res.send("PUDs reordered");
+});
 
 // creates a PUD associated with logged in user
 router.post('/createPUD', function (req, res, next) {
@@ -201,15 +207,10 @@ router.put('/:pudId', function (req, res, next) {
 
 // handles reordering of priorities
 router.put('/user/reorder', function (req, res, next) {
-
-	console.log("here");
-	console.log(req.body.PUDs);
-
 	var uid = req.session.user._id;
 
 	User.findOne({_id: uid}, function (err, user) {
 		if (err) next(err);
-		console.log(user.PUDs);
 		user.PUDs = req.body.PUDs;
 		user.save(function (err, saved) {
 			res.send(saved.PUDs);

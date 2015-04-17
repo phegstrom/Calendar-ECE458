@@ -21,7 +21,6 @@ router.get('/', function (req, res, next) {
 
 // return array of SSU Events that were shared to current user
 router.get('/getIncoming', function (req, res, next) {
-
 	User.findOne({_id: req.session.user._id})
 		.deepPopulate('SSEvents.attendees.slots').exec(function (err, user) {
 			res.send(user.SSEvents);
@@ -31,6 +30,7 @@ router.get('/getIncoming', function (req, res, next) {
 
 // create a SlotSignUp
 router.post('/', function (req, res, next) {
+	console.log("post");
 
 	var uid = req.session.user._id;
 
@@ -101,9 +101,10 @@ router.post('/', function (req, res, next) {
 				createPUDsForAllUsers(result, pudObject, ssu, function (ssuRet) {
 						next(null, ssuRet);
 				});							
+			} else {
+				next(null, ssu);
 			}
 
-			next(null, ssu);
 		},
 
 		function (ssu) {
@@ -112,6 +113,7 @@ router.post('/', function (req, res, next) {
 				if (err) next(err);
 
 				User.findOneAndUpdate({_id: uid}, {$push: {createdSSEvents: saved._id}}, function (err, numAffected) {
+					console.log('about to send response');
 					res.send(saved);
 				});
 			});
@@ -170,7 +172,7 @@ function createFunctionInArray(userId, pudObj, ssu) {
 		var pud = new PUD(pudObj);
 		pud.save(function (err, saved) {
 			if (err) console.log(err);
-
+			console.log('create function');
 			User.findOne({_id: userId}, function (err, user) {
 				user.PUDs.push(pud._id);
 
@@ -182,10 +184,7 @@ function createFunctionInArray(userId, pudObj, ssu) {
 				// add pud id to 
 				for(var i = 0; i < attendeesTemp.length; i++) {
 					if(attendeesTemp[i].userEmail == user.email) {
-						if(attendeesTemp[i].pudId == null) {
-							attendeesTemp[i].pudId = [];
-						}
-						attendeesTemp[i].pudId.push(saved._id);
+						attendeesTemp[i].pudId = saved._id;
 					}
 				}
 
@@ -280,21 +279,26 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			var endTemp = new Date(req.body.end);
 			var block = (((endTemp.getTime() - startTemp.getTime())/60000) / ssu.minDuration);
 			newSlot.basicBlocksNumber = block;
-
-			
 			
 			user.mySlots.push(newSlot);
 
 			var jSSU = ssu.toJSON();
 
 			var attendeesTemp = jSSU.attendees;
+			var pudId;
 			ssu.attendees = null;
 
 			for(var i = 0; i < attendeesTemp.length; i++) {
 				if(attendeesTemp[i].userEmail == req.session.user.email) {
 					attendeesTemp[i].slots.push(newSlot._id);
+					pudId = attendeesTemp[i].pudId;
+					attendeesTemp[i].pudId = null;
 				}
 			}
+
+			PUD.findOneAndRemove({_id: pudId}, function (err, pud) {
+
+			});
 
 			ssu.attendees = attendeesTemp;
 
@@ -306,6 +310,28 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 				});
 			});
 
+		});
+	});
+});
+
+// handles reordering of priorities
+router.put('/reorder', function (req, res, next) {
+	var ssuId = req.body.ssuId;
+
+	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
+		var jSSU = ssu.toJSON();
+		var attendeesTemp = jSSU.attendees;
+		ssu.attendees = null;
+
+		for(var i = 0; i < attendeesTemp.length; i++) {
+			if(attendeesTemp[i].userEmail == req.session.user.email) {
+				attendeesTemp[i].slots = req.body.slots;
+			}
+		}
+		ssu.attendees = attendeesTemp;
+
+		ssu.save(function (err, ssuSaved) {
+			res.send(ssuSaved);
 		});
 	});
 });

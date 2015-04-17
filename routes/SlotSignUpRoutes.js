@@ -79,8 +79,10 @@ router.post('/', function (req, res, next) {
 				next(err, ids);
 			});
 		},
+		// result is all recipient ids
 		function (result, next) {	
-			// update for all invitees	
+			// update for all invitees
+			// add newly created ssu to recipients
 			for (var i = 0; i < result.length; i++) {
 				User.findOneAndUpdate({_id: result[i]}, {$push: {SSEvents: ssu._id}}, function (err, numAffected) {});
 			}
@@ -101,8 +103,7 @@ router.post('/', function (req, res, next) {
 				});							
 			}
 
-			next(err, ssu);
-
+			next(null, ssu);
 		},
 
 		function (ssu) {
@@ -144,12 +145,13 @@ function createWaterfallArray(ssu, allIds, pudObj) {
 		next(null, ssu);
 	};
 
+	var funcArray = [];
+
 	funcArray.push(f);
 
 	// create individual functions for each request to venmo server
 	for (var i = 0; i < allIds.length; i++) {
 		
-
 		var f = createFunctionInArray(allIds[i], pudObj, ssu);
 		
 		funcArray.push(f);
@@ -170,7 +172,7 @@ function createFunctionInArray(userId, pudObj, ssu) {
 			if (err) console.log(err);
 
 			User.findOne({_id: userId}, function (err, user) {
-				user.push(pud._id);
+				user.PUDs.push(pud._id);
 
 				var jSSU = ssu.toJSON();
 
@@ -180,6 +182,9 @@ function createFunctionInArray(userId, pudObj, ssu) {
 				// add pud id to 
 				for(var i = 0; i < attendeesTemp.length; i++) {
 					if(attendeesTemp[i].userEmail == user.email) {
+						if(attendeesTemp[i].pudId == null) {
+							attendeesTemp[i].pudId = [];
+						}
 						attendeesTemp[i].pudId.push(saved._id);
 					}
 				}
@@ -195,7 +200,6 @@ function createFunctionInArray(userId, pudObj, ssu) {
 	};
 
 	return f;
-
 }
 
 router.put('/cancelSlot/:slotId', function (req, res, next) {
@@ -220,6 +224,7 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 
 // delete a SlotSignUp
 router.delete('/:ssuId', function (req, res, next) {
+	// do we need to find and remove Slots from attendees?
 
 	var uid = req.session.user._id;
 
@@ -275,6 +280,9 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			var endTemp = new Date(req.body.end);
 			var block = (((endTemp.getTime() - startTemp.getTime())/60000) / ssu.minDuration);
 			newSlot.basicBlocksNumber = block;
+
+			
+			
 			user.mySlots.push(newSlot);
 
 			var jSSU = ssu.toJSON();

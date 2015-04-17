@@ -295,10 +295,44 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displaySsuDetails = function(ssuEvent) {
     $rootScope.selectedSsu = ssuEvent;
 
-    $modal.open({
-        templateUrl: '/modal/ssuDetailsModal',
+    if($rootScope.selectedSsu.preferenceBased && $rootScope.selectedSsu.preferenceComplete) {
+      var selectedPreferences = $rootScope.selectedSsu.preferences;
+
+      $rootScope.resolutionDetails = {
+        slots: []
+      };
+
+      for(var freeTimeIndex = 0; freeTimeIndex < $rootScope.selectedSsu.freeBlocks.length; freeTimeIndex++) {
+        var selectedBlock = $rootScope.selectedSsu.freeBlocks[freeTimeIndex];
+        var slotObject = {
+          userEmail: '',
+          startTime: selectedBlock.start,
+          endTime: selectedBlock.end
+        }
+
+
+        var slotStart = new Date(selectedBlock.start);
+        for(var preferenceIndex = 0; preferenceIndex < selectedPreferences; preferenceIndex++) {
+          var preferenceStart = new Date(selectedPreferences[preferenceIndex].timeSlots.startTime);
+          if(slotStart == preferenceStart) {
+            slotObject.userEmail = selectedPreferences[preferenceIndex].useremail;
+          }
+        }
+      }
+
+
+      $modal.open({
+        templateUrl: '/modal/ssuResolutionModal',
         controller: 'ssuModalController'
       });
+    }
+    else {
+      $modal.open({
+          templateUrl: '/modal/ssuDetailsModal',
+          controller: 'ssuModalController'
+        });
+    }
+
     console.log($rootScope.selectedSsu);
   }
 

@@ -174,6 +174,12 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
   }
 
   $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
+    if(!$scope.selectedSsu.preferenceBased && $scope.selectedSsuSlots.length >= $scope.selectedSsu.maxPerUser) {
+      return;
+    }
+    else if($scope.selectedSsu.preferenceBased && $scope.selectedSsu.preferenceComplete) {
+      return;
+    }
     $http.put('/ssu/signUp/' + ssuId, selectedBlock).
     success(function(data, status, headers, config) {
       var newSsu = angular.fromJson(data);
@@ -309,4 +315,30 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
     list[index2] = temp;
   }
   
+  $scope.resolveSsuData = function(resolutionDetails) {
+    //do the make user object thing
+    var requestDetails = {
+      ssuId: $rootScope.selectedSsu._id,
+      users: []
+    }
+
+    var usersAssigned = [];
+    for(var slotIndex = 0; slotIndex < resolutionDetails.slots.length; slotIndex++) {
+      var slot = resolutionDetails.slots[slotIndex];
+      if(slot.userEmail && slot.userEmail != '' && users.indexOf(slot.userEmail) == -1) {
+        requestDetails.users.push(slot);
+        usersAssigned.push(slot.userEmail);
+      }
+    }
+    //do the http thing
+    $http.put('/ssu/resolve', requestDetails).
+    success(function(data, status, headers, config) {
+      var newSsu = angular.fromJson(data);
+      $rootScope.selectedSsu = newSsu;
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to resolve sign-ups.');
+    });
+  }
+
 });

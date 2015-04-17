@@ -252,11 +252,61 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
       details.userList = [newUser];
     }
   }
-  $scope.removeUserFromRequest  = function(userEmail, details) {
+  $scope.removeUserFromRequest = function(userEmail, details) {
     var userIndex = details.userList.indexOf(userEmail);
     if(userIndex != -1) {
       details.userList.splice(userIndex, 1);
     }
   }
 
+  $scope.moveSsu = function(slot, direction) {
+
+    var movement = 0;
+    if (direction == 'up'){
+      movement = -1;
+    }
+    else if (direction == 'down') {
+      movement = 1;
+    }
+
+    var oldSlotIndex = $rootScope.selectedSsuSlots.indexOf(slot);
+
+    if(oldSlotIndex != -1) {
+
+      if(oldSlotIndex + movement >= 0 && oldSlotIndex + movement < $rootScope.selectedSsuSlots.length) {
+        var reorderedSlots = [];
+
+        for(var index=0; index < $rootScope.selectedSsuSlots.length; index++) {
+          reorderedSlots.push($rootScope.selectedSsuSlots[index]._id);
+        }
+
+        console.log(reorderedSlots);
+
+        swap(reorderedSlots, oldSlotIndex, oldSlotIndex + movement);
+
+        var reorderRequest = {
+          slots: reorderedSlots,
+          ssuId: $rootScope.selectedSsu._id
+        };
+
+        console.log(reorderedSlots);
+
+        $http.put('/ssu/reorder', reorderRequest).
+        success(function(data, status, headers, config) {
+          console.log(data);
+          swap($rootScope.selectedSsuSlots, oldSlotIndex, oldSlotIndex + movement);
+        }).
+        error(function(data, status, headers, config) {
+          console.log('Failed to reorder SSUs');
+        });
+      }
+    }
+  }
+
+  var swap = function(list, index1, index2) {
+    var temp = list[index1];
+    list[index1] = list[index2];
+    list[index2] = temp;
+  }
+  
 });

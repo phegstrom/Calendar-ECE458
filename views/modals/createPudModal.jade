@@ -18,6 +18,7 @@
     br
     p(style="display: table-row;", ng-show="isValidTime(pudDetails.expirationDate)")
       label(style="display: table-cell;") Priority Escalation?
+      | &nbsp;
       input(type="checkbox", ng-model="pudDetails.willEscalate")
     br
 

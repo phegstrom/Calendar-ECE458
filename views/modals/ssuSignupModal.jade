@@ -38,5 +38,10 @@
         p
           ul(ng-show="selectedSsuSlots.length > 0")
             li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+              | &nbsp;
               a(href="#", ng-click="cancelSignupSlot(block, selectedSsuSlots)")
                 span.glyphicon.glyphicon-remove
+              a(href="#", ng-click="moveSsu(block, 'up')")
+                span.glyphicon.glyphicon-arrow-up
+              a(href="#", ng-click="moveSsu(block, 'down')")
+                span.glyphicon.glyphicon-arrow-down

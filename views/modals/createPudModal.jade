@@ -15,9 +15,11 @@
     p(style="display: table-row;")
       label(style="display: table-cell;") Expiration Date
       input.form-control(style="display: table-cell;", type="datetime-local", ng-model="pudDetails.expirationDate", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
+    br
     p(style="display: table-row;", ng-show="isValidTime(pudDetails.expirationDate)")
       label(style="display: table-cell;") Priority Escalation?
       input(type="checkbox", ng-model="pudDetails.willEscalate")
+    br
 
     
     p(style="display: table-row;")

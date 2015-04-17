@@ -44,5 +44,8 @@ data
 *.toc
 *.gz
 
+#images
+./public/images/screenShots
+
 # Debug log from npm
 npm-debug.log

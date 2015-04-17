@@ -208,17 +208,15 @@ router.put('/:pudId', function (req, res, next) {
 // handles reordering of priorities
 router.put('/user/reorder', function (req, res, next) {
 
-	// console.log("here");
-	// console.log(req.body.PUDs);
+	console.log("here");
+	console.log(req.body.PUDs);
 
 	var uid = req.session.user._id;
-	// var uid = "54ecb2cfb2c037650e91f53b";
 
 	User.findOne({_id: uid}, function (err, user) {
 		if (err) next(err);
 		console.log(user.PUDs);
 		user.PUDs = req.body.PUDs;
-		// console.log(user.PUDs);
 		user.save(function (err, saved) {
 			res.send(saved.PUDs);
 		});

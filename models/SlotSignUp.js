@@ -21,9 +21,12 @@ var SlotSignUpSchema = new Schema({
 	}],
 	attendees: [{
 		userEmail: String,
+		pudId: {type: Schema.Types.ObjectId, ref: 'PUD'}, // so we know what PUD to mark completed when they sign up
 		slots: [{type: Schema.Types.ObjectId, ref: 'Slot'}]
-	}]
-
+	}],
+	preferenceBased: Boolean,
+	createPud: Boolean,
+	signupDate: Date
 }, {collection: collectionName});
 
 SlotSignUpSchema.methods.takeFreeBlocks = function (startDate, endDate) {

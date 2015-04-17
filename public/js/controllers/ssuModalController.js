@@ -68,7 +68,10 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
     //Convert sections into minimum slots, ensure that the minimum time is still valid in creation.
     var minimumTime = ssuDetails.evMinDuration;
 
-    if(ssuDetails.evMaxDuration % minimumTime != 0) {
+    if(ssuDetails.preferenceBased) {
+      ssuDetails.evMaxDuration = minimumTime;
+    }
+    else if(ssuDetails.evMaxDuration % minimumTime != 0) {
       $scope.ssuDetails.sectionErrorText = 'Maximum time is not a multiple of minimum time.';
       return;
     }

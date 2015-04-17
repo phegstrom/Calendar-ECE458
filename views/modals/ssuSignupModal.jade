@@ -29,7 +29,7 @@
           a(href="#", ng-click="clearCurrentTimeRange()")
             span.glyphicon.glyphicon-remove
         | &nbsp;
-        button.btn(ng-disabled="selectedSsuSlots.length >= selectedSsu.maxPerUser", ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
+        button.btn(ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
 
     .col-md-6
       p

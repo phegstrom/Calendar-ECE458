@@ -24,7 +24,6 @@ setInterval(intervalFunction, 1000 * 60);
 
  
 function intervalFunction() {
-	var now = new Date();
 	var lowerBound = new Date();
 	lowerBound.setMinutes(lowerBound.getMinutes() - 1);
 	var upperBound = new Date();

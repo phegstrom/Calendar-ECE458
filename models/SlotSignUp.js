@@ -24,7 +24,22 @@ var SlotSignUpSchema = new Schema({
 		pudId: {type: Schema.Types.ObjectId, ref: 'PUD'}, // so we know what PUD to mark completed when they sign up
 		slots: [{type: Schema.Types.ObjectId, ref: 'Slot'}]
 	}],
+
 	preferenceBased: Boolean,
+	preferenceComplete: {type: Boolean, default: false},
+	preferenceFinal: {type: Boolean, default: false},
+	preferences: [{
+		useremail: String,
+		timeSlots: [{
+			startTime: Date,
+			endTime: Date
+		}],
+		finalSlot: {
+			startTime: Date,
+			endTime: Date
+		}
+	}],
+
 	createPud: Boolean,
 	signupDate: Date
 }, {collection: collectionName});

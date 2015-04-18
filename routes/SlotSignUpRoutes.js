@@ -7,6 +7,23 @@ var async 		= require('async');
 var router 		= express.Router();
 var Slot 		= require('../models/Slot');
 
+setInterval(prefAlgorithm, 1000*60*100);
+
+function prefAlgorithm() {
+	var now = Date();
+	SlotSignUp.find({signupDate: {$gte: now}}, function (err, ssu) {
+		var finalSlot;
+		var takenFB = [];
+
+		for(var i = 0; i < ssu.preferences.length; i++) {
+			
+		}
+
+		ssu.preferenceComplete = true;
+		ssu.save();
+	});
+}
+
 // return array of createdSSEvents for a logged in user
 router.get('/', function (req, res, next) {
 
@@ -75,6 +92,7 @@ router.post('/', function (req, res, next) {
 			User.toEmails(ids, function (err, emails) {
 				emails.forEach(function (email) {
 					ssu.attendees.push({userEmail: email, pudId: null, slots: []});
+					ssu.preferences.push({useremail: email, timeSlots: []});
 				});
 				next(err, ids);
 			});
@@ -253,30 +271,70 @@ router.get('/test/:date', function (req, res, next) {
 	res.send(req.params.date);
 });
 
+router.put('/resolve', function (req, res, next) {
+	//req.body.preferences
+	//req.body.ssuId
+	var users = req.body.users;
+	var ssuId = req.body.ssuId;
+	for(var i = 0; i < users.length; i++) {
+		signUp(ssuId, users[i].timeSlots.startTime, users[i].timeSlots.endTime, users[i].useremail, function (err, ssu) {
+
+		});
+	}
+
+	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
+		ssu.preferenceFinal = true;
+		ssu.save();
+	});
+
+	// what do i need to return back?
+	res.send("complete");
+});
+
 router.put('/signUp/:ssuId', function (req, res, next) {
+
+	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
+		if (ssu.preferenceBased) {
+			var jSSU = ssu.toJSON();
+			var preferencesTemp = jSSU.preferences;
+			ssu.preferences = null;
+
+			for(var i = 0; i < preferencesTemp.length; i++) {
+				if(preferencesTemp[i].useremail == req.session.user.email) {
+					preferencesTemp[i].timeSlots.push({startTime: req.body.start, endTime: req.body.end});
+				}
+			}
+
+			ssu.preferences = preferencesTemp;
+			ssu.save();
+		} else {
+			signUp(req.params.ssuId, req.body.start, req.body.end, req.session.user.email, function (ssuSaved) {
+				res.send(ssuSaved);
+			});
+
+		}
+	});
+});
+
+function signUp(ssuId, startDate, endDate, userEmail, cb) {
 	//ssuId from a User's SSEvents
 	//will receive a start and end time
 	//remove freeBlocks from SlotSignUp
 	//do something...create a Slot object, add to User's Slot, etc
-
-	//req.body.start, req.body.end
 	
-	var startDate = req.body.start;
-	var endDate = req.body.end;
-
-	SlotSignUp.findOne({_id: req.params.ssuId}, function (err, ssu) {
+	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
 		ssu.takeFreeBlocks(startDate, endDate);
 
-		User.findOne({_id: req.session.user._id}, function (err, user) {
+		User.findOne({email: userEmail}, function (err, user) {
 			var newSlot = new Slot();
-			newSlot.useremail = req.session.user.email;
+			newSlot.useremail = userEmail;
 			newSlot.SSU = ssu._id;
 
 
 			newSlot.start = startDate;
 			newSlot.end = endDate;
-			var startTemp = new Date(req.body.start);
-			var endTemp = new Date(req.body.end);
+			var startTemp = new Date(startDate);
+			var endTemp = new Date(endDate);
 			var block = (((endTemp.getTime() - startTemp.getTime())/60000) / ssu.minDuration);
 			newSlot.basicBlocksNumber = block;
 			
@@ -289,7 +347,7 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			ssu.attendees = null;
 
 			for(var i = 0; i < attendeesTemp.length; i++) {
-				if(attendeesTemp[i].userEmail == req.session.user.email) {
+				if(attendeesTemp[i].userEmail == userEmail) {
 					attendeesTemp[i].slots.push(newSlot._id);
 					pudId = attendeesTemp[i].pudId;
 					attendeesTemp[i].pudId = null;
@@ -305,14 +363,14 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 			newSlot.save(function (err, nsSaved) {
 				user.save(function (err, uSaved) {
 					ssu.save(function (err, ssuSaved) {
-						res.send(ssuSaved);
+						cb(ssuSaved);
 					});
 				});
 			});
 
 		});
-	});
-});
+	});	
+}
 
 // handles reordering of priorities
 router.put('/reorder', function (req, res, next) {
@@ -320,20 +378,49 @@ router.put('/reorder', function (req, res, next) {
 
 	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
 		var jSSU = ssu.toJSON();
-		var attendeesTemp = jSSU.attendees;
-		ssu.attendees = null;
+		var preferencesTemp = jSSU.preferences;
+		ssu.preferences = null;
 
-		for(var i = 0; i < attendeesTemp.length; i++) {
-			if(attendeesTemp[i].userEmail == req.session.user.email) {
-				attendeesTemp[i].slots = req.body.slots;
+		for(var i = 0; i < preferencesTemp.length; i++) {
+			if(preferencesTemp[i].useremail == req.session.user.email) {
+				preferencesTemp[i].timeSlots = req.body.slots;
 			}
 		}
-		ssu.attendees = attendeesTemp;
 
 		ssu.save(function (err, ssuSaved) {
 			res.send(ssuSaved);
 		});
+
+		// var jSSU = ssu.toJSON();
+		// var attendeesTemp = jSSU.attendees;
+		// ssu.attendees = null;
+
+		// for(var i = 0; i < attendeesTemp.length; i++) {
+		// 	if(attendeesTemp[i].userEmail == req.session.user.email) {
+		// 		attendeesTemp[i].slots = req.body.slots;
+		// 	}
+		// }
+		// ssu.attendees = attendeesTemp;
+
+		// ssu.save(function (err, ssuSaved) {
+		// 	res.send(ssuSaved);
+		// });
+
 	});
 });
 
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

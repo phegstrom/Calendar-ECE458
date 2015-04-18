@@ -7,7 +7,7 @@ var router 		= express.Router();
 
 // repeats PUDremove
 setInterval(PUDremove, 1000 * 30);
-// setInterval(PUDreorder, 1000 * 5);
+setInterval(PUDreorder, 1000 * 60 * 60 * 24);
 
 function PUDreorder() {
 	User.find()

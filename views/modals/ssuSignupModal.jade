@@ -29,7 +29,7 @@
           a(href="#", ng-click="clearCurrentTimeRange()")
             span.glyphicon.glyphicon-remove
         | &nbsp;
-        button.btn(ng-disabled="selectedSsuSlots.length >= selectedSsu.maxPerUser", ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
+        button.btn(ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
 
     .col-md-6
       p
@@ -38,5 +38,10 @@
         p
           ul(ng-show="selectedSsuSlots.length > 0")
             li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+              | &nbsp;
               a(href="#", ng-click="cancelSignupSlot(block, selectedSsuSlots)")
                 span.glyphicon.glyphicon-remove
+              a(href="#", ng-click="moveSsu(block, 'up')")
+                span.glyphicon.glyphicon-arrow-up
+              a(href="#", ng-click="moveSsu(block, 'down')")
+                span.glyphicon.glyphicon-arrow-down

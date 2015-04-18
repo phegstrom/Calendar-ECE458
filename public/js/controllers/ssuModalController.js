@@ -68,7 +68,7 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
     //Convert sections into minimum slots, ensure that the minimum time is still valid in creation.
     var minimumTime = ssuDetails.evMinDuration;
 
-    if(ssuDetails.preferenceBased) {
+    if(ssuDetails.preferenceBased || ssuDetails.evMaxDuration == undefined) {
       ssuDetails.evMaxDuration = minimumTime;
     }
     else if(ssuDetails.evMaxDuration % minimumTime != 0) {
@@ -174,6 +174,12 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
   }
 
   $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
+    if(!$scope.selectedSsu.preferenceBased && $scope.selectedSsuSlots.length >= $scope.selectedSsu.maxPerUser) {
+      return;
+    }
+    else if($scope.selectedSsu.preferenceBased && $scope.selectedSsu.preferenceComplete) {
+      return;
+    }
     $http.put('/ssu/signUp/' + ssuId, selectedBlock).
     success(function(data, status, headers, config) {
       var newSsu = angular.fromJson(data);
@@ -252,11 +258,87 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
       details.userList = [newUser];
     }
   }
-  $scope.removeUserFromRequest  = function(userEmail, details) {
+  $scope.removeUserFromRequest = function(userEmail, details) {
     var userIndex = details.userList.indexOf(userEmail);
     if(userIndex != -1) {
       details.userList.splice(userIndex, 1);
     }
+  }
+
+  $scope.moveSsu = function(slot, direction) {
+
+    var movement = 0;
+    if (direction == 'up'){
+      movement = -1;
+    }
+    else if (direction == 'down') {
+      movement = 1;
+    }
+
+    var oldSlotIndex = $rootScope.selectedSsuSlots.indexOf(slot);
+
+    if(oldSlotIndex != -1) {
+
+      if(oldSlotIndex + movement >= 0 && oldSlotIndex + movement < $rootScope.selectedSsuSlots.length) {
+        var reorderedSlots = [];
+
+        for(var index=0; index < $rootScope.selectedSsuSlots.length; index++) {
+          reorderedSlots.push($rootScope.selectedSsuSlots[index]._id);
+        }
+
+        console.log(reorderedSlots);
+
+        swap(reorderedSlots, oldSlotIndex, oldSlotIndex + movement);
+
+        var reorderRequest = {
+          slots: reorderedSlots,
+          ssuId: $rootScope.selectedSsu._id
+        };
+
+        console.log(reorderedSlots);
+
+        $http.put('/ssu/reorder', reorderRequest).
+        success(function(data, status, headers, config) {
+          console.log(data);
+          swap($rootScope.selectedSsuSlots, oldSlotIndex, oldSlotIndex + movement);
+        }).
+        error(function(data, status, headers, config) {
+          console.log('Failed to reorder SSUs');
+        });
+      }
+    }
+  }
+
+  var swap = function(list, index1, index2) {
+    var temp = list[index1];
+    list[index1] = list[index2];
+    list[index2] = temp;
+  }
+  
+  $scope.resolveSsuData = function(resolutionDetails) {
+    //do the make user object thing
+    var requestDetails = {
+      ssuId: $rootScope.selectedSsu._id,
+      users: []
+    }
+
+    var usersAssigned = [];
+    for(var slotIndex = 0; slotIndex < resolutionDetails.slots.length; slotIndex++) {
+      var slot = resolutionDetails.slots[slotIndex];
+      if(slot.userEmail && slot.userEmail != '' && users.indexOf(slot.userEmail) == -1) {
+        requestDetails.users.push(slot);
+        usersAssigned.push(slot.userEmail);
+      }
+    }
+    //do the http thing
+    $http.put('/ssu/resolve', requestDetails).
+    success(function(data, status, headers, config) {
+      var newSsu = angular.fromJson(data);
+      $rootScope.selectedSsu = newSsu;
+    }).
+    error(function(data, status, headers, config) {
+      console.log('Failed to resolve sign-ups.');
+    });
   }
 
 });

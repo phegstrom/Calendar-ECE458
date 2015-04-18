@@ -10,14 +10,25 @@
         p
           b Sign-Up Duration 
           | {{ selectedSsu.maxDuration + ' Minutes' }}
+          //
+            preferences
+              [
+                useremail
+                timeSlots
+                  startTime Date
+                  endTime Date
+              ]
+            preferenceBased
+            preferenceComplete
+
+            GENERATE SLOTS FOR USE IN RESOLUTION
         p
-          b Max Sign-Ups per Attendee 
-          | {{ selectedSsu.maxPerUser }}
+         b NOTE: Only the first block a user is assigned to will be given to them. Extra sign-ups will be ignored.
         form.navbar-form(style="display: table;", name="resolveSsuForm")
-          div(ng-repeat="slot in resolutionDetails.signupSlot")
+          div(ng-repeat="slot in resolutionDetails.slots")
             p(style="display: table-row;")
               | {{ convertDates(slot.start, slot.end) }}
-              select.form-control(style="display:table-cell;", ng-model="slot.invitee", ng-options="invitee.name for invitee in resolutionDetails.users")
+              select.form-control(style="display:table-cell;", ng-model="slot.userEmail", ng-options="invitee.userEmail for invitee in selectedSsu.attendees")
             br
         br
         .btn-group
@@ -29,3 +40,5 @@
           | Invited Users
         div(ng-repeat="user in selectedSsu.attendees")
           p {{ user.userEmail }}
+          ul
+            li(ng-repeat="slot in user.slots") {{ convertDates(slot.start, slot.end) }}

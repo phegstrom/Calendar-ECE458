@@ -174,14 +174,20 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
   }
 
   $scope.ssuSignupForSlot = function(selectedBlock, ssuId) {
+    console.log('WTF');
     if(!$scope.selectedSsu.preferenceBased && $scope.selectedSsuSlots.length >= $scope.selectedSsu.maxPerUser) {
+      console.log('not prefbased');
       return;
     }
     else if($scope.selectedSsu.preferenceBased && $scope.selectedSsu.preferenceComplete) {
+      console.log('prefComplete');
       return;
     }
+
+    console.log(selectedBlock);
     $http.put('/ssu/signUp/' + ssuId, selectedBlock).
     success(function(data, status, headers, config) {
+      console.log(data);
       var newSsu = angular.fromJson(data);
       $rootScope.selectedSsu.freeBlocks = newSsu.freeBlocks;
 
@@ -196,8 +202,9 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
       }
 
       var oldAttendee = getAttendee($rootScope.selectedSsu, $rootScope.currentUserEmail);
-
-      oldAttendee.slots.push(newSlot);
+      if(!newSsu.preferenceBased) {
+        oldAttendee.slots.push(newSlot);
+      }
       $scope.clearCurrentTimeRange();
     }).
     error(function(data, status, headers, config) {
@@ -275,15 +282,15 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
       movement = 1;
     }
 
-    var oldSlotIndex = $rootScope.selectedSsuSlots.indexOf(slot);
+    var oldSlotIndex = $rootScope.selectedTimeSlots.indexOf(slot);
 
     if(oldSlotIndex != -1) {
 
-      if(oldSlotIndex + movement >= 0 && oldSlotIndex + movement < $rootScope.selectedSsuSlots.length) {
+      if(oldSlotIndex + movement >= 0 && oldSlotIndex + movement < $rootScope.selectedTimeSlots.length) {
         var reorderedSlots = [];
 
-        for(var index=0; index < $rootScope.selectedSsuSlots.length; index++) {
-          reorderedSlots.push($rootScope.selectedSsuSlots[index]._id);
+        for(var index=0; index < $rootScope.selectedTimeSlots.length; index++) {
+          reorderedSlots.push($rootScope.selectedTimeSlots[index]._id);
         }
 
         console.log(reorderedSlots);
@@ -300,7 +307,7 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
         $http.put('/ssu/reorder', reorderRequest).
         success(function(data, status, headers, config) {
           console.log(data);
-          swap($rootScope.selectedSsuSlots, oldSlotIndex, oldSlotIndex + movement);
+          swap($rootScope.selectedTimeSlots, oldSlotIndex, oldSlotIndex + movement);
         }).
         error(function(data, status, headers, config) {
           console.log('Failed to reorder SSUs');
@@ -320,6 +327,15 @@ app.controller('ssuModalController', function($scope, $http, $q, $modalInstance,
     var requestDetails = {
       ssuId: $rootScope.selectedSsu._id,
       users: []
+    }
+
+    console.log(resolutionDetails);
+
+    for(var slotIndex = 0; slotIndex < resolutionDetails.slots.length; slotIndex++) {
+      var slot = resolutionDetails.slots[slotIndex];
+
+      //The userEmail selected is actually an attendee object instead of the email itself
+      resolutionDetails.slots[slotIndex].userEmail = slot.userEmail.useremail;
     }
 
     var usersAssigned = [];

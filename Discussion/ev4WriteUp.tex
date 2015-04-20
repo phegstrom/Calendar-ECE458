@@ -144,13 +144,17 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 \subsection{New Features and Developments}
 \subsubsection*{Email Calendars}
 This feature was implemented using the \texttt{nodemailer} module that we imported. The back end simply handles the emailing here as the front end actually bundles the proper information (event objects or png) before issuing the request to the server. See front end discussion for more specifics on how the PNG file was created. 
-\subsubsection*{Text Input for Event Creation}
+\subsubsection*{En Masse Event Creation}
 This feature was pretty simple to execute as we already have a dedicated route to event creation. Hence, given text input, the front end parses the input and issues the needed amount of POST requests to the \texttt{/event} endpoint.
 \subsubsection*{Priority Escalation for PUDs}
 This feature was a little difficult to implement as previously we had handled priorities by the PUDs index in the users array of PUDs. We thought about scrapping this idea and implementing a priority number, but in the end, we didn't want to change previously written functionality. Hence, we continued to use the array index method for priority. To allow for certain PUDs to escalate, we set a \texttt{willEscalate} property in the database. Using the \texttt{setInterval()} function provided by node, the server will check every day which PUDs need to be escalated.
 
 \subsubsection*{Preference Sign Ups}
-Add stuff here tomorrow morning
+Preference sign ups required the most edits to our pre-existing code on the back end. Specifically, we had to add additional properties to the database model for the Slot Sign Up as well as change the slot sign up creation route (POST to \texttt{/ssu}). Before, this route would finalize the sign up and remove it from the available free blocks. Now, we've implemented extra functionality into the async.js waterfall array in the ssu creation process and added a check in the PUT request to the \texttt{/signup/:ssuId} endpoint.\\~\\
+The flow for the slot sign up is now this: either the SSU is normal so slots are immediately assigned to a user or the SSU is preference based in which we store the preferred time slots for each user. This information is stored in the \texttt{SlotSignUp.preferences} property of the model. This \texttt{preferences} structure holds the preferences for each user and is ultimately the data used to actually assign the slots at the SSU's deadline.\\~\\
+The deadline was repeatedly checked using Node's built-in \texttt{setInterval()} function which was discussed in the previous sub section. \\~\\
+Finally, we implemented a simple greedy algorithm to assign the slots to the various invitees. Although this might not produce the optimal assignment in the given matching problem, we felt this was ok due to the fact that the SSU creator would ultimately be able to manually change the assignments before finalizing. This is not the most ideal solution, but in an effort to present a functioning application, we took the hit on scope, something we would continue to expand upon in future developments. See section Future Work for more discussion on this. 
+
 
 \subsection{Benefits of Our Previous Design}
 The major and most noticeable benefit from our previous design was how re-usable it was. From the beginning, we treated the back end of our application as an exposed services API, providing a set of methods that virtually any front end could use. This re-usability came about because we continued to write short and single purpose methods for every service. And on a broader sense, all of our ``routes" were written to complete a single task---create an event, delete a user, send an email, etc. So, for example, when faced with text parsing, all that needed to be done was the actual parsing of the text, because once the data was gathered, it was just a matter of looping through and initiating a POST request to the \texttt{/event} end point for each event. \\~\\
@@ -161,6 +165,11 @@ The most time consuming feature was the preference based sign up. Why? Well we d
 Before, we had pretty rigid process for handling the slot sign up creation that used async.js \texttt{waterfall()} method. Now, though, certain parts of that async waterfall did not need to be called or additional asynchronous functions needed to be added to the function array. These additions or omittances changed the dependencies between each individual function in the waterfall function array. The required changes were great in number and therefore so were the errors. \\~\\
 In addition to specific design pitfalls, another more general problem arose: our file sizes were becoming very large and difficult to follow. As we added more features to pre-existing code, it became apparent that in some files we had just continued to populate the files without giving thought to potentially extracting the code out into a new file---the \texttt{SlotSignUpRoute.js} is almost 500 lines long. I think the solution here is to recognize this earlier and spend more time on discussion of new feature integration rather than just attempting to cram in the new features all into preexisting architecture. 
 
+\subsection{Future Developments}
+For the most part, we on the back-end feel proud of our work and the functionality our application provides. With that being said, there are a couple of things we would continue to develop if we were to get this application customer ready.\\~\\
+First, we would spend more optimizing the preference based sign up algorithm. As stated in a previous section, our algorithm is simple and greedy. This works, but is not the best. Ideally we would construct the situation using a bipartite graph (invitees are one type of node, and slots are the other type with edges being weighted by preference). If we were able to implement this structure, we could run a simple maximal perfect matching algorithm which would give the optimal assigment.\\~\\
+Lastly, we would like to make our application more robust in dealing with errors and form formatting. Currently, no checking is done to see whether or not the user entered in a correct email for example. These aspects of an application are what make it ready for market and would be a must if we were to push this calendar into production.\\~\\
+
 \section{Front End Design and Analysis}
 
 \subsection{New Features and Developments}
@@ -170,6 +179,7 @@ In addition to specific design pitfalls, another more general problem arose: our
 The extra features to PUD events including an expiry time and priority escalation were handled on the front-end by simply adding fields to the PUD creation form and sending this data to the back-end. Both of these features  took front-end input but the functionality was handled separately in the back-end.
 
 \subsubsection{Preference-based Sign Up}
+
 
 \subsubsection{En Masse Event Creation}
 

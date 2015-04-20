@@ -43,7 +43,7 @@ router.post('/image', function (req, res, next) {
 	var options = setOptions(htmlString, req.session.user.email, 'Image Version of Calendar');
 	options.attachments = [{   
             			filename: 'calendarIMG.png',
-            			path: './calendarIMG.png' // stream this file
+            			path: './public/images/screenShots/calendarIMG.png' // stream this file
         				}];
     console.log(options);
 	sendEmail(options, htmlString);	

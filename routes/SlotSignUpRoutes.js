@@ -7,22 +7,58 @@ var async 		= require('async');
 var router 		= express.Router();
 var Slot 		= require('../models/Slot');
 
-setInterval(prefAlgorithm, 1000*60*100);
+// setInterval(prefAlgorithm, 1000*60*1);
+setInterval(prefAlgorithm, 1000*200);
 
 function prefAlgorithm() {
+	console.log("prefAlgorithm");
 	var now = Date();
-	SlotSignUp.find({signupDate: {$gte: now}}, function (err, ssu) {
-		var finalSlot;
-		var takenFB = [];
 
-		for(var i = 0; i < ssu.preferences.length; i++) {
-			
-		}
+	// find every ssu with signupDate > now
+	SlotSignUp.find()
+			  .exec(function (err, ssuArr) {
+			  	ssuArr.forEach(function (ssu) {
+			  		var now = new Date();
+			  		if(ssu.signupDate <= now){
+						var takenFB = [];
 
-		ssu.preferenceComplete = true;
-		ssu.save();
-	});
+						for(var i = 0; i < ssu.preferences.length; i++) {
+							var timeSlots = ssu.preferences[i].timeSlots;
+
+							for(var j = 0; j < timeSlots.length; j++) {
+								var index = findSlot(takenFB, timeSlots[j].startTime);
+								console.log("timeSlot: "+index+" "+timeSlots[j]);
+								if(index == -1) {
+									takenFB.push(timeSlots[j]);
+									ssu.preferences[i].finalSlot = timeSlots[j];
+									break;
+								}
+							}
+						}
+
+						ssu.preferenceComplete = true;
+						ssu.save();	
+					}		  		
+			  	});
+			  });
 }
+
+function findSlot(takenFB, startTime) {
+	for(var i = 0; i < takenFB.length; i++) {
+		console.log("YOYO  "+takenFB[i].startTime + " " + startTime);
+		if(takenFB[i].startTime == startTime) {
+			console.log("FOUND");
+			return 0;
+		}
+	}
+	return -1;
+}
+
+router.get('/showAll', function (req, res, next) {
+  SlotSignUp.find()
+		      .exec(function (err, ssu) {
+		          res.send(ssu)
+		      })});
 
 // return array of createdSSEvents for a logged in user
 router.get('/', function (req, res, next) {

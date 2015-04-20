@@ -149,6 +149,17 @@ The overarching design principle we wanted to achieve was modularity. In doing s
 
 \subsection{New Features and Developments}
 
+\subsubsection{PUD Events}
+
+\subsubsection{Preference-based SignUp}
+
+\subsubsection{En Masse Event Creation}
+
+We implemented en masse event creation using simple text parsing. Since we have the user input the event with a Name, Description, Start Time, and End Time on separate lines, we simply split the input string based on the new line tokens and create separate events for each series of 4 lines of text.
+
+\subsubsection{Schedule by Email}
+Our front-end implementation of this feature was fairly easy. For text schedule, we simply parse through all of the events within the currently display frame and send them to the back-end. For image schedule, we take a screenshot of the calendar in the current display and send it to the back-end to email.
+
 \subsection{Benefits of Our Previous Design}
 
 \subsection{Drawbacks of Our Previous Design}

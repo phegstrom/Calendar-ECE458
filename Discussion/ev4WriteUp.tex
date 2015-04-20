@@ -225,23 +225,23 @@ The implementation of the features in this evolution were fairly straightforward
 \begin{enumerate} [a)]
 \item  {\bf Designing and Conducting Experiments}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For this evolution, I designed back end logic for the PUD priority elevation, priority escalation, and preference based signup. I designed the greedy algorithm that the backend uses to assign final time slots to users in Slot Sign Up based on preference.  Initially, I looked into the 'Stable Marriage Problem'. This is a fairly simple greedy algorithm which finds a stable matching between two sets of elements based on preferences for each element. However, our problem is much simpler, so I took elements from this algorithm to design my own.  Essentially, I loop through every user and attempt to give them their first preference time slot.  In the case that their first preference overlaps with someone else, my algorithm determines who gets which time slot. In the case that it is impossible to determine what time slot to give a user, I do not assign them a time slot and leave it up to the front end to determine which time slot to assign.
 \end{enumerate}
 \item  {\bf Analyzing and Interpreting Data}
 \begin{enumerate} [$\cdot$]
-\item 
+\item We decided to take full advantage of javascript's first-class functions. We created an array of functions dynamically for Slot Sign Ups to be run. While this was very elegant, the javascript async waterfall of this array of functions seemed to keep messing up or crashing somewhere. By stepping through the code and the stack trace in the console, I was able to determine the bugs and squash them.
 \end{enumerate}
 \item {\bf Designing System Components}
 \begin{enumerate} [$\cdot$]
-\item 
+\item For preference based slot sign ups, we had to design how preferences would be saved in the model. So for the SlotSignUp model, I added three flags: preferenceBased, preferenceComplete, and preferenceFinal.  The first is true when the SlotSignUp is preference based, the second is true when the sign up deadline has passed and the determining algorithm successfully run, and the third is true when the front end has resolved the preferences.  Next, a SlotSignUp saves an array of JSON called preferences. This is an array for each user invited to the preference based slot sign up with an ordered array (based on their preferences) of their preferred time slots and a finalSlot. Essentially, when the deadline for sign up passes, the backend will go through each user in this preferences array, grab their optimal time slot, and push it to the user's finalSlot variable. This component went through a few redesigns, but in the end we stuck with this design due to its simplicity and light weight.
 \end{enumerate}
 \item {\bf Dealing with Realistic Constraints}
 \begin{enumerate} [$\cdot$]
-\item 
+\item When creating the logic for the preference based Slot Sign Up, I had to consider a few realistic situations.  had to consider the cases where a user did not sign up for a slot in time or if multiple users signed up for only 1 slot.  While messing around with the algorithm, I determined that it would be best if these users would simply be assigned a null time slot.  From there, the front end would be selecting and determining which users get which slots.
 \end{enumerate}
 \item  {\bf Teamwork and Team Member Interaction}
 \begin{enumerate} [$\cdot$]
-\item 
+\item Because of the way we designed our project, we were able to complete most of this evolution independently and remotely. As a result, we were able to finish implementing the requirements for this evolution and debugging issues earlier.
 \end{enumerate}
 \end{enumerate}
 

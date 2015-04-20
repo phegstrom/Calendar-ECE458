@@ -8,7 +8,7 @@ var router 		= express.Router();
 var Slot 		= require('../models/Slot');
 
 // setInterval(prefAlgorithm, 1000*60*1);
-setInterval(prefAlgorithm, 1000*200);
+setInterval(prefAlgorithm, 1000*60*500);
 
 function prefAlgorithm() {
 	console.log("prefAlgorithm");
@@ -27,7 +27,7 @@ function prefAlgorithm() {
 
 							for(var j = 0; j < timeSlots.length; j++) {
 								var index = findSlot(takenFB, timeSlots[j].startTime);
-								console.log("timeSlot: "+index+" "+timeSlots[j]);
+								console.log("index: "+index);
 								if(index == -1) {
 									takenFB.push(timeSlots[j]);
 									ssu.preferences[i].finalSlot = timeSlots[j];
@@ -45,20 +45,24 @@ function prefAlgorithm() {
 
 function findSlot(takenFB, startTime) {
 	for(var i = 0; i < takenFB.length; i++) {
-		console.log("YOYO  "+takenFB[i].startTime + " " + startTime);
-		if(takenFB[i].startTime == startTime) {
-			console.log("FOUND");
+		if(takenFB[i].startTime.getTime() == startTime.getTime()) {
 			return 0;
 		}
 	}
 	return -1;
 }
 
+router.get('/prefAlgo', function (req, res, next) {
+	prefAlgorithm();
+	res.send("Preference algorithm complete");
+})
+
 router.get('/showAll', function (req, res, next) {
   SlotSignUp.find()
 		      .exec(function (err, ssu) {
 		          res.send(ssu)
-		      })});
+		      });
+		  });
 
 // return array of createdSSEvents for a logged in user
 router.get('/', function (req, res, next) {
@@ -414,6 +418,7 @@ router.put('/reorder', function (req, res, next) {
 	var ssuId = req.body.ssuId;
 
 	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
+		console.log("ssu: "+ssu.preferences);
 		var jSSU = ssu.toJSON();
 		var preferencesTemp = jSSU.preferences;
 		ssu.preferences = null;
@@ -424,40 +429,13 @@ router.put('/reorder', function (req, res, next) {
 			}
 		}
 
+		ssu.preferences = preferencesTemp;
+
 		ssu.save(function (err, ssuSaved) {
+			console.log(ssuSaved.preferences.timeSlots);
 			res.send(ssuSaved);
 		});
-
-		// var jSSU = ssu.toJSON();
-		// var attendeesTemp = jSSU.attendees;
-		// ssu.attendees = null;
-
-		// for(var i = 0; i < attendeesTemp.length; i++) {
-		// 	if(attendeesTemp[i].userEmail == req.session.user.email) {
-		// 		attendeesTemp[i].slots = req.body.slots;
-		// 	}
-		// }
-		// ssu.attendees = attendeesTemp;
-
-		// ssu.save(function (err, ssuSaved) {
-		// 	res.send(ssuSaved);
-		// });
-
 	});
 });
 
 module.exports = router;
-
-
-
-
-
-
-
-
-
-
-
-
-
-

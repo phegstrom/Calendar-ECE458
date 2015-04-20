@@ -159,9 +159,21 @@ The re-usability came about from our file organization as well. In the third evo
 \subsection{Drawbacks of Our Previous Design}
 The most time consuming feature was the preference based sign up. Why? Well we discussed that this type of feature---one that modifies pre-existing functionality---was the hardest, but the main reason for its difficulty came about because we made too many assumptions when designing the \texttt{SlotSignUp} model.\\~\\
 Before, we had pretty rigid process for handling the slot sign up creation that used async.js \texttt{waterfall()} method. Now, though, certain parts of that async waterfall did not need to be called or additional asynchronous functions needed to be added to the function array. These additions or omittances changed the dependencies between each individual function in the waterfall function array. The required changes were great in number and therefore so were the errors. \\~\\
-In addition to specific design pitfalls, another more general problem arose: our file sizes were becoming very large and difficult to follow. As we added more features to pre-exisiting code, it became apparent that in some files we had just continued to populate the files without giving thought to potentially extracting the code out into a new file---the \texttt{SlotSignUpRoute.js} is almost 500 lines long. I think the solution here is to recognize this earlier and spend more time on discussion of new feature integration rather than just attempting to cram in the new features all into preexisting architecture. 
+In addition to specific design pitfalls, another more general problem arose: our file sizes were becoming very large and difficult to follow. As we added more features to pre-existing code, it became apparent that in some files we had just continued to populate the files without giving thought to potentially extracting the code out into a new file---the \texttt{SlotSignUpRoute.js} is almost 500 lines long. I think the solution here is to recognize this earlier and spend more time on discussion of new feature integration rather than just attempting to cram in the new features all into preexisting architecture. 
 
 \section{Front End Design and Analysis}
+
+\subsection{New Features and Developments}
+
+\subsubsection{PUD Events}
+
+The extra features to PUD events including an expiry time and priority escalation were handled on the front-end by simply adding fields to the PUD creation form and sending this data to the back-end. Both of these features  took front-end input but the functionality was handled separately in the back-end.
+
+\subsubsection{Preference-based Sign Up}
+
+\subsubsection{En Masse Event Creation}
+
+We implemented en masse event creation using simple text parsing. Since we have the user input the event with a Name, Description, Start Time, and End Time on separate lines, we simply split the input string based on the new line tokens and create separate events for each series of 4 lines of text.
 
 \subsubsection{Schedule by Email}
 Our front-end implementation of this feature was fairly easy. For text schedule, we simply parse through all of the events within the current display frame and send them to the back-end. For image schedule, we take a screenshot of the calendar in the current display using Javascript's html2canvas() function and send it to the back-end to email.

@@ -22,10 +22,14 @@
       p
         b 
           | Invited Users
-        div(ng-repeat="user in selectedSsu.attendees")
+        div(ng-hide="selectedSsu.preferenceBased", ng-repeat="user in selectedSsu.attendees")
           p {{ user.userEmail }}
           ul
             li(ng-repeat="slot in user.slots") {{ convertDates(slot.start, slot.end) }}
+        div(ng-show="selectedSsu.preferenceBased", ng-repeat="user in selectedSsu.preferences")
+          p {{ user.useremail }}
+          ul
+            li(ng-repeat="slot in user.timeSlots") {{ convertDates(slot.startTime, slot.endTime) }}
   .row
     hr
     | &nbsp;

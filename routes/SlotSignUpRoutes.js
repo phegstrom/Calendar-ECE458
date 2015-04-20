@@ -343,6 +343,7 @@ router.put('/signUp/:ssuId', function (req, res, next) {
 
 			ssu.preferences = preferencesTemp;
 			ssu.save();
+			res.send(ssu);
 		} else {
 			signUp(req.params.ssuId, req.body.start, req.body.end, req.session.user.email, function (ssuSaved) {
 				res.send(ssuSaved);

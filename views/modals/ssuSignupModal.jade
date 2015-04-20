@@ -38,6 +38,8 @@
         p
           ul(ng-show="selectedSsuSlots.length > 0")
             li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+          ul(ng-show="selectedTimeSlots.length > 0")
+            li(ng-repeat="block in selectedTimeSlots") {{ convertDates(block.startTime, block.endTime) }}
               | &nbsp;
               a(href="#", ng-click="cancelSignupSlot(block, selectedSsuSlots)")
                 span.glyphicon.glyphicon-remove

@@ -295,7 +295,7 @@ app.run(function($rootScope, $q, $http, $modal) {
   $rootScope.displaySsuDetails = function(ssuEvent) {
     $rootScope.selectedSsu = ssuEvent;
 
-    if($rootScope.selectedSsu.preferenceBased && $rootScope.selectedSsu.preferenceComplete) {
+    if(!$rootScope.selectedSsu.preferenceFinal && $rootScope.selectedSsu.preferenceComplete) {
       var selectedPreferences = $rootScope.selectedSsu.preferences;
 
       $rootScope.resolutionDetails = {
@@ -313,7 +313,7 @@ app.run(function($rootScope, $q, $http, $modal) {
 
         var slotStart = new Date(selectedBlock.start);
         for(var preferenceIndex = 0; preferenceIndex < selectedPreferences; preferenceIndex++) {
-          var preferenceStart = new Date(selectedPreferences[preferenceIndex].timeSlots.startTime);
+          var preferenceStart = new Date(selectedPreferences[preferenceIndex].finalSlot.startTime);
           if(slotStart == preferenceStart) {
             slotObject.userEmail = selectedPreferences[preferenceIndex].useremail;
           }
@@ -349,6 +349,12 @@ app.run(function($rootScope, $q, $http, $modal) {
     for(var attendeeIndex = 0; attendeeIndex < ssuEvent.attendees.length; attendeeIndex++) {
       if(ssuEvent.attendees[attendeeIndex].userEmail == $rootScope.currentUserEmail) {
         $rootScope.selectedSsuSlots = ssuEvent.attendees[attendeeIndex].slots;
+      }
+    }
+
+    for(var preferenceIndex = 0; preferenceIndex < ssuEvent.preferences.length; preferenceIndex++) {
+      if(ssuEvent.preferences[preferenceIndex].useremail == $rootScope.currentUserEmail) {
+        $rootScope.selectedTimeSlots = ssuEvent.preferences[preferenceIndex].timeSlots;
       }
     }
 

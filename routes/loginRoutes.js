@@ -2,6 +2,7 @@ var passport  = require('passport');
 var User      = require('../models/User');
 var Calendar  = require('../models/Calendar');
 var router    = require('express').Router();
+var deepPopulate = require('mongoose-deep-populate');
 
 router.get('/', requireLogin, function(req, res, next) {
   res.render('dashboard', {user: req.user});
@@ -48,10 +49,10 @@ router.get('/logout', function(req, res) {
 
 router.get('/query', function(req, res) {
   User.find()
-      .populate('PUDs')
+      .deepPopulate('myCalId.events')
       .exec(function (err, users) {
           res.send(users)
-      })
+      });
 });
 
 router.get('/users', function (req, res, next) {

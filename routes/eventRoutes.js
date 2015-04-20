@@ -131,23 +131,17 @@ router.post('/', function(req, res, next) {
 		var f = function (next) {
 			newEvent.save(function (err, ev) {
 				allEvIds.push(ev._id);
-				console.log('saved EVENT: ' + ev);
 				next(null, allEvIds, ev);
 			});
 		};
-		console.log('IM HERE');
 		allFunctions.push(f);
 
 		var functionArray = createFunctionArray(repeatedEventConstructors);
 		allFunctions = _.union(allFunctions, functionArray);
 
-		console.log('HEREEREr');
-
 		var endF = function (allEvIds, ev) {
 			Calendar.update({_id: req.body.calendar}, {$pushAll: {events: allEvIds}}, function(err, num, raw) {
 				if(err) next(err);
-				console.log('Repeat events creation complete!');
-				console.log(ev);
 				newRepeatChain.myEvents = allEvIds;
 				newRepeatChain.save(function (err, savedd) {
 					res.send(ev);
@@ -156,10 +150,7 @@ router.post('/', function(req, res, next) {
 		};
 
 		allFunctions.push(endF);
-
-		console.log('about to initailize repeat event creation...');
 		async.waterfall(allFunctions);
-
 	}
 
 });

@@ -278,7 +278,7 @@ router.put('/cancelSlot/:slotId', function (req, res, next) {
 		}
 	]);
 });
-
+ 
 // delete a SlotSignUp
 router.delete('/:ssuId', function (req, res, next) {
 	// do we need to find and remove Slots from attendees?
@@ -296,11 +296,8 @@ router.delete('/:ssuId', function (req, res, next) {
 				ssu.remove();
 				res.send('slot sign up event deleted!');
 			});
-
 		});
-
 	});
-
 });
 
 router.get('/test/:date', function (req, res, next) {
@@ -314,11 +311,13 @@ router.get('/test/:date', function (req, res, next) {
 router.put('/resolve', function (req, res, next) {
 	//req.body.preferences
 	//req.body.ssuId
+	console.log("resolve");
 	var users = req.body.users;
 	var ssuId = req.body.ssuId;
+	console.log(users);
 	for(var i = 0; i < users.length; i++) {
 		signUp(ssuId, users[i].timeSlots.startTime, users[i].timeSlots.endTime, users[i].useremail, function (err, ssu) {
-
+			console.log("sign up done?");
 		});
 	}
 
@@ -362,6 +361,8 @@ function signUp(ssuId, startDate, endDate, userEmail, cb) {
 	//will receive a start and end time
 	//remove freeBlocks from SlotSignUp
 	//do something...create a Slot object, add to User's Slot, etc
+
+	console.log("SLOT SIGN UP");
 	
 	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
 		ssu.takeFreeBlocks(startDate, endDate);
@@ -370,7 +371,6 @@ function signUp(ssuId, startDate, endDate, userEmail, cb) {
 			var newSlot = new Slot();
 			newSlot.useremail = userEmail;
 			newSlot.SSU = ssu._id;
-
 
 			newSlot.start = startDate;
 			newSlot.end = endDate;
@@ -404,6 +404,7 @@ function signUp(ssuId, startDate, endDate, userEmail, cb) {
 			newSlot.save(function (err, nsSaved) {
 				user.save(function (err, uSaved) {
 					ssu.save(function (err, ssuSaved) {
+						nsSaved.createEvent(ssuSaved);
 						cb(ssuSaved);
 					});
 				});

@@ -320,6 +320,7 @@ app.run(function($rootScope, $q, $http, $modal) {
         }
       }
 
+      console.log($rootScope.selectedSsu);
 
       $modal.open({
         templateUrl: '/modal/ssuResolutionModal',

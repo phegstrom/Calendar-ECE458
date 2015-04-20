@@ -28,4 +28,4 @@
         div(ng-repeat="user in selectedSsu.preferences")
           p {{ user.useremail }}
           ul
-            li(ng-repeat="slot in user.timeslots") {{ convertDates(slot.start, slot.end) }}
+            li(ng-repeat="slot in user.timeSlots") {{ convertDates(slot.startTime, slot.endTime) }}

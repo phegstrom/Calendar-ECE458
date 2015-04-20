@@ -312,13 +312,32 @@ router.put('/resolve', function (req, res, next) {
 	//req.body.preferences
 	//req.body.ssuId
 	console.log("resolve");
-	var users = req.body.users;
+	// var users = req.body.users;
+	var users = [];
+
+	var bStart = new Date("Mon Apr 20 2015 14:00:00 GMT-0400 (EDT)");
+	var bEnd = new Date("Mon Apr 20 2015 14:15:00 GMT-0400 (EDT)");
+	var pStart = new Date("Mon Apr 20 2015 15:00:00 GMT-0400 (EDT)");
+	var pEnd = new Date("Mon Apr 20 2015 15:15:00 GMT-0400 (EDT)");
+	users.push({useremail: "brandonchao3@gmail.com", startTime: bStart, endTime: bEnd});
+	users.push({useremail: "parker.hegstrom@gmail.com", startTime: pStart, endTime: pEnd});
 	var ssuId = req.body.ssuId;
-	console.log(users);
+
 	for(var i = 0; i < users.length; i++) {
-		signUp(ssuId, users[i].timeSlots.startTime, users[i].timeSlots.endTime, users[i].useremail, function (err, ssu) {
-			console.log("sign up done?");
-		});
+		console.log("for");
+		console.log(users[i]);
+		// signUp(ssuId, users[i].timeSlots.startTime, users[i].timeSlots.endTime, users[i].useremail, function (err, ssu) {
+		// 	console.log("sign up done?");
+		// });
+		if(i == 0) {
+			signUp(req.body.ssuId, bStart, bEnd, "brandonchao3@gmail.com", function (ssuSaved) {
+				console.log("done?");
+			});
+		} else if (i == 1) {
+			signUp(req.body.ssuId, pStart, pEnd, "parker.hegstrom@gmail.com", function (ssuSaved) {
+				console.log("done?");
+			});			
+		}
 	}
 
 	SlotSignUp.findOne({_id: ssuId}, function (err, ssu) {
@@ -404,7 +423,8 @@ function signUp(ssuId, startDate, endDate, userEmail, cb) {
 			newSlot.save(function (err, nsSaved) {
 				user.save(function (err, uSaved) {
 					ssu.save(function (err, ssuSaved) {
-						nsSaved.createEvent(ssuSaved);
+						if(ssuSaved != null)
+							nsSaved.createEvent(ssuSaved);
 						cb(ssuSaved);
 					});
 				});

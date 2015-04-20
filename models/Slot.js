@@ -22,6 +22,7 @@ SlotSchema.methods.createEvent = function (ssu) {
 		if(user.myCalId.length > 0) {
 			Calendar.findOne({_id: user.myCalId[0]}, function (err, cal) {
 				var newEvent = new Event();
+				console.log("SSU: "+ssu.name);
 				newEvent.name = "Slot: "+ssu.name;
 				newEvent.description = ssu.description;
 				newEvent.start = new Date(startDate);

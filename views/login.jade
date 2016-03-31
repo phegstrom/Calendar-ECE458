@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h2(style="text-align: center") Welcome to soCal!
+  hr(width="30%")
+  form(role='form', action="/login",method="post", style='max-width: 300px; margin: 0 auto')
+    .form-group
+        input.form-control(type='text', name="email", placeholder='Email')
+    .form-group
+      input.form-control(type='password', name="password", placeholder='Password')
+    button.btn.btn-success(type='submit') Log in
+    | &nbsp;
+    a(href='/register')
+      button.btn.btn-primary(type="button") No account? Register here!

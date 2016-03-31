@@ -1,0 +1,178 @@
+extends layout
+
+block content
+  div(ng-app="calendarApp", ng-cloak)
+
+    link(rel='stylesheet', href='/css/angular-bootstrap-calendar.min.css')
+    link(rel='stylesheet', href='/css/angular-csp.css')
+    link(rel='stylesheet', href='/css/soCal.css')
+
+    .page-header
+      .row
+        .col-md-8
+          h1.text-center
+            | {{ calendarControl.getTitle() }}
+      .row
+        .col-md-8
+          .pull-left.form-inline
+           .btn-group
+              button.btn.btn-primary(ng-click="nav('back')") << Prev
+              button.btn(ng-click="goToToday()") Today
+              button.btn.btn-primary(ng-click="nav('forward')") Next >>
+          .pull-right.form-inline
+            .btn-group#viewLengthButtons
+              button.btn.btn-primary(ng-class="{active: calendarView=='year'}", ng-click="setViewLength('year')") Year
+              button.btn.btn-primary(ng-class="{active: calendarView=='month'}", ng-click="setViewLength('month')") Month
+              button.btn.btn-primary(ng-class="{active: calendarView=='week'}", ng-click="setViewLength('week')") Week
+              button.btn.btn-primary(ng-class="{active: calendarView=='day'}", ng-click="setViewLength('day')") Day
+      br
+    .row
+      .col-md-8#calendar
+        mwl-calendar(calendar-events='events', calendar-view='calendarView', calendar-current-day='calendarDay', calendar-control='calendarControl', calendar-event-click='displayEventDetails($event)', calendar-edit-event-click='eventEdited($event)', calendar-delete-event-click='eventDeleted($event)', calendar-auto-open='true')
+      .col-md-4
+        #sideBar(ng-controller="sideBarController")
+          .btn-group
+            button.btn.btn-primary(ng-class="{active: selector == 0 || selector == 1}", ng-click="displayUserGroups()") Groups
+            button.btn.btn-primary(ng-class="{active: selector == 2 || selector == 3 || selector == 5}", ng-click="displayCalendars()") Calendars
+            button.btn.btn-primary(ng-class="{active: selector == 4}", ng-click="displayPUDEvents()") Tasks
+            button.btn.btn-primary(ng-class="{active: selector == 6}", ng-click="displayInvites()") Invites
+          | &nbsp;
+          button.btn.btn-danger.event-btn(href, ng-click="createNewEvent()")
+            span(class="glyphicon glyphicon-plus")
+          #userGroupWindow(ng-show="selector == 0")
+            br
+            form.navbar-form(name="createGroupForm")
+              input.form-control(type="text", ng-model="inputUserGroup", placeholder="New User Group", required)
+              | &nbsp;
+              button.btn.btn-primary(type="submit", ng-disabled="createGroupForm.$invalid", ng-click="createGroup()") Create Group
+            h4 User Groups
+            ul
+              li(ng-repeat="group in userGroups")
+                a(href, ng-click="displayUserGroup(group)") {{ group.name + " " }}
+                a(href, ng-click="deleteUserGroup(group._id)")
+                  span(class="glyphicon glyphicon-remove")
+          #userListWindow(ng-show="selector == 1")
+            br
+            form.navbar-form(name="addUserForm")
+              input.form-control(type="text", ng-model="inputUserEmail", placeholder="User Email", list="emails", required)
+              | &nbsp;
+              button.btn.btn-primary(type="submit", ng-disabled="addUserForm.$invalid", ng-click="addUserToGroup()", ) Add User
+              | {{ text }}
+            h4 {{ selectedUserGroup.name }}
+            ul
+              li(ng-repeat="user in selectedUserGroup.users")
+                | {{ user.email + " " }}
+                a(href, ng-click="deleteUserFromGroup(user.email)")
+                  span(class="glyphicon glyphicon-remove")
+             
+
+          #calendarInfo(ng-show="selector == 2")
+            br
+            form.navbar-form(name="createCalendarForm")
+              input.form-control(type="text", ng-model="inputCalendarName", placeholder="Calendar Name", required)
+              | &nbsp;
+              button.btn.btn-primary(type="submit", ng-disabled="createCalendarForm.$invalid", ng-click="createCalendar(inputCalendarName)") Create Calendar
+            h4 My Calendars
+            ul
+              li(ng-repeat="calendar in myCalendars")
+                a(href, ng-click="displayOwnerCalendar(calendar)") {{ calendar.name + " " }}
+                a(href, ng-click="deleteCalendar(calendar._id)")
+                  span(class="glyphicon glyphicon-remove")
+            h4 Shared Calendars
+            h5 Modify
+            ul
+              li(ng-repeat="calendar in modCalendars")
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
+            h5 See All
+            ul
+              li(ng-repeat="calendar in viewCalendars")
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
+            h5 Busy Only
+            ul
+              li(ng-repeat="calendar in viewBusyCalendars")
+                a(href, ng-click="displayCalendar(calendar)") {{ calendar.name }}
+            .btn-group
+              button.btn.btn-primary(ng-click="emailTextSchedule()") Email Text Schedule
+              button.btn.btn-primary(ng-click="emailPngSchedule()") Email PNG Schedule
+
+          #PUDEvents(ng-show="selector == 4")
+            br
+            h4 To-Do
+              | &nbsp;
+              a(href, ng-click="createPudEvent()")
+                span(class="glyphicon glyphicon-plus")
+            ul
+              li(ng-repeat="pud in pudList")
+                a(href, ng-click="completePud(pud)")
+                  span.glyphicon.glyphicon-check
+                | &nbsp;
+                a(href, ng-click="editPud(pud)") {{ pud.description + " (" + pud.time + " hours) " }}
+                a(href, ng-click="deletePud(pud)")
+                  span.glyphicon.glyphicon-remove
+                | &nbsp;
+                a(href, ng-click="movePud(pud, 'up')")
+                  span.glyphicon.glyphicon-arrow-up
+                a(href, ng-click="movePud(pud, 'down')")
+                  span.glyphicon.glyphicon-arrow-down
+          
+          #eventInvites(ng-show="selector == 6")
+            br
+            h4 Sent Event Invitations
+            ul
+              li(ng-repeat="request in ownRequests")
+                //request.eventID is an event object, not an ID, naming is due to database storage
+                a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name }}
+                if('request.edits.length > 0')
+                  ul
+                    li(ng-repeat="editEvent in request.edits")
+                      a(href, ng-click="displayEventDetails(editEvent)") {{ editEvent.editor }}
+                      a(href, ng-click="respondToRequestEdit(request, editEvent, 'approve')")
+                        span.glyphicon.glyphicon-ok
+                      a(href, ng-click="respondToRequestEdit(request, editEvent, 'deny')")
+                        span.glyphicon.glyphicon-remove
+            h4 Sent Sign-Up Requests
+            ul
+              li(ng-repeat="signupEvent in slotSignupsCreated")
+                a(href, ng-click="displaySsuDetails(signupEvent)") {{ signupEvent.name }}
+                a(href, ng-click="deleteSignUpEvent(signupEvent)")
+                  span.glyphicon.glyphicon-remove
+            button.btn.btn-primary(ng-click="displayCreateSsuModal()") Create Sign-Up
+            h4 Received Event Invitations
+            ul
+              li(ng-repeat="request in pendingRequests")
+                a(href, ng-click="displayEventDetails(request.eventID)") {{ request.eventID.name + " " }}
+                a(href, ng-hide="selectedRequest == request._id", ng-click="selectedRequest = request._id")
+                  span.glyphicon.glyphicon-triangle-bottom
+                br
+                form(ng-show="selectedRequest == request._id")
+                  select(ng-model="requestCalendar", ng-options="calendar.name for calendar in myCalendars", required)
+                  br
+                  .btn-group
+                    button.btn.btn-primary(ng-disabled="requestCalendar == undefined", ng-click="acceptRequest(request, requestCalendar)") Accept
+                    button.btn.btn-warning(ng-click="declineRequest(request)") Decline
+                    button.btn.btn-danger(ng-click="ignoreRequest(request)") Remove
+            h4 Received Sign-Up Requests
+            ul
+              li(ng-repeat="signupRequest in slotSignupsIncoming")
+                a(href, ng-click="displaySsuSignupModal(signupRequest)") {{signupRequest.name}}
+
+    datalist(id="emails")
+      option(ng-repeat="user in userList") {{ user.email }}
+
+    script(type='text/javascript', src='/js/underscore-min.js')
+    script(type='text/javascript', src='/js/angular.js')
+    script(type='text/javascript', src='/js/moment.js')
+    script(type='text/javascript', src='/js/angular-filter.min.js')
+    script(type='text/javascript', src='/js/angular-bootstrap-calendar-tpls.min.js')
+    script(type='text/javascript', src='/js/ui-bootstrap-tpls.min.js')
+    script(type='text/javascript', src='/js/html2canvas.js')
+    script(type='text/javascript', src='/js/date.js')
+    script(type='text/javascript', src='/js/index.js')
+    script(type='text/javascript', src='/js/controllers/eventModalController.js')
+    script(type='text/javascript', src='/js/controllers/pudModalController.js')
+    script(type='text/javascript', src='/js/controllers/ssuModalController.js')
+    script(type='text/javascript', src='/js/controllers/sideBarController.js')
+    script(type='text/javascript', src='/js/controllers/addRuleModalController.js')
+    script(type='text/javascript', src='/js/controllers/addUserModalController.js')
+    script(type='text/javascript', src='/js/controllers/calendarModalController.js')
+    script(type='text/javascript', src='/js/controllers/conflictSummaryModalController.js')

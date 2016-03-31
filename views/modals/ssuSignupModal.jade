@@ -1,0 +1,49 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title() {{ selectedSsu.name }}
+.modal-body
+  .row
+    .col-md-6
+      p(ng-show="selectedSsu.description")
+        b Description 
+        | {{ selectedSsu.description }}
+      p
+        b Maximum Sign-Up Duration 
+        | {{ selectedSsu.maxDuration + ' Minutes' }}
+      p
+        b Max Sign-Ups per Attendee 
+        | {{ selectedSsu.maxPerUser }}
+      p
+        b Free Time Slots
+        ul(ng-show="selectedSsu.freeBlocks.length > 0")
+          li(ng-repeat="block in selectedSsu.freeBlocks") {{ convertDates(block.start, block.end) }}
+      p(style="display: table-row;")
+        label(style="display: table-cell;") Slots
+        br
+        select.form-control(style="display:table-cell;", ng-model="selectedBlock", ng-options="convertDates(block.start, block.end) for block in selectedSsu.freeBlocks")
+        a(href="#", ng-click="addTimeToSlot(selectedBlock, selectedSsu.maxDuration)")
+          span.glyphicon.glyphicon-plus
+        | &nbsp;
+        p(ng-show="currentTimeRange")
+          {{ convertDates(currentTimeRange.start, currentTimeRange.end) }}
+          a(href="#", ng-click="clearCurrentTimeRange()")
+            span.glyphicon.glyphicon-remove
+        | &nbsp;
+        button.btn(ng-click="ssuSignupForSlot(currentTimeRange, selectedSsu._id)") Sign-Up
+
+    .col-md-6
+      p
+        b 
+          | Slots Currently Signed Up For
+        p
+          ul(ng-show="selectedSsuSlots.length > 0")
+            li(ng-repeat="block in selectedSsuSlots") {{ convertDates(block.start, block.end) }}
+          ul(ng-show="selectedTimeSlots.length > 0")
+            li(ng-repeat="block in selectedTimeSlots") {{ convertDates(block.startTime, block.endTime) }}
+              | &nbsp;
+              a(href="#", ng-click="cancelSignupSlot(block, selectedSsuSlots)")
+                span.glyphicon.glyphicon-remove
+              a(href="#", ng-click="moveSsu(block, 'up')")
+                span.glyphicon.glyphicon-arrow-up
+              a(href="#", ng-click="moveSsu(block, 'down')")
+                span.glyphicon.glyphicon-arrow-down

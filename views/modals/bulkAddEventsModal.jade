@@ -1,0 +1,32 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title() Bulk Add Events
+.modal-body
+  .row
+    .col-md-6
+      form.navbar-form(style="display: table;", name="bulkAddEventForm")
+        p(style="display:table-row;")
+          label(style="display:table-cell;") Input Text
+          textarea.form-control(style="display:table-cell;", rows="10", ng-model="bulkEventString", placeholder="Name\nDescription\nStart Time\nEnd Time\n...", required)
+        p(style="display:table-row;")
+          label(style="display:table-cell;") Containing Calendar
+          | &nbsp;
+          select.form-control(style="display:table-cell;", ng-model="bulkAddCalendar", ng-options="calendar.name group by calendar.grouping for calendar in calendars | filter:{grouping: '!Busy Calendar'} | filter:{grouping: '!Viewable Calendar'}", required)
+      
+    .col-md-6
+      label(style="display:table-cell;") Date Checker
+      input.form-control(style="display:table-cell;", type="text", ng-model="testDate", placeholder="Date String Validator")
+      p {{ parsedDate(testDate) }}
+
+      b Event Format
+      p Name
+      p Description
+      p Start Time
+      p End Time
+      p {{ bulkAddErrorText }}
+
+  .row
+    hr
+    | &nbsp;
+    .btn-group
+      button.btn.btn-primary.btn-sm(type="submit", ng-disabled="bulkAddEventForm.$invalid", ng-click="bulkAddEvents(bulkEventString)") Add Events

@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h2(style="text-align: center") Join soCal.
+  hr(width="30%")
+  form(role='form', action="/register",method="post", style='max-width: 300px; margin: 0 auto')
+    .form-group
+      input.form-control(type='text', name="name", placeholder='Name')
+    .form-group
+      input.form-control(type='text', name="email", placeholder='Email')
+    .form-group
+      input.form-control(type='password', name="password", placeholder='Password')
+    button.btn.btn-success(type='submit') Create my account!
+    &nbsp;
+    a(href='/login')
+      button.btn.btn-primary(type="button") I have an account

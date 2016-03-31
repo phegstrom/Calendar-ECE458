@@ -1,0 +1,27 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title Add Rule to {{ selectedCalendar.name }}
+.modal-body
+  form.navbar-form(name="addRuleForm")
+    label Rule Type
+    | &nbsp;
+    select.form-control(ng-model="newRule.ruleType")
+      option(value="canView") Can View
+      option(value="canViewBusy") Can View Busy
+      option(value="canNotView") Cannot View
+    br
+    label User Group
+    br
+    select.form-control(ng-model="userGroup", ng-options="group.name for group in userGroups")
+    | &nbsp;
+    button.btn(ng-click="addUserGroupToRule()") Add User Group
+    ul
+      li(ng-repeat="displayGroup in userGroupDisplay") {{ displayGroup }}
+    label User Email
+    br
+    input.form-control(type="text", ng-model="userEmail", list="emails")
+    | &nbsp;
+    button.btn(ng-click="addUserEmailToRule()") Add User Email
+    ul
+      li(ng-repeat="userEmail in newRule.userIds") {{ userEmail }}
+    button.btn.btn-primary(ng-disabled="addRuleForm.$invalid", ng-click="addRule()") Add Rule

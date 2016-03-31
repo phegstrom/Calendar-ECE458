@@ -1,0 +1,11 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4#myModalLabel.modal-title Add Users with Modify to {{ selectedCalendar.name }}
+.modal-body
+  form.navbar-form(name="addModUserForm")
+    input.form-control(type="text", ng-model="inputModUserEmail", list="emails")
+    | &nbsp;
+    button.btn(ng-click="addModUsertoList()") Add User
+    ul
+      li(ng-repeat="modUserEmail in modUserList") {{ modUserEmail }}
+    button.btn.btn-primary(ng-disabled="addModUserForm.$invalid", ng-click="addModUser()") Add Users with Modify

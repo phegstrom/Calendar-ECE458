@@ -1,0 +1,44 @@
+.modal-header
+  button.close(type='button', ng-click="cancel()") &times;
+  h4.modal-title Create/Edit To-Do Task
+.modal-body
+  form.navbar-form(style="display: table;", name="createPudForm")
+    p(style="display: table-row;")
+      label(style="display: table-cell;") Task
+      textarea.form-control(style="display: table-cell;", rows="2", cols="40", ng-model="pudDetails.description", placeholder="Task Description", required)
+    br
+    p(style="display: table-row;")
+      label(style="display: table-cell;") Hours Allocated
+      | &nbsp;
+      input.form-control(style="display: table-cell;", type="text", placeholder="e.g. 2", ng-model="pudDetails.timeString", ng-pattern="/^[0-9]*.?[0-9]*$/", required)
+    br
+    p(style="display: table-row;")
+      label(style="display: table-cell;") Expiration Date
+      input.form-control(style="display: table-cell;", type="datetime-local", ng-model="pudDetails.expirationDate", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
+    br
+    p(style="display: table-row;", ng-show="isValidTime(pudDetails.expirationDate)")
+      label(style="display: table-cell;") Priority Escalation?
+      | &nbsp;
+      input(type="checkbox", ng-model="pudDetails.willEscalate")
+    br
+
+    
+    p(style="display: table-row;")
+      label(style="display: table-cell;") Alert Time
+      input.form-control(style="display: table-cell;", type="datetime-local", ng-model="pudDetails.alertTime", placeholder="yyyy-MM-ddTHH:mm", min="2015-01-01T00:00", max="2050-12-31T00:00")
+    label Repeat?
+    | &nbsp;
+    input(type="checkbox", ng-model="pudDetails.willRepeat")
+    div(style="display: table-row;", ng-show="pudDetails.willRepeat")
+      label(style="display: table-cell;") Days Between Repeats
+      | &nbsp;
+      input.form-control(style="display: table-cell;", type="text", placeholder="e.g. 7 for weekly", ng-model="pudDetails.intervalString", ng-pattern="/^[0-9]*.?[0-9]*$/")
+    br
+    div(style="display: table-row;", ng-show="isValidTime(pudDetails.alertTime)")
+      label(style="display: table-cell;") Days Between Alert Repeats
+      | &nbsp;
+      input.form-control(style="display: table-cell;", type="text", placeholder="0 for no repeats", ng-model="pudDetails.alertRepeatString", ng-pattern="/^[0-9]*.?[0-9]*$/")
+      br
+  br
+  .btn-group
+    button.btn.btn-primary(ng-disabled="createPudForm.$invalid", ng-click="sendPudData(pudDetails)") Save
